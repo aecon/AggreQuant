@@ -8,36 +8,36 @@ import matplotlib.pyplot as plt
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-i', type=str, required=True, help="tif 2D image")
-parser.add_argument('-o', type=str, required=True, help="output tif path (labeled objects)")
+parser.add_argument('-i', type=str, required=True, nargs='+', help="tif 2D image")
 args = parser.parse_args()
 
 
-# load input nuclei image
-img = skimage.io.imread(args.i, plugin='tifffile').T
-
-# create a pretrained model
-model = StarDist2D.from_pretrained('2D_versatile_fluo')
-
-# predict objects
-from csbdeep.utils import normalize
-labels, _ = model.predict_instances(normalize(img))
-
-# plot image and object predictions
-if 0:
-    from stardist.plot import render_label
-    # original nuclei image
-    plt.subplot(1,2,1)
-    plt.imshow(img, cmap="gray")
-    plt.axis("off")
-    plt.title("input image")
-    # labeled objects image
-    plt.subplot(1,2,2)
-    plt.imshow(render_label(labels, img=img))
-    plt.axis("off")
-    plt.title("prediction + input overlay")
-    plt.show()
-
-# save 
-skimage.io.imsave(args.o, labels, plugin='tifffile')
+for image_file in args.i:
+    # load input nuclei image
+    img = skimage.io.imread(image_file, plugin='tifffile')
+    
+    # create a pretrained model
+    model = StarDist2D.from_pretrained('2D_versatile_fluo')
+    
+    # predict objects
+    from csbdeep.utils import normalize
+    labels, _ = model.predict_instances(normalize(img))
+    
+    # plot image and object predictions
+    if 0:
+        from stardist.plot import render_label
+        # original nuclei image
+        plt.subplot(1,2,1)
+        plt.imshow(img, cmap="gray")
+        plt.axis("off")
+        plt.title("input image")
+        # labeled objects image
+        plt.subplot(1,2,2)
+        plt.imshow(render_label(labels, img=img))
+        plt.axis("off")
+        plt.title("prediction + input overlay")
+        plt.show()
+    
+    # save 
+    skimage.io.imsave("%s_labels.tif" % image_file, labels, plugin='tifffile')
 

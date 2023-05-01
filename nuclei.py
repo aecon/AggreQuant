@@ -4,7 +4,6 @@ import numpy as np
 import argparse
 import skimage.io
 from stardist.models import StarDist2D
-import matplotlib.pyplot as plt
 
 
 parser = argparse.ArgumentParser()
@@ -25,6 +24,7 @@ for image_file in args.i:
     
     # plot image and object predictions
     if 0:
+        import matplotlib.pyplot as plt
         from stardist.plot import render_label
         # original nuclei image
         plt.subplot(1,2,1)
@@ -39,5 +39,9 @@ for image_file in args.i:
         plt.show()
     
     # save 
-    skimage.io.imsave("%s_labels.tif" % image_file, labels, plugin='tifffile')
+    opath = "%s/out_labels" % os.path.dirname(image_file)
+    bpath = os.path.basename(image_file)
+    if not os.path.exists(opath):
+        os.makedirs(opath)
+    skimage.io.imsave("%s/%s_labels.tif" % (opath, bpath), labels, plugin='tifffile')
 

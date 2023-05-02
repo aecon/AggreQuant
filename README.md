@@ -29,7 +29,7 @@ conda activate cellpose
 python cells_cp.py -i <path-to-tif>
 ```
 
-### Aggregates segmentation
+### aSyn aggregate segmentation
 
 ```
 python3 aggregares.py -i <path-to-tif>

@@ -43,5 +43,5 @@ for image_file in args.i:
     bpath = os.path.basename(image_file)
     if not os.path.exists(opath):
         os.makedirs(opath)
-    skimage.io.imsave("%s/%s_labels.tif" % (opath, bpath), labels, plugin='tifffile')
+    skimage.io.imsave("%s/%s_labels_nuclei.tif" % (opath, bpath), labels, plugin='tifffile')
 

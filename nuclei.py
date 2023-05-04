@@ -12,40 +12,49 @@ args = parser.parse_args()
 
 
 for image_file in args.i:
+
     # load input nuclei image
     img = skimage.io.imread(image_file, plugin='tifffile')
+
     
     # create a pretrained model
     model = StarDist2D.from_pretrained('2D_versatile_fluo')
+
     
     # predict objects
     from csbdeep.utils import normalize
     labels, _ = model.predict_instances(normalize(img))
 
-    if 0:
-        # colour by volume
-        min_vol = 1
-        unique_nuclei, unique_counts = np.unique(labels, return_counts=True)
-        Nlabels = np.shape(unique_nuclei)[0]
+
+    # threshold on object properties
+    min_vol = 1 #100
+    remove_small=False
+    color_by_volume=True
+
+    unique_labels, unique_counts = np.unique(labels, return_counts=True)
+    Nlabels = np.shape(unique_labels)[0]
+    print("Detected %d labels" % Nlabels)
+
+    if color_by_volume==True:
         labels1 = np.zeros(np.shape(labels))
-        print("Detected %d labels" % Nlabels)
-        for i in range(1,Nlabels):
-            Vol = unique_counts[i]
-            idx = (labels==i)
+
+    for i in range(1,Nlabels):
+        Vol = unique_counts[i]
+
+        if remove_small==True:
+            if Vol<min_vol:
+                idx = (labels==unique_labels[i])
+                labels[idx] = 0
+
+        if color_by_volume==True:
+            idx = (labels==unique_labels[i])
             labels1[idx] = Vol
+
+    if remove_small==True:
+        print("After removal of small objects, Nlabels=", np.shape(np.unique(labels))[0])
+    if color_by_volume==True:
         labels[:,:] = labels1[:,:]
 
-    if 1:
-        # remove small detected objects
-        min_vol = 100
-        unique_nuclei, unique_counts = np.unique(labels, return_counts=True)
-        Nlabels = np.shape(unique_nuclei)[0]
-        print("Detected %d labels" % Nlabels)
-        for i in range(1,Nlabels):
-            Vol = unique_counts[i]
-            if Vol<min_vol:
-                idx = (labels==i)
-                labels[idx] = 0
 
     # plot image and object predictions
     if 0:
@@ -62,6 +71,7 @@ for image_file in args.i:
         plt.axis("off")
         plt.title("prediction + input overlay")
         plt.show()
+
     
     # save 
     opath = "%s/out_labels" % os.path.dirname(image_file)

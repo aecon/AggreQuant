@@ -14,6 +14,7 @@
 ### Nuclei segmentation
 
 * Uses [StarDist](https://github.com/stardist/stardist) pre-trained DL.
+* Results improve if Background Equalization is done before segmentation.
 
 ```
 conda activate tf

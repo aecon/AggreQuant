@@ -42,7 +42,7 @@ for image_file in args.i:
     # you can set the average cell `diameter` in pixels yourself (recommended) 
     # diameter can be a list or a single number for all images
 
-    masks, flows, styles, diams = model.eval(img, diameter=None, flow_threshold=None, channels=channels)
+    masks, flows, styles, diams = model.eval(img, diameter=20, flow_threshold=None, channels=channels)
 
 
     # DISPLAY RESULTS

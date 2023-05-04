@@ -21,7 +21,32 @@ for image_file in args.i:
     # predict objects
     from csbdeep.utils import normalize
     labels, _ = model.predict_instances(normalize(img))
-    
+
+    if 0:
+        # colour by volume
+        min_vol = 1
+        unique_nuclei, unique_counts = np.unique(labels, return_counts=True)
+        Nlabels = np.shape(unique_nuclei)[0]
+        labels1 = np.zeros(np.shape(labels))
+        print("Detected %d labels" % Nlabels)
+        for i in range(1,Nlabels):
+            Vol = unique_counts[i]
+            idx = (labels==i)
+            labels1[idx] = Vol
+        labels[:,:] = labels1[:,:]
+
+    if 1:
+        # remove small detected objects
+        min_vol = 100
+        unique_nuclei, unique_counts = np.unique(labels, return_counts=True)
+        Nlabels = np.shape(unique_nuclei)[0]
+        print("Detected %d labels" % Nlabels)
+        for i in range(1,Nlabels):
+            Vol = unique_counts[i]
+            if Vol<min_vol:
+                idx = (labels==i)
+                labels[idx] = 0
+
     # plot image and object predictions
     if 0:
         import matplotlib.pyplot as plt
@@ -43,5 +68,5 @@ for image_file in args.i:
     bpath = os.path.basename(image_file)
     if not os.path.exists(opath):
         os.makedirs(opath)
-    skimage.io.imsave("%s/%s_labels_nuclei.tif" % (opath, bpath), labels, plugin='tifffile')
+    skimage.io.imsave("%s/%s_labels_nuclei_Vol%d.tif" % (opath, bpath, min_vol), labels, plugin='tifffile')
 

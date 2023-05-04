@@ -27,7 +27,7 @@ for image_file in args.i:
 
 
     # threshold on object properties
-    min_vol = 100
+    min_vol = 200
     max_vol = 4500
     remove_small=True
     remove_large=True

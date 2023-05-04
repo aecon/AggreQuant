@@ -28,7 +28,9 @@ for image_file in args.i:
 
     # threshold on object properties
     min_vol = 100
+    max_vol = 4500
     remove_small=True
+    remove_large=True
     color_by_volume=False
 
     unique_labels, unique_counts = np.unique(labels, return_counts=True)
@@ -45,12 +47,16 @@ for image_file in args.i:
             if Vol<min_vol:
                 idx = (labels==unique_labels[i])
                 labels[idx] = 0
+        if remove_large==True:
+            if Vol>max_vol:
+                idx = (labels==unique_labels[i])
+                labels[idx] = 0
 
         if color_by_volume==True:
             idx = (labels==unique_labels[i])
             labels1[idx] = Vol
 
-    if remove_small==True:
+    if remove_small==True or remove_large==True:
         print("After removal of small objects, Nlabels=", np.shape(np.unique(labels))[0])
     if color_by_volume==True:
         labels[:,:] = labels1[:,:]

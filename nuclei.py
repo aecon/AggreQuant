@@ -16,20 +16,20 @@ for image_file in args.i:
     # load input nuclei image
     img = skimage.io.imread(image_file, plugin='tifffile')
 
-    
+
     # create a pretrained model
     model = StarDist2D.from_pretrained('2D_versatile_fluo')
 
-    
+
     # predict objects
     from csbdeep.utils import normalize
     labels, _ = model.predict_instances(normalize(img))
 
 
     # threshold on object properties
-    min_vol = 1 #100
-    remove_small=False
-    color_by_volume=True
+    min_vol = 100
+    remove_small=True
+    color_by_volume=False
 
     unique_labels, unique_counts = np.unique(labels, return_counts=True)
     Nlabels = np.shape(unique_labels)[0]
@@ -56,23 +56,6 @@ for image_file in args.i:
         labels[:,:] = labels1[:,:]
 
 
-    # plot image and object predictions
-    if 0:
-        import matplotlib.pyplot as plt
-        from stardist.plot import render_label
-        # original nuclei image
-        plt.subplot(1,2,1)
-        plt.imshow(img, cmap="gray")
-        plt.axis("off")
-        plt.title("input image")
-        # labeled objects image
-        plt.subplot(1,2,2)
-        plt.imshow(render_label(labels, img=img))
-        plt.axis("off")
-        plt.title("prediction + input overlay")
-        plt.show()
-
-    
     # save 
     opath = "%s/out_labels" % os.path.dirname(image_file)
     bpath = os.path.basename(image_file)

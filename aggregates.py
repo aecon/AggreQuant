@@ -23,7 +23,7 @@ for image_file in args.i:
     capped[:,:] = img[:,:]
     capped[img>threshold] = threshold
 
-    # background subtraction
+    # background division
     back = scipy.ndimage.gaussian_filter(capped, sigma=100, mode='reflect')
     print(np.median(back), np.min(back), np.max(back))
 

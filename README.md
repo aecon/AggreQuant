@@ -33,7 +33,7 @@ python cells_cp.py -i <path-to-tif>
 ### aSyn aggregate segmentation
 
 ```
-python3 aggregares.py -i <path-to-tif>
+python3 aggregates.py -i <path-to-tif>
 ```
 
 

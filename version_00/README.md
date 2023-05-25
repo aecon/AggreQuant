@@ -17,3 +17,14 @@ COLOUR_AGGREGATES="Green2"
 COLOUR_CELLS="FarRed"
 ```
 
+
+## Requirements
+
+
+### Nuclei segmentation
+
+* Uses [StarDist](https://github.com/stardist/stardist) pre-trained DL.
+* Results improve if Background Equalization is done before segmentation.
+
+
+

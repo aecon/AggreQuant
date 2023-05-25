@@ -43,6 +43,9 @@ with open(args.i) as file:
 print("\nRunning nuclei segmentation.")
 images_nuclei = glob.glob("%s/*%s*.tif" % (path_to_dir, CNUCLEI))
 print("Found %d nuclei images." % len(images_nuclei))
-os.system("conda run -n tf python nuclei.py -i %s" % (images_nuclei))
+nuclei_paths = ""
+for f in images_nuclei:
+    nuclei_paths+=" '%s'" % f
+os.system("conda run -n tf python nuclei.py -i %s" % (nuclei_paths))
 
 

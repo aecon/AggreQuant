@@ -3,6 +3,9 @@ import sys
 import glob
 import argparse
 
+from filenames import Filenames
+from diagnostics import Diagnostics
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', type=str, required=True, help="text file with path to tifs, and colour identifiers")
 args = parser.parse_args()
@@ -13,7 +16,6 @@ if os.path.exists(args.i):
 else:
     print("File %s does NOT exist! Give a valid path to a file." % args.i)
     sys.exit()
-
 
 with open(args.i) as file:
     for line in file:
@@ -40,12 +42,28 @@ with open(args.i) as file:
             print("COLOUR_CELLS = %s" % CCELLS)
 
 
-print("\nRunning nuclei segmentation.")
-images_nuclei = glob.glob("%s/*%s*.tif" % (path_to_dir, CNUCLEI))
-print("Found %d nuclei images." % len(images_nuclei))
-nuclei_paths = ""
-for f in images_nuclei:
-    nuclei_paths+=" '%s'" % f
-os.system("conda run -n tf python nuclei.py -i %s" % (nuclei_paths))
+# Filename conventions
+# TODO: Set defaults in some other txt file (?)
+Names = Filenames()
+Names.OUTDIR_PATH = path_to_dir
+Names.OUTDIR = "output_V0.1"
+Names.NUCLEI_ALL_LABELS = "labels_StarDist" # same as in nuclei.py
+Names.NUCLEI_SEEDS = "seeds_nuclei" # same as in nuclei.py
+Names.COMPOSITE_RAW_NUCLEI_EDGES = "composite_edges" # same as in nuclei.py
+
+if 1:
+    print("\nRunning nuclei segmentation.")
+    images_nuclei = glob.glob("%s/*%s*.tif" % (path_to_dir, CNUCLEI))
+    print("Found %d nuclei images." % len(images_nuclei))
+    nuclei_paths = ""
+    for f in images_nuclei:
+        nuclei_paths+=" '%s'" % f
+    os.system( "conda run -n tf python nuclei.py -o %s -i %s" % (Names.OUTDIR, nuclei_paths) )
+
+
+# Generate dignostics for segmentation performance
+print("\nGenerating Diagnostics.")
+Diagnosis = Diagnostics(Names)
+Diagnosis.Montage_RandomSelectionZoom()
 
 

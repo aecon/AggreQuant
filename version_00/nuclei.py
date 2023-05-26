@@ -7,6 +7,7 @@ import skimage.filters
 import skimage.morphology
 from skimage import restoration
 from stardist.models import StarDist2D
+import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', type=str, required=True, nargs='+', help="2D tif images")
@@ -27,7 +28,13 @@ for ifile, image_file in enumerate(args.i):
         background = restoration.rolling_ball(img0, radius=50)
         img1 = img0 - background
 
-        img2 = skimage.exposure.equalize_adapthist(img1, kernel_size=100)
+        img2 = skimage.exposure.equalize_adapthist(img1, kernel_size=150)
+        print(img2.dtype, np.min(img2), np.max(img2))
+        rescale_range = np.max(img2) - np.min(img2)
+        Max_uint16 = 65535
+        img2_ = (img2-np.min(img2)) / (np.max(img2) - np.min(img2))
+        img2_ = img2_*Max_uint16
+        img2 = np.asarray(img2_, dtype=np.dtype(np.uint16))
 
         # smoothing
         img = skimage.filters.gaussian(img2, sigma=3)

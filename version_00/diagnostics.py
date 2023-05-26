@@ -17,8 +17,8 @@ class Diagnostics(object):
         # find list Composite images: Raw / Edges
         images = glob.glob("%s/%s/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, self.Names.COMPOSITE_RAW_NUCLEI_EDGES))
 
-        panel_size = [10, 20] # rows, columns
-        Npixels = 300
+        panel_size = [8, 16] # rows, columns
+        Npixels = 512
         Nspace = 5
 
         N = panel_size[0] * panel_size[1]

@@ -61,6 +61,13 @@ if 1:
     os.system( "conda run -n tf python nuclei.py -o %s -i %s" % (Names.OUTDIR, nuclei_paths) )
 
 
+if 0:
+    print("\n Running cellbody segmentation.")
+    images_cells = glob.glob("%s/*%s*.tif" % (path_to_dir, CCELLS))
+    print("Found %d cellbody images." % len(images_cells))
+
+
+
 # Generate dignostics for segmentation performance
 print("\nGenerating Diagnostics.")
 Diagnosis = Diagnostics(Names)

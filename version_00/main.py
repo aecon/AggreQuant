@@ -51,7 +51,7 @@ Names.NUCLEI_ALL_LABELS = "labels_StarDist" # same as in nuclei.py
 Names.NUCLEI_SEEDS = "seeds_nuclei" # same as in nuclei.py
 Names.COMPOSITE_RAW_NUCLEI_EDGES = "composite_edges" # same as in nuclei.py
 
-if 1:
+if 0:
     print("\nRunning nuclei segmentation.")
     images_nuclei = glob.glob("%s/*%s*.tif" % (path_to_dir, CNUCLEI))
     print("Found %d nuclei images." % len(images_nuclei))
@@ -61,16 +61,16 @@ if 1:
     os.system( "conda run -n tf python nuclei.py -o %s -i %s" % (Names.OUTDIR, nuclei_paths) )
 
 
-if 0:
+if 1:
     print("\n Running cellbody segmentation.")
     images_cells = glob.glob("%s/*%s*.tif" % (path_to_dir, CCELLS))
     print("Found %d cellbody images." % len(images_cells))
 
 
-
-# Generate dignostics for segmentation performance
-print("\nGenerating Diagnostics.")
-Diagnosis = Diagnostics(Names)
-Diagnosis.Montage_RandomSelectionZoom()
+if 0:
+    # Generate dignostics for segmentation performance
+    print("\nGenerating Diagnostics.")
+    Diagnosis = Diagnostics(Names)
+    Diagnosis.Montage_RandomSelectionZoom()
 
 

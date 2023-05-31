@@ -16,7 +16,7 @@ for image_file in args.i:
     # load input image
     img = skimage.io.imread(image_file, plugin='tifffile')
 
-    # background subtraction
+    # background division
     back = scipy.ndimage.gaussian_filter(img, sigma=100, mode='reflect')
 
     # normalized

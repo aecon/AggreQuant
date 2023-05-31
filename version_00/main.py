@@ -5,6 +5,7 @@ import argparse
 
 from filenames import Filenames
 from diagnostics import Diagnostics
+from cells import cellbody_segmentation
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', type=str, required=True, help="text file with path to tifs, and colour identifiers")
@@ -50,6 +51,10 @@ Names.OUTDIR = "output_V0.1"
 Names.NUCLEI_ALL_LABELS = "labels_StarDist" # same as in nuclei.py
 Names.NUCLEI_SEEDS = "seeds_nuclei" # same as in nuclei.py
 Names.COMPOSITE_RAW_NUCLEI_EDGES = "composite_edges" # same as in nuclei.py
+Names.CELLBODY_SEGMENTATION_TYPE = "distance"
+Names.COLOR_NUCLEI = CNUCLEI
+Names.COLOR_CELLS = CCELLS
+Names.COLOR_AGGREGATES = CAGGREGATES
 
 if 0:
     print("\nRunning nuclei segmentation.")
@@ -65,6 +70,7 @@ if 1:
     print("\n Running cellbody segmentation.")
     images_cells = glob.glob("%s/*%s*.tif" % (path_to_dir, CCELLS))
     print("Found %d cellbody images." % len(images_cells))
+    cellbody_segmentation(images_cells, Names)
 
 
 if 0:

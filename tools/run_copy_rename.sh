@@ -11,6 +11,15 @@ if [ ! -d "$DIRECTORY" ]; then
     exit
 fi
 
+# Check if the input directory contains "Plate" in it
+if [[ ${DIRECTORY} == *"Plate"* ]]; then
+    echo "Processing directory: ${DIRECTORY}"
+else
+    echo "${DIRECTORY} does not contain 'Plate' in its name. Exiting."
+    exit
+fi
+
+
 # Define output directories
 onuc="$DIRECTORY/Blue"
 ocel="$DIRECTORY/FarRed"
@@ -30,8 +39,8 @@ echo "$plateID"
 # nuclei
 ls "${DIRECTORY}"/*Blue*.tif | while read f
 do
+    ls ${f}
     base=`basename "${f}"`
-    echo "Copying  $f"
     mv "$f" "${onuc}/Plate${plateID}_${base}"
 done
 
@@ -39,8 +48,8 @@ done
 # cells
 ls "${DIRECTORY}"/*FarRed*.tif | while read f
 do
+    ls ${f}
     base=`basename "${f}"`
-    echo "Copying  $f"
     mv "$f" "${ocel}/Plate${plateID}_${base}"
 done
 
@@ -48,8 +57,8 @@ done
 # aggregates
 ls "${DIRECTORY}"/*Green*.tif | while read f
 do
+    ls ${f}
     base=`basename "${f}"`
-    echo "Copying  $f"
     mv "$f" "${oagg}/Plate${plateID}_${base}"
 done
 

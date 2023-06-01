@@ -80,7 +80,7 @@ for image_file in args.i:
         labels[:,:] = labels1[:,:]
 
     # save segmented nuclei
-    opath = "%s/%s" % ( os.path.dirname(image_file), args.o )
+    opath = "%s/%s/nuclei" % ( os.path.dirname(image_file), args.o )
     bpath = os.path.basename(image_file)
     if not os.path.exists(opath):
         os.makedirs(opath)

@@ -15,7 +15,7 @@ class Diagnostics(object):
     def Montage_RandomSelectionZoom(self):
 
         # find list Composite images: Raw / Edges
-        images = glob.glob("%s/%s/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, self.Names.COMPOSITE_RAW_NUCLEI_EDGES))
+        images = glob.glob("%s/%s/nuclei/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, self.Names.COMPOSITE_RAW_NUCLEI_EDGES))
 
         panel_size = [8, 16] # rows, columns
         Npixels = 512
@@ -57,7 +57,11 @@ class Diagnostics(object):
         print("Montage tif shape:", np.shape(montage))
 
         # save montage
-        skimage.io.imsave("%s/%s/Composite_raw_edges_montage%dx%d.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, panel_size[0], panel_size[1]), montage, plugin='tifffile')
+        opath = "%s/%s/diagnostics" % ( self.Names.OUTDIR_PATH, self.Names.OUTDIR )
+        if not os.path.exists(opath):
+            os.makedirs(opath)
+  
+        skimage.io.imsave("%s/Composite_raw_edges_montage%dx%d.tif" % (opath, panel_size[0], panel_size[1]), montage, plugin='tifffile')
 
 
 

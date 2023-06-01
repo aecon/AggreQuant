@@ -45,10 +45,13 @@ def segment_cellpose():
     os.system( "conda run -n cellpose python cells_cp.py -o %s -i %s" % (Names.OUTDIR, nuclei_paths) ) ### CHECK THE PATHS !!!!
 
 
-def segment_distance_map(image_file, seeds_file, opath):
+def segment_distance_map(image_file, seeds_file, allnuclei_file, opath):
 
     # TODO:
     # > compute average intensity of image. Proceed based on average intensity ..
+
+    bpath = os.path.basename(image_file)
+
 
     # load image and convert to float
     img0 = skimage.io.imread(image_file, plugin='tifffile')
@@ -77,25 +80,36 @@ def segment_distance_map(image_file, seeds_file, opath):
 
     cell_mask = np.zeros(np.shape(cells_area))
     cell_mask[cells_area>1.5] = 1
-    plt.imshow(cell_mask)
-    plt.show()
+    #plt.imshow(cell_mask)
+    #plt.show()
 
     # 2. SPLIT CELL MASK BASED on NUCLEI SEEDS
+
+    # load image and convert to float
+    allnuclei = skimage.io.imread(allnuclei_file, plugin='tifffile')
+    allnuclei_mask = np.zeros(np.shape(allnuclei), dtype=np.dtype(np.uint8))
+    allnuclei_mask[allnuclei>0] = 1
+
     # load image and convert to float
     seeds = skimage.io.imread(seeds_file, plugin='tifffile')  # uint8
-    # compute distances to seeds
-    distances = ndimage.distance_transform_edt(1-seeds)  # float64
+
+    # compute distances to all nuclei
+    distances = ndimage.distance_transform_edt(1-allnuclei_mask)  # float64
     plt.imshow(distances)
     plt.show()
+
     # watershed of distance map
-    labels = watershed(distances, mask=cell_mask, watershed_line=True)
+    labels_ = watershed(distances, mask=cell_mask, watershed_line=True)
+    labels = np.zeros(np.shape(allnuclei_mask), dtype=np.dtype(np.uint16))
+    labels[labels_>0] = labels_[labels_>0]
     plt.imshow(labels)
     plt.show()
 
-    edges = np.zeros(np.shape(labels))
-    edges[labels==0] = 1
-    fat_edges = skimage.morphology.binary_dilation(edges)
+    #edges = np.zeros(np.shape(labels))
+    #edges[labels==0] = 1
+    #fat_edges = skimage.morphology.binary_dilation(edges)
 
+    # Remove cellbodies that do not contain nucleus
     AllLabels = np.unique(labels[labels>0])
     for l in AllLabels:
         idx = labels==l
@@ -103,17 +117,17 @@ def segment_distance_map(image_file, seeds_file, opath):
         if is_seed < 100:
             labels[idx] = 0
             print("No seed for label", l)
-
     plt.imshow(labels)
     plt.show()
+    skimage.io.imsave("%s/%s_cellbodies_labels.tif" % (opath, bpath), labels, plugin='tifffile')
 
     # Assign a cell area to each nucleus
-    nuclei_labels = np.zeros(np.shape(labels))
+    nuclei_labels = np.zeros(np.shape(labels), dtype=np.dtype(np.uint16))
     nuclei_labels[labels>0] = labels[labels>0]
     nuclei_labels[seeds==0] = 0
-    plt.imshow(nuclei_labels)
-    plt.imshow(fat_edges)
-    plt.show()
+    #plt.imshow(nuclei_labels)
+    #plt.show()
+    skimage.io.imsave("%s/%s_corresponding_nuclei.tif" % (opath, bpath), nuclei_labels, plugin='tifffile')
 
 
 
@@ -128,7 +142,7 @@ def segment_propagation():
 def cellbody_segmentation(cellbody_images, Names):
 
 
-    opath = "%s/%s" % ( Names.OUTDIR_PATH, Names.OUTDIR)
+    opath = "%s/%s/cellbodies" % ( Names.OUTDIR_PATH, Names.OUTDIR)
     if not os.path.exists(opath):
         print("Path %s does NOT exist. Creating now. " % opath)
         os.makedirs(opath)
@@ -144,14 +158,15 @@ def cellbody_segmentation(cellbody_images, Names):
         print(">> Processing image: %s" % bpath)
 
         # find corresponding nuclei seeds
-        seeds_file = "%s/%s/%s%s).tif_seeds_nuclei.tif" % (Names.OUTDIR_PATH, Names.OUTDIR, bpath.split(Names.COLOR_CELLS,1)[0], Names.COLOR_NUCLEI)
+        allnuclei_file = "%s/%s/nuclei/%s%s).tif_labels_StarDist.tif" % (Names.OUTDIR_PATH, Names.OUTDIR, bpath.split(Names.COLOR_CELLS,1)[0], Names.COLOR_NUCLEI)
+        seeds_file = "%s/%s/nuclei/%s%s).tif_seeds_nuclei.tif" % (Names.OUTDIR_PATH, Names.OUTDIR, bpath.split(Names.COLOR_CELLS,1)[0], Names.COLOR_NUCLEI)
         if not os.path.isfile(seeds_file):
             print("Nuclei Seeds for file %s do NOT exist!", bpath)
             sys.exit()
 
         # Choose segmentation algorithm for cellbodies
         if segmentation_algorithm == "distance":
-            segment_distance_map(image_file, seeds_file, opath)
+            segment_distance_map(image_file, seeds_file, allnuclei_file, opath)
         elif segmentation_algorithm == "intensity":
             segment_intensity_map()
         elif segmentation_algorithm == "propagation":

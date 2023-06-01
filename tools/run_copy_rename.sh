@@ -26,7 +26,7 @@ plateID=`basename "${DIRECTORY}" | awk -F '_Plate_' '{print $2}' | awk -F '_' '{
 echo "$plateID"
 
 
-# Copy images
+# Move images
 # nuclei
 ls "${DIRECTORY}"/*Blue*.tif | while read f
 do

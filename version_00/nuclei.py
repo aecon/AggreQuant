@@ -8,13 +8,19 @@ import skimage.morphology
 from skimage import restoration
 from stardist.models import StarDist2D
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', type=str, required=True, nargs='+', help="2D tif images")
 parser.add_argument('-o', type=str, required=True, help="output directory name")
 args = parser.parse_args()
 
+# limit GPU usage
+gpus = tf.config.experimental.list_physical_devices('GPU')
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
 
+# loop over all nuclei images
 for image_file in args.i:
 
     print(">> Processing image: %s" % os.path.basename(image_file))

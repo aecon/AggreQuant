@@ -32,7 +32,7 @@ mkdir -p "$oagg"
 
 # Get plate number
 plateID=`basename "${DIRECTORY}" | awk -F '_Plate_' '{print $2}' | awk -F '_' '{print $1}'`
-echo "$plateID"
+echo "Processing plate: $plateID"
 
 
 # Move images
@@ -41,7 +41,7 @@ ls "${DIRECTORY}"/*Blue*.tif | while read f
 do
     ls ${f}
     base=`basename "${f}"`
-    mv "$f" "${onuc}/Plate${plateID}_${base}"
+    mv "${f}" "${onuc}/Plate${plateID}_${base}"
 done
 
 
@@ -50,7 +50,7 @@ ls "${DIRECTORY}"/*FarRed*.tif | while read f
 do
     ls ${f}
     base=`basename "${f}"`
-    mv "$f" "${ocel}/Plate${plateID}_${base}"
+    mv "${f}" "${ocel}/Plate${plateID}_${base}"
 done
 
 
@@ -59,7 +59,7 @@ ls "${DIRECTORY}"/*Green*.tif | while read f
 do
     ls ${f}
     base=`basename "${f}"`
-    mv "$f" "${oagg}/Plate${plateID}_${base}"
+    mv "${f}" "${oagg}/Plate${plateID}_${base}"
 done
 
 

@@ -13,5 +13,12 @@ Then, in the terminal type:
 ./run_copy_rename.sh  <PATH>
 ```
 where `<PATH>` is the full path to the plate directory, which contains the tiff images.
-Hit Enter.
+
+For example:
+```
+./run_copy_rename.sh /Documents/user/my new images/plate1
+```
+
+After you specified the PATH, hit Enter.
+
 

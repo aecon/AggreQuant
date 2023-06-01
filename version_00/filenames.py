@@ -19,4 +19,5 @@ class Filenames:
 
         # Cellbodies
         self.CELLBODY_SEGMENTATION_TYPE = ""
+        self.COMPOSITE_CELLS_AND_NUCLEI = ""
 

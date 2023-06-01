@@ -47,16 +47,22 @@ with open(args.i) as file:
 # TODO: Set defaults in some other txt file (?)
 Names = Filenames()
 Names.OUTDIR_PATH = path_to_dir
-Names.OUTDIR = "output_V0.1"
+Names.OUTDIR = "output_V0.2"
 Names.NUCLEI_ALL_LABELS = "labels_StarDist" # same as in nuclei.py
 Names.NUCLEI_SEEDS = "seeds_nuclei" # same as in nuclei.py
 Names.COMPOSITE_RAW_NUCLEI_EDGES = "composite_edges" # same as in nuclei.py
 Names.CELLBODY_SEGMENTATION_TYPE = "distance"
+Names.COMPOSITE_CELLS_AND_NUCLEI = "composite_nuclei"
 Names.COLOR_NUCLEI = CNUCLEI
 Names.COLOR_CELLS = CCELLS
 Names.COLOR_AGGREGATES = CAGGREGATES
 
-if 0:
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Segmentation
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if 1:
     print("\nRunning nuclei segmentation.")
     images_nuclei = glob.glob("%s/*%s*.tif" % (path_to_dir, CNUCLEI))
     print("Found %d nuclei images." % len(images_nuclei))
@@ -73,10 +79,20 @@ if 1:
     cellbody_segmentation(images_cells, Names)
 
 
-if 0:
-    # Generate dignostics for segmentation performance
-    print("\nGenerating Diagnostics.")
-    Diagnosis = Diagnostics(Names)
-    Diagnosis.Montage_RandomSelectionZoom()
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Diagnostics
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Generate dignostics for segmentation performance
+Diagnosis = Diagnostics(Names)
+
+if 1:
+    print("\nGenerating nuclei Diagnostics.")
+    Diagnosis.Montage_nuclei_RandomSelectionZoom()
+
+if 1:
+    print("\nGenerating cellbody Diagnostics.")
+    Diagnosis.Montage_cells_RandomSelectionZoom()
 
 

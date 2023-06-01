@@ -45,7 +45,7 @@ def segment_cellpose():
     os.system( "conda run -n cellpose python cells_cp.py -o %s -i %s" % (Names.OUTDIR, nuclei_paths) ) ### CHECK THE PATHS !!!!
 
 
-def segment_distance_map(image_file, seeds_file, allnuclei_file, opath):
+def segment_distance_map(image_file, seeds_file, allnuclei_file, opath, Names):
 
     # TODO:
     # > compute average intensity of image. Proceed based on average intensity ..
@@ -110,10 +110,6 @@ def segment_distance_map(image_file, seeds_file, allnuclei_file, opath):
     #plt.imshow(labels)
     #plt.show()
 
-    #edges = np.zeros(np.shape(labels))
-    #edges[labels==0] = 1
-    #fat_edges = skimage.morphology.binary_dilation(edges)
-
     # Remove cellbodies that do not contain nucleus
     AllLabels = np.unique(labels[labels>0])
     for l in AllLabels:
@@ -134,6 +130,18 @@ def segment_distance_map(image_file, seeds_file, allnuclei_file, opath):
     #plt.show()
     skimage.io.imsave("%s/%s_corresponding_nuclei.tif" % (opath, bpath), nuclei_labels, plugin='tifffile')
 
+    # find edges
+    nuclei_labels[nuclei_labels>0] = 1
+    edges0 = skimage.filters.sobel(nuclei_labels)
+    edges = np.zeros(np.shape(edges0), dtype=np.dtype(np.uint8))
+    edges[edges0>0] = 1
+    fat_edges = edges #skimage.morphology.binary_dilation(edges)
+
+    # overlay cells and nuclei edges
+    composite = np.zeros( np.shape(labels), dtype=np.dtype(np.uint16) )
+    composite[:,:] = labels[:,:]
+    composite[fat_edges==1] = 0
+    skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, Names.COMPOSITE_CELLS_AND_NUCLEI ), composite, plugin='tifffile')
 
 
 def segment_intensity_map():
@@ -171,7 +179,7 @@ def cellbody_segmentation(cellbody_images, Names):
 
         # Choose segmentation algorithm for cellbodies
         if segmentation_algorithm == "distance":
-            segment_distance_map(image_file, seeds_file, allnuclei_file, opath)
+            segment_distance_map(image_file, seeds_file, allnuclei_file, opath, Names)
         elif segmentation_algorithm == "intensity":
             segment_intensity_map()
         elif segmentation_algorithm == "propagation":

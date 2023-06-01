@@ -116,33 +116,6 @@ def segment_distance_map(image_file, seeds_file, opath):
     plt.show()
 
 
-"""
-0. load original (cell boundary)
-1. duplicate
-    smooth: s=2
-    CLAHE
-    intensity mask using Minimum Error Auto-threshold
-    => Now we have a mask of original cells in space.
-2. duplicate original
-    smooth: s=2
-3. duplicate original
-    smooth: s=20 --> background: want to remove bright intensities from nucleus
-4. Image Calculator: divise s2 / s20
-    CLAHE. (here intensity >0.6 shows definitely cells)
-
-Alternative watershed field:
-5a. Use last CLAHE'd image. Blur with sigma=6.
-5. Convert to 16bit. Equalize Histogram (Only Normalize)
-6. Convert to 8bit. Invert (Edit/Invert)
-7. Make holes where there are nuclei:
-    Image Calculator: inverted Nucleus mask AND Inverted CLAHE etc intensity filed from last step.
-8. Do watershed on last field.
-9. Clean up:
-    Remove basins with no nucleus inside them.
-    Remove areas that correspond to excluded nuclei
-10. Erode wateshed Lines!!
-"""
-
 
 def segment_intensity_map():
     print("TODO")

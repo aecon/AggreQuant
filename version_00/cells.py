@@ -78,8 +78,13 @@ def segment_distance_map(image_file, seeds_file, allnuclei_file, opath):
     IMAX = scale[1]
     cells_area = img2*(IMAX-IMIN)+IMIN
 
-    cell_mask = np.zeros(np.shape(cells_area))
-    cell_mask[cells_area>1.5] = 1
+    cell_mask_ = np.zeros(np.shape(cells_area), dtype=np.dtype(np.uint8))
+    cell_mask_[cells_area>1.5] = 1
+    #plt.imshow(cell_mask_)
+    #plt.show()
+
+    # remove small holes
+    cell_mask = skimage.morphology.remove_small_holes(cell_mask_, area_threshold=400)
     #plt.imshow(cell_mask)
     #plt.show()
 
@@ -95,15 +100,15 @@ def segment_distance_map(image_file, seeds_file, allnuclei_file, opath):
 
     # compute distances to all nuclei
     distances = ndimage.distance_transform_edt(1-allnuclei_mask)  # float64
-    plt.imshow(distances)
-    plt.show()
+    #plt.imshow(distances)
+    #plt.show()
 
     # watershed of distance map
     labels_ = watershed(distances, mask=cell_mask, watershed_line=True)
     labels = np.zeros(np.shape(allnuclei_mask), dtype=np.dtype(np.uint16))
     labels[labels_>0] = labels_[labels_>0]
-    plt.imshow(labels)
-    plt.show()
+    #plt.imshow(labels)
+    #plt.show()
 
     #edges = np.zeros(np.shape(labels))
     #edges[labels==0] = 1
@@ -117,8 +122,8 @@ def segment_distance_map(image_file, seeds_file, allnuclei_file, opath):
         if is_seed < 100:
             labels[idx] = 0
             print("No seed for label", l)
-    plt.imshow(labels)
-    plt.show()
+    #plt.imshow(labels)
+    #plt.show()
     skimage.io.imsave("%s/%s_cellbodies_labels.tif" % (opath, bpath), labels, plugin='tifffile')
 
     # Assign a cell area to each nucleus
@@ -175,9 +180,9 @@ def cellbody_segmentation(cellbody_images, Names):
             segment_cellpose()
         else:
             print("Segmentation algorithm %s not defined." % segmentation_algorithm)
-            assert(0)
+            sys.exit()
 
 
-        assert(0)
+        #assert(0)
 
 

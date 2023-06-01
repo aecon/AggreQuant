@@ -84,7 +84,6 @@ for image_file in args.i:
     bpath = os.path.basename(image_file)
     if not os.path.exists(opath):
         os.makedirs(opath)
-    skimage.io.imsave("%s/%s_labels_StarDist.tif" % (opath, bpath), labels, plugin='tifffile')
 
     # find edges
     edges0 = skimage.filters.sobel(labels)
@@ -96,6 +95,8 @@ for image_file in args.i:
     objects = np.zeros(np.shape(edges0), dtype=np.dtype(np.uint16))
     objects[:,:] = labels[:,:]
     objects[fat_edges==1] = 0
+
+    skimage.io.imsave("%s/%s_labels_StarDist.tif" % (opath, bpath), objects, plugin='tifffile')
 
     # exclude nuclei on the borders
     edge_labels = np.unique(objects[0,:])

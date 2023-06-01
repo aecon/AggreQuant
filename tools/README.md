@@ -24,11 +24,20 @@ After you specified the PATH, hit Enter.
 
 
 
-## Rendering Markdown files
+## Miscellaneous
+
+### Rendering Markdown files
 
 ```
 pandoc README.md -o Instructions.pdf
 ```
 
 See [StackOverflow](https://stackoverflow.com/questions/17630486/how-to-convert-a-markdown-file-to-pdf).
+
+
+### Read only run files
+
+```
+chmod 500 run_copy_rename.sh
+```
 

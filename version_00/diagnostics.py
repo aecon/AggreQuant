@@ -12,6 +12,81 @@ class Diagnostics(object):
         self.Names = Names
 
 
+
+    def Montage_RandomSelectionZoom_overlay_cells_nuclei_rawcells(self, images_cells, images_nuclei, images_raw):
+
+        panel_size = [8, 16] # rows, columns
+        Npixels = 512
+        Nspace = 5
+
+        N = panel_size[0] * panel_size[1]
+        Nfiles = len(images_cells)
+        print(Nfiles)
+        if Nfiles < N:
+            print("Must have at least %d images!" % (N ) )
+            sys.exit(1)
+
+        # random selection of images
+        rand = np.random.choice(Nfiles, size=N, replace=False)
+
+        # crop images
+        image_deck = []
+        for r in rand:
+            img0_raw = skimage.io.imread(images_raw[r], plugin='tifffile')
+            img0_nuc = skimage.io.imread(images_nuclei[r], plugin='tifffile')
+            img0_cel = skimage.io.imread(images_cells[r], plugin='tifffile')
+            #print(images_raw[r])
+            #print(images_nuclei[r])
+            #print(images_cells[r])
+            shape = np.shape(img0_raw)
+            if len(shape)==2:
+                L = shape[0] - Npixels
+                P0 = np.random.randint(0, high=L, size=1)[0]
+
+                img = np.zeros((Npixels,Npixels))
+
+                img[:,:] = img0_raw[P0:P0+Npixels, P0:P0+Npixels]
+
+                # nuclei edges
+                nucP = img0_nuc[P0:P0+Npixels, P0:P0+Npixels]
+                nucP[nucP>0] = 1
+                tmp_ = skimage.filters.sobel(nucP)
+                img[tmp_>0] = 0
+
+                # cell edges
+                celP = img0_cel[P0:P0+Npixels, P0:P0+Npixels]
+                celP[celP>0] = 1
+                tmp_ = skimage.filters.sobel(celP)
+                img[tmp_>0] = 0
+
+            else:
+                print("Image shape unsupported. Exiting.")
+                sys.exit()
+            image_deck.append(img)
+
+        # make montage
+        montage = np.zeros( (panel_size[0]*Npixels+Nspace*(panel_size[0]-1) , panel_size[1]*Npixels+Nspace*(panel_size[1]-1) ) , dtype=np.dtype(np.uint16))
+
+        for i in range(panel_size[0]):
+            for j in range(panel_size[1]):
+                i0 = i*(Npixels+Nspace)
+                i1 = i0 + Npixels
+                j0 = j*(Npixels+Nspace)
+                j1 = j0 + Npixels
+                k = i*(panel_size[1]) + j
+                montage[i0:i1, j0:j1] = image_deck[k][:,:]
+
+        print("Montage tif shape:", np.shape(montage))
+
+        # save montage
+        opath = "%s/%s/diagnostics" % ( self.Names.OUTDIR_PATH, self.Names.OUTDIR )
+        if not os.path.exists(opath):
+            os.makedirs(opath)
+
+        skimage.io.imsave("%s/Composite_montage_overlay_cellraw_celedge_nucedge%dx%d.tif" % (opath, panel_size[0], panel_size[1]), montage, plugin='tifffile')
+
+
+
     def Montage_RandomSelectionZoom_2imageTypes(self, images_seg, images_raw, outname):
 
         panel_size = [8, 16] # rows, columns
@@ -178,11 +253,16 @@ class Diagnostics(object):
 
 
     def Montage_cells_RandomSelectionZoom(self):
-        images = sorted(glob.glob("%s/%s/cellbodies/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, self.Names.COMPOSITE_CELLS_AND_NUCLEI)))
-        self.Montage_RandomSelectionZoom(images, "cells")
-
         images_raw = sorted(glob.glob("%s/*%s*.tif" % (self.Names.OUTDIR_PATH, self.Names.COLOR_CELLS)))
-        self.Montage_RandomSelectionZoom_2imageTypes(images, images_raw, "cells")
+        images_composite = sorted(glob.glob("%s/%s/cellbodies/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, self.Names.COMPOSITE_CELLS_AND_NUCLEI)))
+        images_cells = sorted(glob.glob("%s/%s/cellbodies/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, "cellbodies_labels")))
+        images_nuclei = sorted(glob.glob("%s/%s/cellbodies/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, "corresponding_nuclei")))
+
+#        self.Montage_RandomSelectionZoom(images_composite, "cells")
+#        self.Montage_RandomSelectionZoom_2imageTypes(images_composite, images_raw, "cells")
+
+        self.Montage_RandomSelectionZoom_overlay_cells_nuclei_rawcells(images_cells, images_nuclei, images_raw)
+
 
 
 

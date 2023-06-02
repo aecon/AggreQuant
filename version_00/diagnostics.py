@@ -12,49 +12,55 @@ class Diagnostics(object):
         self.Names = Names
 
 
-    def Montage_RandomSelectionZoom_2imageTypes(self, images, images_raw, outname):
+    def Montage_RandomSelectionZoom_2imageTypes(self, images_seg, images_raw, outname):
 
         panel_size = [8, 16] # rows, columns
+        assert(panel_size[1]%2 == 0) # Number of columns must be divisible by 2!
         Npixels = 512
         Nspace = 5
 
-        N = int(panel_size[0] * panel_size[1] * 0.5)
-        Nfiles = len(images)
+        # N is the number of raw images.
+        N = panel_size[0] * int(panel_size[1] * 0.5)
+        Nfiles = len(images_seg)
         print(Nfiles)
         if Nfiles < N:
             print("Must have at least %d images!" % (N) )
             sys.exit(1)
+        assert(len(images_seg) == len(images_raw))
 
         # random selection of images
         rand = np.random.choice(Nfiles, size=N, replace=False)
 
         # crop images
-        image_deck = []
+        image_deck_seg = []
         image_deck_raw = []
         for r in rand:
-            img0 = skimage.io.imread(images[r], plugin='tifffile')
-            img0[img0>0] = 1
+            img0_seg = skimage.io.imread(images_seg[r], plugin='tifffile')
+            img0_seg[img0_seg>0] = 1
+
             img0_raw = skimage.io.imread(images_raw[r], plugin='tifffile')
-            shape = np.shape(img0)
+
+            assert(np.sum(np.shape(img0_seg)) == np.sum(np.shape(img0_raw)))
+            shape = np.shape(img0_seg)
 
             if len(shape)==3:
                 L = shape[1] - Npixels
                 P0 = np.random.randint(0, high=L, size=1)[0]
-                img = np.zeros((2,Npixels,Npixels))
-                img[:,:,:] = img0[:,P0:P0+Npixels, P0:P0+Npixels]
+                img_seg = np.zeros((2,Npixels,Npixels))
+                img_seg[:,:,:] = img0_seg[:,P0:P0+Npixels, P0:P0+Npixels]
                 img_raw = np.zeros((2,Npixels,Npixels))
                 img_raw[:,:,:] = img0_raw[:,P0:P0+Npixels, P0:P0+Npixels]
             elif len(shape)==2:
                 L = shape[0] - Npixels
                 P0 = np.random.randint(0, high=L, size=1)[0]
-                img = np.zeros((Npixels,Npixels))
-                img[:,:] = img0[P0:P0+Npixels, P0:P0+Npixels]
+                img_seg = np.zeros((Npixels,Npixels))
+                img_seg[:,:] = img0_seg[P0:P0+Npixels, P0:P0+Npixels]
                 img_raw = np.zeros((Npixels,Npixels))
                 img_raw[:,:] = img0_raw[P0:P0+Npixels, P0:P0+Npixels]
             else:
                 print("Image shape unsupported. Exiting.")
                 sys.exit()
-            image_deck.append(img)
+            image_deck_seg.append(img_seg)
             image_deck_raw.append(img_raw)
 
         # make montage
@@ -65,29 +71,28 @@ class Diagnostics(object):
             montage = np.zeros( (panel_size[0]*Npixels+Nspace*(panel_size[0]-1) , panel_size[1]*Npixels+Nspace*(panel_size[1]-1) ) , dtype=np.dtype(np.uint16))
 #            montage[:,:] = 65535
 
-        for i in range(panel_size[0]):
-            for j in range(panel_size[1]):
+        for i in range(panel_size[0]):      # row
+            for j in range(panel_size[1]):  # column
                 i0 = i*(Npixels+Nspace)
                 i1 = i0 + Npixels
                 j0 = j*(Npixels+Nspace)
                 j1 = j0 + Npixels
-                k =  i*(panel_size[1]) + j
-                if j%2==0:
+                if j%2==0:  # seg column
+                    k =  i*int(0.5*panel_size[1]) + (j//2)
                     if len(shape)==3:
-                        montage[:, i0:i1, j0:j1] = image_deck[k][:,:,:]
+                        montage[:, i0:i1, j0:j1] = image_deck_seg[k][:,:,:]
                     elif len(shape)==2:
-                        print(i0, i1, j0, j1, k)
-                        montage[i0:i1, j0:j1] = image_deck[k//2][:,:]
-                if j%2==1:
+                        montage[i0:i1, j0:j1] = image_deck_seg[k][:,:]
+                if j%2==1:  # raw column
+                    k =  i*int(0.5*panel_size[1]) + (j//2)
                     if len(shape)==3:
                         montage[:, i0:i1, j0:j1] = image_deck_raw[k][:,:,:]
                     elif len(shape)==2:
-                        print(i0, i1, j0, j1, k)
-                        montage[i0:i1, j0:j1] = image_deck_raw[k//2][:,:]
+                        montage[i0:i1, j0:j1] = image_deck_raw[k][:,:]
 
         # Normalize montage image
-        IMEAN = np.mean(montage[:,int(0.5*panel_size[1])*(Npixels+Nspace)::])
-        montage[:,0:int(0.5*panel_size[1])*(Npixels+Nspace)] *= int(1.3*IMEAN)
+#        IMEAN = np.mean(montage[:,int(0.5*panel_size[1])*(Npixels+Nspace)::])
+#        montage[:,0:int(0.5*panel_size[1])*(Npixels+Nspace)] *= int(1.3*IMEAN)
 
         print("Montage tif shape:", np.shape(montage))
 

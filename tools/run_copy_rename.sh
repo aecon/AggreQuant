@@ -39,7 +39,7 @@ echo "Processing plate: $plateID"
 # nuclei
 ls "${DIRECTORY}"/*Blue*.tif | while read f
 do
-    ls ${f}
+    ls "${f}"
     base=`basename "${f}"`
     mv "${f}" "${onuc}/Plate${plateID}_${base}"
 done
@@ -48,7 +48,7 @@ done
 # cells
 ls "${DIRECTORY}"/*FarRed*.tif | while read f
 do
-    ls ${f}
+    ls "${f}"
     base=`basename "${f}"`
     mv "${f}" "${ocel}/Plate${plateID}_${base}"
 done
@@ -57,7 +57,7 @@ done
 # aggregates
 ls "${DIRECTORY}"/*Green*.tif | while read f
 do
-    ls ${f}
+    ls "${f}"
     base=`basename "${f}"`
     mv "${f}" "${oagg}/Plate${plateID}_${base}"
 done

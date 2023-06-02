@@ -40,6 +40,8 @@ class Diagnostics(object):
 
             img0_raw = skimage.io.imread(images_raw[r], plugin='tifffile')
 
+            print(images_seg[r], images_raw[r])
+
             assert(np.sum(np.shape(img0_seg)) == np.sum(np.shape(img0_raw)))
             shape = np.shape(img0_seg)
 
@@ -57,6 +59,9 @@ class Diagnostics(object):
                 img_seg[:,:] = img0_seg[P0:P0+Npixels, P0:P0+Npixels]
                 img_raw = np.zeros((Npixels,Npixels))
                 img_raw[:,:] = img0_raw[P0:P0+Npixels, P0:P0+Npixels]
+                IMIN = np.min(img_raw)
+                IMAX = np.max(img_raw)
+                img_raw = (img_raw-IMIN) / (IMAX-IMIN)
             else:
                 print("Image shape unsupported. Exiting.")
                 sys.exit()
@@ -65,10 +70,10 @@ class Diagnostics(object):
 
         # make montage
         if len(shape)==3:
-            montage = np.zeros( (2, panel_size[0]*Npixels+Nspace*(panel_size[0]-1) , panel_size[1]*Npixels+Nspace*(panel_size[1]-1) ) , dtype=np.dtype(np.uint16))
+            montage = np.zeros( (2, panel_size[0]*Npixels+Nspace*(panel_size[0]-1) , panel_size[1]*Npixels+Nspace*(panel_size[1]-1) ) , dtype=np.dtype(float))
             montage[:,:,:] = 65535
         elif len(shape)==2:
-            montage = np.zeros( (panel_size[0]*Npixels+Nspace*(panel_size[0]-1) , panel_size[1]*Npixels+Nspace*(panel_size[1]-1) ) , dtype=np.dtype(np.uint16))
+            montage = np.zeros( (panel_size[0]*Npixels+Nspace*(panel_size[0]-1) , panel_size[1]*Npixels+Nspace*(panel_size[1]-1) ) , dtype=np.dtype(float))
 #            montage[:,:] = 65535
 
         for i in range(panel_size[0]):      # row
@@ -89,10 +94,6 @@ class Diagnostics(object):
                         montage[:, i0:i1, j0:j1] = image_deck_raw[k][:,:,:]
                     elif len(shape)==2:
                         montage[i0:i1, j0:j1] = image_deck_raw[k][:,:]
-
-        # Normalize montage image
-#        IMEAN = np.mean(montage[:,int(0.5*panel_size[1])*(Npixels+Nspace)::])
-#        montage[:,0:int(0.5*panel_size[1])*(Npixels+Nspace)] *= int(1.3*IMEAN)
 
         print("Montage tif shape:", np.shape(montage))
 
@@ -177,10 +178,10 @@ class Diagnostics(object):
 
 
     def Montage_cells_RandomSelectionZoom(self):
-        images = glob.glob("%s/%s/cellbodies/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, self.Names.COMPOSITE_CELLS_AND_NUCLEI))
+        images = sorted(glob.glob("%s/%s/cellbodies/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, self.Names.COMPOSITE_CELLS_AND_NUCLEI)))
         self.Montage_RandomSelectionZoom(images, "cells")
 
-        images_raw = glob.glob("%s/*%s*.tif" % (self.Names.OUTDIR_PATH, self.Names.COLOR_CELLS))
+        images_raw = sorted(glob.glob("%s/*%s*.tif" % (self.Names.OUTDIR_PATH, self.Names.COLOR_CELLS)))
         self.Montage_RandomSelectionZoom_2imageTypes(images, images_raw, "cells")
 
 

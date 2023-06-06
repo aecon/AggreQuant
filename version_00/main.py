@@ -53,7 +53,7 @@ Names.COLOR_CELLS = CCELLS
 Names.COLOR_AGGREGATES = CAGGREGATES
 # folders
 Names.OUTDIR_PATH = path_to_dir
-Names.OUTDIR = "output_V0.2"
+Names.OUTDIR = "output_V0.3"
 # nuclei segmentation
 Names.NUCLEI_ALL_LABELS = "labels_StarDist" # same as in nuclei.py
 Names.NUCLEI_SEEDS = "seeds_nuclei" # same as in nuclei.py
@@ -68,9 +68,12 @@ Names.COMPOSITE_CELLS_AND_NUCLEI = "composite_nuclei"
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Segmentation
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if 0:
+if 1:
     print("\nRunning nuclei segmentation.")
-    images_nuclei = glob.glob("%s/*%s*.tif" % (path_to_dir, CNUCLEI))
+    images_nuclei = sorted(glob.glob("%s/*%s*.tif" % (path_to_dir, CNUCLEI)))
+    if args.debug == True:
+        print("Running in debug mode. Processing only 5 first images")
+        images_nuclei = images_nuclei[0:5]
     print("Found %d nuclei images." % len(images_nuclei))
     nuclei_paths = ""
     for f in images_nuclei:
@@ -80,9 +83,13 @@ if 0:
 
 if 1:
     print("\n Running cellbody segmentation.")
-    images_cells = glob.glob("%s/*%s*.tif" % (path_to_dir, CCELLS))
+    images_cells = sorted(glob.glob("%s/*%s*.tif" % (path_to_dir, CCELLS)))
     print("Found %d cellbody images." % len(images_cells))
-    cellbody_segmentation(images_cells, Names)
+    if args.debug == True:
+        print("Running in debug mode. Processing only 5 first images")
+        cellbody_segmentation(images_cells[0:5], Names)
+    else:
+        cellbody_segmentation(images_cells, Names)
 
 if 0:
     print("\n Running aggregate segmentation.")

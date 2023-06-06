@@ -50,16 +50,14 @@ python3 aggregates.py -i <path-to-tif>
 
 ## TODO
 
-```
-Need to make diagnostics.
-E.g. random selection of images and zoom-in in a random location within each selected image.
-Show overlay of segmented Edges and raw in a Montage-type og figure.
-Do the above for both nuclei and cell boundary segmentations.
-```
-
-```
-Experiment:
-Results are categorized per plate (one folder per plate).
-```
+* [x] Diagnostics.
+* [x] - E.g. random selection of images and zoom-in in a random location within each selected image.
+* [x] - Show overlay of segmented Edges and raw in a Montage-type og figure.
+* [x] - Do the above for both nuclei and cell boundary segmentations.
+* [x] Data management: Rename data to include plate number in filename.
+* [ ] Segmentation:
+* [ ] - Finalize version 0.0. Include aggregate segmentation and quantification. Add validation cases.
+* [ ] - Test nnU-Net for cell and nuclei segmentation. Run on validation cases.
+* [ ] Validation: Select datasets and add to validation stack.
 
 

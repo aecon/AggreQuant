@@ -1,0 +1,10 @@
+Version 0.0:
+- introduce test data and flag to run only tests
+- fix folder structure and pickup of correct folder in diagnostics
+- add aggregate segmentation
+- add aggregate diagnostics
+
+Version 1.0: add validation set
+- come up with quantitative metrics
+- include nnUnet in Segmentation tools
+

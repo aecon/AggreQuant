@@ -58,7 +58,7 @@ Names.OUTDIR = "output_V0.2"
 Names.NUCLEI_ALL_LABELS = "labels_StarDist" # same as in nuclei.py
 Names.NUCLEI_SEEDS = "seeds_nuclei" # same as in nuclei.py
 # cellbody segmentation
-Names.CELLBODY_SEGMENTATION_TYPE = "intensity"  #"distance"
+Names.CELLBODY_SEGMENTATION_TYPE = "propagation"  #"distance"
 Names.CELLBODY_ODIR_NAME = "cellbodies_%s" % Names.CELLBODY_SEGMENTATION_TYPE
 # diagnostics
 Names.COMPOSITE_RAW_NUCLEI_EDGES = "composite_edges" # same as in nuclei.py
@@ -99,7 +99,7 @@ if 0:
     print("\nGenerating nuclei Diagnostics.")
     Diagnosis.Montage_nuclei_RandomSelectionZoom()
 
-if 1:
+if 0:
     print("\nGenerating cellbody Diagnostics.")
     Diagnosis.Montage_cells_RandomSelectionZoom()
 

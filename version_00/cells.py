@@ -298,18 +298,30 @@ def segment_propagation(image_file, seeds_file, allnuclei_file, opath, Names):
 
     # compute distances to all nuclei
     distances = ndimage.distance_transform_edt(1-allnuclei_mask)  # float64
-
-    # adjust cell mask
-    cell_mask[distances>20] = 0
+    #plt.imshow(distances)
+    #plt.show()
+    distances_, _ = scale_values_01_float(distances)
+    distances = 1 - distances_
+    #plt.imshow(distances)
+    #plt.show()
 
     # field to use for watershed
     intensity_field_ = skimage.filters.gaussian(img2, sigma=6)
-    intensity_field, _ = scale_values_01_float(intensity_field_)
-    field = 1.0 - intensity_field
-    field[allnuclei_mask==1] = 0
-    #print(np.min(field), np.max(field))
+    field_ = intensity_field_ * (distances)
+
+    field0, _ = scale_values_01_float(field_)
+    field = 1.0 - field0
     #plt.imshow(field)
     #plt.show()
+
+    field[allnuclei_mask==1] = 0
+    #plt.imshow(field)
+    #plt.show()
+    #print(np.min(field), np.max(field))
+
+    # weighted average of distance and intensity fields
+    field_ = np.zeros(np.shape(field))
+    field_[:,:] = field[:,:]*distances 
 
     # watershed of distance map
     labels_ = watershed(field, mask=cell_mask, watershed_line=True)

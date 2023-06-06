@@ -254,9 +254,9 @@ class Diagnostics(object):
 
     def Montage_cells_RandomSelectionZoom(self):
         images_raw = sorted(glob.glob("%s/*%s*.tif" % (self.Names.OUTDIR_PATH, self.Names.COLOR_CELLS)))
-        images_composite = sorted(glob.glob("%s/%s/cellbodies/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, self.Names.COMPOSITE_CELLS_AND_NUCLEI)))
-        images_cells = sorted(glob.glob("%s/%s/cellbodies/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, "cellbodies_labels")))
-        images_nuclei = sorted(glob.glob("%s/%s/cellbodies/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, "corresponding_nuclei")))
+        images_composite = sorted(glob.glob("%s/%s/%s/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, Names.CELLBODY_ODIR_NAME, self.Names.COMPOSITE_CELLS_AND_NUCLEI)))
+        images_cells     = sorted(glob.glob("%s/%s/%s/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, Names.CELLBODY_ODIR_NAME, "cellbodies_labels")))
+        images_nuclei    = sorted(glob.glob("%s/%s/%s/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, Names.CELLBODY_ODIR_NAME, "corresponding_nuclei")))
 
 #        self.Montage_RandomSelectionZoom(images_composite, "cells")
 #        self.Montage_RandomSelectionZoom_2imageTypes(images_composite, images_raw, "cells")

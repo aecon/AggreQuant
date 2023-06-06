@@ -9,6 +9,7 @@ from cells import cellbody_segmentation
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', type=str, required=True, help="text file with path to tifs, and colour identifiers")
+parser.add_argument('-debug', action='store_true')
 args = parser.parse_args()
 
 
@@ -46,23 +47,28 @@ with open(args.i) as file:
 # Filename conventions
 # TODO: Set defaults in some other txt file (?)
 Names = Filenames()
-Names.OUTDIR_PATH = path_to_dir
-Names.OUTDIR = "output_V0.2"
-Names.NUCLEI_ALL_LABELS = "labels_StarDist" # same as in nuclei.py
-Names.NUCLEI_SEEDS = "seeds_nuclei" # same as in nuclei.py
-Names.COMPOSITE_RAW_NUCLEI_EDGES = "composite_edges" # same as in nuclei.py
-Names.CELLBODY_SEGMENTATION_TYPE = "distance"
-Names.COMPOSITE_CELLS_AND_NUCLEI = "composite_nuclei"
+# color identifiers in tif filenames
 Names.COLOR_NUCLEI = CNUCLEI
 Names.COLOR_CELLS = CCELLS
 Names.COLOR_AGGREGATES = CAGGREGATES
-
+# folders
+Names.OUTDIR_PATH = path_to_dir
+Names.OUTDIR = "output_V0.2"
+# nuclei segmentation
+Names.NUCLEI_ALL_LABELS = "labels_StarDist" # same as in nuclei.py
+Names.NUCLEI_SEEDS = "seeds_nuclei" # same as in nuclei.py
+# cellbody segmentation
+Names.CELLBODY_SEGMENTATION_TYPE = "intensity"  #"distance"
+Names.CELLBODY_ODIR_NAME = "cellbodies_%s" % Names.CELLBODY_SEGMENTATION_TYPE
+# diagnostics
+Names.COMPOSITE_RAW_NUCLEI_EDGES = "composite_edges" # same as in nuclei.py
+Names.COMPOSITE_CELLS_AND_NUCLEI = "composite_nuclei"
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Segmentation
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if 1:
+if 0:
     print("\nRunning nuclei segmentation.")
     images_nuclei = glob.glob("%s/*%s*.tif" % (path_to_dir, CNUCLEI))
     print("Found %d nuclei images." % len(images_nuclei))
@@ -78,6 +84,8 @@ if 1:
     print("Found %d cellbody images." % len(images_cells))
     cellbody_segmentation(images_cells, Names)
 
+if 0:
+    print("\n Running aggregate segmentation.")
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -87,7 +95,7 @@ if 1:
 # Generate dignostics for segmentation performance
 Diagnosis = Diagnostics(Names)
 
-if 1:
+if 0:
     print("\nGenerating nuclei Diagnostics.")
     Diagnosis.Montage_nuclei_RandomSelectionZoom()
 

@@ -2,7 +2,7 @@
 set -eu
 
 
-# Parse argument
+# Parse argument: Plate Directory
 DIRECTORY=$1
 
 # Check if input directory exists
@@ -23,12 +23,14 @@ fi
 # Define output directories
 onuc="$DIRECTORY/Blue"
 ocel="$DIRECTORY/FarRed"
-oagg="$DIRECTORY/Green"
+oagg4="$DIRECTORY/Green_wix_4"
+oagg3="$DIRECTORY/Green_wix_3"
 
 # Create output directories
 mkdir -p "$onuc"
 mkdir -p "$ocel"
-mkdir -p "$oagg"
+mkdir -p "$oagg4"
+mkdir -p "$oagg3"
 
 # Get plate number
 plateID=`basename "${DIRECTORY}" | awk -F '_Plate_' '{print $2}' | awk -F '_' '{print $1}'`
@@ -55,11 +57,18 @@ done
 
 
 # aggregates
-ls "${DIRECTORY}"/*Green*.tif | while read f
+ls "${DIRECTORY}"/*Green*"wix 4"*.tif | while read f
 do
     ls "${f}"
     base=`basename "${f}"`
-    mv "${f}" "${oagg}/Plate${plateID}_${base}"
+    mv "${f}" "${oagg4}/Plate${plateID}_${base}"
+done
+
+ls "${DIRECTORY}"/*Green*"wix 3"*.tif | while read f
+do
+    ls "${f}"
+    base=`basename "${f}"`
+    mv "${f}" "${oagg3}/Plate${plateID}_${base}"
 done
 
 

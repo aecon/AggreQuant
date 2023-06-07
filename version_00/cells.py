@@ -39,17 +39,29 @@ def segment_cellpose():
     os.system( "conda run -n cellpose python cells_cp.py -o %s -i %s" % (Names.OUTDIR, nuclei_paths) ) ### CHECK THE PATHS !!!!
 
 
+# TODO: Replace with percentile
+def check_avg_intensity(img):
+    avg_int = np.mean(img)
+    std_int = np.std(img)
+    threshold = np.percentile(img, 95)
+    perc_cells = np.sum(img>1000) / (np.shape(img)[0] * np.shape(img)[1]) * 100
+    #print("Average intensity:", avg_int, std_int, threshold, np.sum(img>1000), perc_cells)
+    if perc_cells > 5:
+        return True
+    else:
+        return False
+
+
 def segment_distance_map(image_file, seeds_file, allnuclei_file, opath, Names):
 
-    # TODO:
-    # > compute average intensity of image. Proceed based on average intensity ..
-
     bpath = os.path.basename(image_file)
-
 
     # load image and convert to float
     img0 = skimage.io.imread(image_file, plugin='tifffile')
     img0 = np.asfarray(img0, float)
+
+    #iscells = check_avg_intensity(img0)
+
 
     # 1. GENERATE MASK OF CELLBODY AREA
     # background division
@@ -136,7 +148,6 @@ def segment_distance_map(image_file, seeds_file, allnuclei_file, opath, Names):
     composite[:,:] = labels[:,:]
     composite[fat_edges==1] = 0
     skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, Names.COMPOSITE_CELLS_AND_NUCLEI ), composite, plugin='tifffile')
-
 
 
 def segment_intensity_map(image_file, seeds_file, allnuclei_file, opath, Names):

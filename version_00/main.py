@@ -58,7 +58,7 @@ Names.OUTDIR = "output_V0.3"
 Names.NUCLEI_ALL_LABELS = "labels_StarDist" # same as in nuclei.py
 Names.NUCLEI_SEEDS = "seeds_nuclei" # same as in nuclei.py
 # cellbody segmentation
-Names.CELLBODY_SEGMENTATION_TYPE = "propagation"  #"distance"
+Names.CELLBODY_SEGMENTATION_TYPE = "propagation" #"propagation"  #"distance"
 Names.CELLBODY_ODIR_NAME = "cellbodies_%s" % Names.CELLBODY_SEGMENTATION_TYPE
 # diagnostics
 Names.COMPOSITE_RAW_NUCLEI_EDGES = "composite_edges" # same as in nuclei.py
@@ -68,7 +68,7 @@ Names.COMPOSITE_CELLS_AND_NUCLEI = "composite_nuclei"
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Segmentation
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if 1:
+if 0:
     print("\nRunning nuclei segmentation.")
     images_nuclei = sorted(glob.glob("%s/*%s*.tif" % (path_to_dir, CNUCLEI)))
     if args.debug == True:
@@ -81,7 +81,7 @@ if 1:
     os.system( "conda run -n tf python nuclei.py -o %s -i %s" % (Names.OUTDIR, nuclei_paths) )
 
 
-if 1:
+if 0:
     print("\n Running cellbody segmentation.")
     images_cells = sorted(glob.glob("%s/*%s*.tif" % (path_to_dir, CCELLS)))
     print("Found %d cellbody images." % len(images_cells))
@@ -100,13 +100,13 @@ if 0:
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Generate dignostics for segmentation performance
-Diagnosis = Diagnostics(Names)
+Diagnosis = Diagnostics(Names, args.debug)
 
-if 0:
+if 1:
     print("\nGenerating nuclei Diagnostics.")
     Diagnosis.Montage_nuclei_RandomSelectionZoom()
 
-if 0:
+if 1:
     print("\nGenerating cellbody Diagnostics.")
     Diagnosis.Montage_cells_RandomSelectionZoom()
 

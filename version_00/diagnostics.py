@@ -8,14 +8,19 @@ import skimage.io
 
 class Diagnostics(object):
 
-    def __init__(self, Names):
+    def __init__(self, Names, debug):
         self.Names = Names
+        self.debug = debug
 
 
 
-    def Montage_RandomSelectionZoom_overlay_cells_nuclei_rawcells(self, images_cells, images_nuclei, images_raw):
+    def _Montage_RandomSelectionZoom_overlay_cells_nuclei_rawcells(self, images_cells, images_nuclei, images_raw):
 
-        panel_size = [1, 5] # rows, columns
+        if self.debug == True:
+            panel_size = [1, 5] # rows, columns
+        else:
+            panel_size = [8, 16]
+
         Npixels = 512
         Nspace = 5
 
@@ -87,9 +92,13 @@ class Diagnostics(object):
 
 
 
-    def Montage_RandomSelectionZoom_2imageTypes(self, images_seg, images_raw, outname):
+    def _Montage_RandomSelectionZoom_2imageTypes(self, images_seg, images_raw, outname):
 
-        panel_size = [8, 16] # rows, columns
+        if self.debug == True:
+            panel_size = [1, 10] # rows, columns
+        else:
+            panel_size = [8, 16]
+
         assert(panel_size[1]%2 == 0) # Number of columns must be divisible by 2!
         Npixels = 512
         Nspace = 5
@@ -180,9 +189,12 @@ class Diagnostics(object):
         skimage.io.imsave("%s/Composite_%s_montage_withRaw_%dx%d.tif" % (opath, outname, panel_size[0], panel_size[1]), montage, plugin='tifffile')
 
 
-    def Montage_RandomSelectionZoom(self, images, outname):
+    def _Montage_RandomSelectionZoom(self, images, outname):
 
-        panel_size = [1, 5] # rows, columns
+        if self.debug == True:
+            panel_size = [1, 5] # rows, columns
+        else:
+            panel_size = [8, 16]
         Npixels = 512
         Nspace = 5
 
@@ -242,9 +254,10 @@ class Diagnostics(object):
         skimage.io.imsave("%s/Composite_%s_montage%dx%d.tif" % (opath, outname, panel_size[0], panel_size[1]), montage, plugin='tifffile')
 
 
+
     def Montage_nuclei_RandomSelectionZoom(self):
         images = glob.glob("%s/%s/nuclei/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, self.Names.COMPOSITE_RAW_NUCLEI_EDGES))
-        self.Montage_RandomSelectionZoom(images, "nuclei")
+        self._Montage_RandomSelectionZoom(images, "nuclei")
 
 
     def Montage_cells_RandomSelectionZoom(self):
@@ -253,10 +266,10 @@ class Diagnostics(object):
         images_cells     = sorted(glob.glob("%s/%s/%s/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, self.Names.CELLBODY_ODIR_NAME, "cellbodies_labels")))
         images_nuclei    = sorted(glob.glob("%s/%s/%s/*%s.tif" % (self.Names.OUTDIR_PATH, self.Names.OUTDIR, self.Names.CELLBODY_ODIR_NAME, "corresponding_nuclei")))
 
-#        self.Montage_RandomSelectionZoom(images_composite, "cells")
-#        self.Montage_RandomSelectionZoom_2imageTypes(images_composite, images_raw, "cells")
+#        self._Montage_RandomSelectionZoom(images_composite, "cells")
+#        self._Montage_RandomSelectionZoom_2imageTypes(images_composite, images_raw, "cells")
 
-        self.Montage_RandomSelectionZoom_overlay_cells_nuclei_rawcells(images_cells, images_nuclei, images_raw)
+        self._Montage_RandomSelectionZoom_overlay_cells_nuclei_rawcells(images_cells, images_nuclei, images_raw)
 
 
 

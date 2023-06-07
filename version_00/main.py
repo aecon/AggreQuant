@@ -59,7 +59,7 @@ Names.OUTDIR = "output_V0.3"
 Names.NUCLEI_ALL_LABELS = "labels_StarDist" # same as in nuclei.py
 Names.NUCLEI_SEEDS = "seeds_nuclei" # same as in nuclei.py
 # cellbody segmentation
-Names.CELLBODY_SEGMENTATION_TYPE = "propagation" #"propagation"  #"distance"
+Names.CELLBODY_SEGMENTATION_TYPE = "distance" #"propagation"  #"distance"
 Names.CELLBODY_ODIR_NAME = "cellbodies_%s" % Names.CELLBODY_SEGMENTATION_TYPE
 # aggregate segmentation
 Names.AGGREGATE_SEGMENTATION_TYPE = "intensity"

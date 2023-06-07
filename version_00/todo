@@ -2,7 +2,9 @@ Version 0.0:
 X introduce test data and flag to run only tests
 X fix folder structure and pickup of correct folder in diagnostics
 X add aggregate segmentation
-- split aggregates to corresponding cells
+X split aggregates to corresponding cells
+x Coded QoI computation
+- Verify that QoI are computed correctly. Generate diagnostics for this..
 - add aggregate diagnostics
 
 Version 1.0: add validation set

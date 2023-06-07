@@ -6,6 +6,7 @@ import argparse
 from filenames import Filenames
 from diagnostics import Diagnostics
 from cells import cellbody_segmentation
+from aggregates import aggregate_segmentation
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', type=str, required=True, help="text file with path to tifs, and colour identifiers")
@@ -60,6 +61,9 @@ Names.NUCLEI_SEEDS = "seeds_nuclei" # same as in nuclei.py
 # cellbody segmentation
 Names.CELLBODY_SEGMENTATION_TYPE = "propagation" #"propagation"  #"distance"
 Names.CELLBODY_ODIR_NAME = "cellbodies_%s" % Names.CELLBODY_SEGMENTATION_TYPE
+# aggregate segmentation
+Names.AGGREGATE_SEGMENTATION_TYPE = "intensity"
+Names.AGGREGATE_ODIR_NAME = "aggregates_%s" % Names.AGGREGATE_SEGMENTATION_TYPE
 # diagnostics
 Names.COMPOSITE_RAW_NUCLEI_EDGES = "composite_edges" # same as in nuclei.py
 Names.COMPOSITE_CELLS_AND_NUCLEI = "composite_nuclei"
@@ -91,8 +95,16 @@ if 0:
     else:
         cellbody_segmentation(images_cells, Names)
 
-if 0:
+if 1:
     print("\n Running aggregate segmentation.")
+    images_agg = sorted(glob.glob("%s/*%s*.tif" % (path_to_dir, CAGGREGATES)))
+    print("Found %d aggregate images." % len(images_agg))
+    if args.debug == True:
+        print("Running in debug mode. Processing only 5 first images")
+        aggregate_segmentation(images_agg[0:5], Names)
+    else:
+        aggregate_segmentation(images_agg, Names)
+
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -102,11 +114,11 @@ if 0:
 # Generate dignostics for segmentation performance
 Diagnosis = Diagnostics(Names, args.debug)
 
-if 1:
+if 0:
     print("\nGenerating nuclei Diagnostics.")
     Diagnosis.Montage_nuclei_RandomSelectionZoom()
 
-if 1:
+if 0:
     print("\nGenerating cellbody Diagnostics.")
     Diagnosis.Montage_cells_RandomSelectionZoom()
 

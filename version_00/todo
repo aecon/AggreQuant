@@ -1,7 +1,8 @@
 Version 0.0:
-- introduce test data and flag to run only tests
-- fix folder structure and pickup of correct folder in diagnostics
-- add aggregate segmentation
+X introduce test data and flag to run only tests
+X fix folder structure and pickup of correct folder in diagnostics
+X add aggregate segmentation
+- split aggregates to corresponding cells
 - add aggregate diagnostics
 
 Version 1.0: add validation set

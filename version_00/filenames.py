@@ -22,3 +22,7 @@ class Filenames:
         self.COMPOSITE_CELLS_AND_NUCLEI = ""
         self.CELLBODY_ODIR_NAME = ""
 
+        # Aggregates
+        self.AGGREGATE_SEGMENTATION_TYPE = ""
+        self.AGGREGATE_ODIR_NAME = ""
+

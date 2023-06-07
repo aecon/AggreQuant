@@ -15,7 +15,7 @@ class Diagnostics(object):
 
     def Montage_RandomSelectionZoom_overlay_cells_nuclei_rawcells(self, images_cells, images_nuclei, images_raw):
 
-        panel_size = [8, 16] # rows, columns
+        panel_size = [1, 5] # rows, columns
         Npixels = 512
         Nspace = 5
 
@@ -182,7 +182,7 @@ class Diagnostics(object):
 
     def Montage_RandomSelectionZoom(self, images, outname):
 
-        panel_size = [8, 16] # rows, columns
+        panel_size = [1, 5] # rows, columns
         Npixels = 512
         Nspace = 5
 
@@ -205,8 +205,11 @@ class Diagnostics(object):
             if len(shape)==3:
                 L = shape[1] - Npixels
                 P0 = np.random.randint(0, high=L, size=1)[0]
-                img = np.zeros((2,Npixels,Npixels))
-                img[:,:,:] = img0[:,P0:P0+Npixels, P0:P0+Npixels]
+                img = np.zeros((Npixels,Npixels))
+                img[:,:] = img0[0, P0:P0+Npixels, P0:P0+Npixels]
+                edges3d = img0[1, P0:P0+Npixels, P0:P0+Npixels]
+                img[edges3d>0] = 0
+
             elif len(shape)==2:
                 L = shape[0] - Npixels
                 P0 = np.random.randint(0, high=L, size=1)[0]
@@ -218,12 +221,7 @@ class Diagnostics(object):
             image_deck.append(img)
 
         # make montage
-        if len(shape)==3:
-            montage = np.zeros( (2, panel_size[0]*Npixels+Nspace*(panel_size[0]-1) , panel_size[1]*Npixels+Nspace*(panel_size[1]-1) ) , dtype=np.dtype(np.uint16))
-            montage[:,:,:] = 65535
-        elif len(shape)==2:
-            montage = np.zeros( (panel_size[0]*Npixels+Nspace*(panel_size[0]-1) , panel_size[1]*Npixels+Nspace*(panel_size[1]-1) ) , dtype=np.dtype(np.uint16))
-#            montage[:,:] = 65535
+        montage = np.zeros( (panel_size[0]*Npixels+Nspace*(panel_size[0]-1) , panel_size[1]*Npixels+Nspace*(panel_size[1]-1) ) , dtype=np.dtype(np.uint16))
 
         for i in range(panel_size[0]):
             for j in range(panel_size[1]):
@@ -232,10 +230,7 @@ class Diagnostics(object):
                 j0 = j*(Npixels+Nspace)
                 j1 = j0 + Npixels
                 k = i*(panel_size[1]) + j
-                if len(shape)==3:
-                    montage[:, i0:i1, j0:j1] = image_deck[k][:,:,:]
-                elif len(shape)==2:
-                    montage[i0:i1, j0:j1] = image_deck[k][:,:]
+                montage[i0:i1, j0:j1] = image_deck[k][:,:]
 
         print("Montage tif shape:", np.shape(montage))
 

@@ -5,6 +5,7 @@ X add aggregate segmentation
 X split aggregates to corresponding cells
 X Coded QoI computation
 - Verify that QoI are computed correctly. Generate diagnostics for this..
+- WIP: MONTAGE WITH OVERLAYS OF CELLS, SEG CELLS, AGGREGATES, and DETECTED CELLS PER AGGREGATE. Relate this with a table of data with number of cells per aggregate, and the opposite, number of aggregates per cell.
 - add aggregate diagnostics
 - verify file generation
 

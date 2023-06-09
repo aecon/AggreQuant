@@ -3,9 +3,10 @@ X introduce test data and flag to run only tests
 X fix folder structure and pickup of correct folder in diagnostics
 X add aggregate segmentation
 X split aggregates to corresponding cells
-x Coded QoI computation
+X Coded QoI computation
 - Verify that QoI are computed correctly. Generate diagnostics for this..
 - add aggregate diagnostics
+- verify file generation
 
 Version 1.0: add validation set
 - come up with quantitative metrics

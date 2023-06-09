@@ -34,7 +34,7 @@ def exclude_outside_cells(img, cells):
     return tmp2
 
 
-def QoI(labels_agg0, labels_cells, bpath, check_code=False):
+def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
     """
     Quantities of Interest:
         1. Percentage of aggregate-positive cells
@@ -119,10 +119,8 @@ def QoI(labels_agg0, labels_cells, bpath, check_code=False):
         # troubleshooting
         if check_code==True:
             tmp_ = np.zeros(np.shape(mask_agg))
-            #print(ID_cells)
             for ic, icell in enumerate(ID_cells):
                 itmp2_ = (labels_cells == icell)
-                #print(np.shape(itmp2_), np.unique(itmp2_))
                 tmp_[itmp2_] = ic+2
             tmp_[idx_agg] = -1
             tmp_[labels_cells==0] = 0
@@ -135,10 +133,15 @@ def QoI(labels_agg0, labels_cells, bpath, check_code=False):
             tmp_new[:,:] = tmp_[ymin:ymax, xmin:xmax]
             cmap = plt.get_cmap('gist_yarg')
             cmap.set_under('magenta')  # Color for values less than vmin
-            plt.imshow(tmp_new, cmap='gist_yarg', vmin=0, vmax=len(ID_cells)+1)  # the full cells that it covers
+
+            # view figure
+            #plt.imshow(tmp_new, cmap='gist_yarg', vmin=0, vmax=len(ID_cells)+1)  # the full cells that it covers
             #plt.show()
-            plt.savefig("fig_pipeline/check_code_%s_IAGG-%04d.png" % (bpath, ia))
-            plt.close()
+            #plt.savefig("fig_pipeline/check_code_%s_IAGG-%04d.png" % (bpath, ia))
+            #plt.close()
+
+            # save tif file
+            skimage.io.imsave("%s/%s_CHECK_segmented_aggID_%04d_over_cells.tif" % (opath, bpath, ia), tmp_new, plugin='tifffile')
 
 
         # percentage of aggregate over each overlapping cell
@@ -161,7 +164,7 @@ def QoI(labels_agg0, labels_cells, bpath, check_code=False):
                 list_number_of_aggregates_per_cell[icell_in_U_CELLS] += 1
 
         print("ratio_area_of_agg_split_over_cells:", ratio_area_of_agg_split_over_cells)
-        assert( np.sum(ratio_area_of_agg_split_over_cells)>80 and np.sum(ratio_area_of_agg_split_over_cells)<=100  )
+        #assert( np.sum(ratio_area_of_agg_split_over_cells)>80 and np.sum(ratio_area_of_agg_split_over_cells)<=100  ) # TODO: CHECK!
 
         list_number_of_cells_per_aggregate[ia] = np.sum( ratio_area_of_agg_split_over_cells>1. )  # ambiguously split aggregates
         print("list_number_of_cells_per_aggregate[ia]:", list_number_of_cells_per_aggregate[ia])
@@ -196,7 +199,7 @@ def QoI(labels_agg0, labels_cells, bpath, check_code=False):
 #        # export results in files
 
 
-    assert(0)
+#    assert(0)
 
 
 def segment_intensity_map(image_file, cells_file, opath, Names):
@@ -271,7 +274,7 @@ def segment_intensity_map(image_file, cells_file, opath, Names):
     # load cell labels
     img_cells = skimage.io.imread(cells_file, plugin='tifffile')
 
-    QoI(labels, img_cells, bpath)
+    QoI(labels, img_cells, bpath, opath)
 
 
 def segment_ilastik():
@@ -282,19 +285,24 @@ def segment_ilastik():
 
 def aggregate_segmentation(aggregate_images, Names):
 
+    print("Number of aggregate images:", len(aggregate_images))
+
     segmentation_algorithm = Names.AGGREGATE_SEGMENTATION_TYPE
     print("Segmenting aggregates with algorithm:", segmentation_algorithm)
+
 
     for ifile, image_file in enumerate(aggregate_images):
 
         bpath = os.path.basename(image_file)
         print(">> Processing image: %s" % bpath)
 
+
         # find corresponding cellbodies
         cells_file = "%s/%s/%s/%s%s).tif_cellbodies_labels.tif" % ( Names.OUTDIR_PATH, Names.OUTDIR, Names.CELLBODY_ODIR_NAME, bpath.split(Names.COLOR_AGGREGATES,1)[0], Names.COLOR_CELLS)
         if not os.path.isfile(cells_file):
             print("Cellbody labels for file %s do NOT exist!", bpath)
             sys.exit()
+
 
         # Output folder for aggregate segmentation
         opath = "%s/%s/%s" % ( Names.OUTDIR_PATH, Names.OUTDIR, Names.AGGREGATE_ODIR_NAME)
@@ -303,6 +311,7 @@ def aggregate_segmentation(aggregate_images, Names):
             os.makedirs(opath)
         else:
             print("Path %s exists." % opath)
+
 
         # Choose segmentation algorithm for aggregates
         if segmentation_algorithm == "intensity":

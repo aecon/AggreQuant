@@ -61,6 +61,7 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
 
     # connected components for aggregates inside cells
     labels_agg = skimage.morphology.label(mask_agg, connectivity=2)
+    skimage.io.imsave("%s/%s_labels_aggregates_InsideCells.tif" % (opath, bpath), labels_agg, plugin='tifffile')
 
     # cell maks
     mask_cell = np.zeros(np.shape(labels_cells))
@@ -84,7 +85,6 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
 
     # Unique aggregate IDs (connected components)
     U_AGG = np.unique( labels_agg[labels_agg>0] )
-
 
 
     # QUANTIFICATION
@@ -141,7 +141,9 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
             #plt.close()
 
             # save tif file
-            skimage.io.imsave("%s/%s_CHECK_segmented_aggID_%04d_over_cells.tif" % (opath, bpath, ia), tmp_new, plugin='tifffile')
+            skimage.io.imsave("%s/%s_CHECK_segmented_aggID_%04d_over_cells.tif" % (opath, bpath, iagg), tmp_new, plugin='tifffile')
+            #assert(0)
+
 
 
         # percentage of aggregate over each overlapping cell
@@ -267,7 +269,7 @@ def segment_intensity_map(image_file, cells_file, opath, Names):
     bpath = os.path.basename(image_file)
     labels = np.asarray(labels, dtype=np.uint32)
     assert(np.max(labels) == obj)
-    skimage.io.imsave("%s/%s_labels_aggregates.tif" % (opath, bpath), labels, plugin='tifffile')
+    skimage.io.imsave("%s/%s_labels_AllAggregates.tif" % (opath, bpath), labels, plugin='tifffile')
     #plt.imshow(labels)
     #plt.show()
 
@@ -324,3 +326,4 @@ def aggregate_segmentation(aggregate_images, Names):
             print("Segmentation algorithm %s not defined." % segmentation_algorithm)
             sys.exit()
 
+        assert(0)

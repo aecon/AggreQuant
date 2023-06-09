@@ -18,111 +18,95 @@ class Quantities:
         self.Percentage_Ambiguous_Aggregates = 0
         self.Number_Aggregates_Per_Image_ConnectedComponents = 0
         self.Number_Aggregates_Per_Image_SplitOnCells = 0 # number of aggregates split on cells
-        self.Number_Aggregates_Per_Cell = 0
+        self.Avg_Number_Aggregates_Per_Cell = 0
 
 
-def QoI(labels_agg, labels_cells):
+def return_mask(img, value):
+    mask = np.zeros(np.shape(img))
+    mask[img>value] = 1
+    return mask
+
+
+def exclude_outside_cells(img, cells):
+    img[cells==0] = 0  # exclude everything not covered by a cell
+    tmp1 = np.asarray(scipy.ndimage.maximum_filter(img, size=2), dtype=np.dtype(np.uint16))  # remove watershed lines
+    tmp2 = skimage.morphology.remove_small_holes(tmp1, area_threshold=25, connectivity=2) # remove holes
+    return tmp2
+
+
+def QoI(labels_agg0, labels_cells):
     """
     Quantities of Interest:
         1. Percentage of aggregate-positive cells
         2. Number of cells per image
         3. Total area of aggregates (in percentage of cell area)
         4. Percentage of ambiguous aggregates (corresponding to more than 1 cell)
-        5. Number of aggregates per image.
-        6. Prototype: Number of aggregates per cell.
+        5. Number of aggregates per image
+        6. Prototype: Number of aggregates per cell
+
+        labels_agg: Connected comp. of aggregates inside cells
+        mask_cell:  Binary mask of cells
+        U_CELLS:    Unique cell IDs
+        U_AGG:      Unique aggrgate IDs (Connected components)
+
+        aggregate_positive_cells_list = np.zeros(len(U_CELLS)) - List with number of aggregates per cell.
     """
 
+    # aggregate mask (exclude aggregates outside cells)
+    tmp_     = return_mask(labels_agg0, 0)
+    mask_agg = exclude_outside_cells(tmp_, labels_cells)
+
+    # connected components for aggregates inside cells
+    labels_agg = skimage.morphology.label(mask_agg, connectivity=2)
+
+    # cell maks
+    mask_cell = np.zeros(np.shape(labels_cells))
+    mask_cell[labels_cells>0] = 1
+
+    # Overlay of aggregates on cells and total aggregates
     if 0:
-        combined = np.zeros( ( np.shape(labels_agg)[0], 10+2*np.shape(labels_agg)[1] ) )
-        combined[:, 0:np.shape(labels_agg)[1]] = labels_agg[:,:] * 20 # color scaling
-        combined[:, 10+np.shape(labels_agg)[1]::] = labels_cells[:,:]
-        plt.imshow(combined)
+        _tmp1 = labels_agg0>0
+        _tmp2 = labels_agg>0
+        _tmp3 = np.zeros(np.shape(_tmp1))
+        _tmp3[_tmp1] =  _tmp3[_tmp1]+1
+        _tmp3[_tmp2] =  _tmp3[_tmp2]+1
+        plt.imshow(_tmp3)
         plt.show()
+        print(np.unique(_tmp3))
+        assert(0)
 
-    # mask of potential aggregates
-    mask_agg = np.zeros(np.shape(labels_cells))
-    mask_agg[labels_agg>0] = 1
+    # Unique cell IDs
+    U_CELLS = np.unique(labels_cells[labels_cells>0])
 
-    # aggregate mask, only inside cells
-    mask_agg[labels_cells==0] = 0
-    mask_agg_ = scipy.ndimage.maximum_filter(mask_agg, size=2)
-    mask_agg  = skimage.morphology.remove_small_holes(mask_agg_>0, area_threshold=25, connectivity=2)
-    #plt.imshow(mask_agg)
-    #plt.show()
+    # Unique aggregate IDs (connected components)
+    U_AGG = np.unique( labels_agg[labels_agg>0] )
 
-    # relabel aggregates inside cells
-    labels_agg2 = skimage.morphology.label(mask_agg, connectivity=2)
+
 
     # QUANTIFICATION
     Q = Quantities()
 
-    # Q1. Percentage of aggregate-positive cells
-    Q.Percentage_Of_AggregatePositive_Cells = 0
-    aggregate_labels_per_cell = np.zeros(np.shape(mask_agg))
-    for icell in np.unique(labels_cells):
-        if icell==0:
-            continue
-        idx_cells = labels_cells==icell
-        s = np.sum(mask_agg[idx_cells])
-        if s>4:  # ignore very small aggregates in cells
-            tmp = np.zeros(np.shape(mask_agg))
-            tmp[idx_cells] = 1
-            idx_agg = mask_agg>0
-            idx_agg_in_cell = idx_cells * idx_agg
-            tmp[idx_agg_in_cell] = 2
-            #plt.imshow(tmp)
-            #plt.show()
-            Q.Percentage_Of_AggregatePositive_Cells = Q.Percentage_Of_AggregatePositive_Cells + 1
-            aggregate_labels_per_cell[idx_agg_in_cell] = icell
-
     # Q2. Number of cells per image
-    Q.Number_Of_Cells_Per_Image = len(np.unique(labels_cells)) - 1  # ignore background label
-
-    # Q3. Total area of aggregates (in percentage of cell area)
-    Q.Percentage_Area_Aggregates = np.sum(mask_agg>0) / np.sum(labels_cells>0) * 100.
-
-    # Q4. Percentage of Ambiguous aggregates
-    Q.Percentage_Ambiguous_Aggregates = 0
-    for iagg in np.unique(labels_agg2):
-        if iagg==0:
-            continue
-
-        # find in how many cells the aggregate is split
-        idx_agg = labels_agg2==iagg  # indices of one connected comp. aggregate
-
-        # find cell IDs that the aggregate spans over
-        single_agg_span_cells = np.zeros(np.shape(labels_agg))
-        single_agg_span_cells[idx_agg] = aggregate_labels_per_cell[idx_agg]
-        #plt.imshow(single_agg_span_cells)
-        #plt.show()
-        #assert(0)
-
-        cell_ids_in_aggregate_ = np.unique(aggregate_labels_per_cell[idx_agg])
-        cell_ids_in_aggregate = cell_ids_in_aggregate_[cell_ids_in_aggregate_>0]
-
-        print(cell_ids_in_aggregate, "length:", len(cell_ids_in_aggregate))
-        if len(cell_ids_in_aggregate)==1:
-            Q.Number_Aggregates_Per_Image_SplitOnCells += 1
-        elif len(cell_ids_in_aggregate)>1:
-            # Check if aggregate split is too much or not.. ignore very small overlapping areas..    
-            area_of_aggregate_per_cell = np.zeros(len(cell_ids_in_aggregate))
-            aggregate_area = np.sum(idx_agg)
-            for ii in range(len(cell_ids_in_aggregate)):
-                s = np.sum(single_agg_span_cells==cell_ids_in_aggregate[ii])
-                print(s, aggregate_area)
-                area_of_aggregate_per_cell[ii] = s / aggregate_area * 100.
-            print("area_of_aggregate_per_cell:", area_of_aggregate_per_cell)
-            ncells_ = area_of_aggregate_per_cell[area_of_aggregate_per_cell>2]
-            print(ncells_, len(ncells_))
-            Q.Number_Aggregates_Per_Image_SplitOnCells += len(ncells_)
-            print(Q.Number_Aggregates_Per_Image_SplitOnCells)
-            assert(0)
+    Q.Number_Of_Cells_Per_Image = len(U_CELLS)
 
     # Q5. Number of Aggregates Per Image
-    Q.Number_Aggregates_Per_Image_ConnectedComponents = len(np.unique(labels_agg2)) - 1  # exclude background
+    Q.Number_Aggregates_Per_Image_ConnectedComponents = len(U_AGG)
 
+    # Q3. Total area of aggregates (in percentage of cell area)
+    Q.Percentage_Area_Aggregates = np.sum(mask_agg) / np.sum(mask_cell) * 100.
+
+
+    # Q1. Percentage of aggregate-positive cells
+    # Q4. Percentage of Ambiguous aggregates
     # Q6. Number of Aggregates per Cell
-    # TODO
+    Q.Percentage_Of_AggregatePositive_Cells = 0
+    Q.Avg_Number_Aggregates_Per_Cell = 0
+    Q.Percentage_Ambiguous_Aggregates = 0
+
+
+    aggregate_labels_per_cell = np.zeros(np.shape(mask_agg))
+
+
 
 
     assert(0)

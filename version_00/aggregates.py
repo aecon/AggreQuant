@@ -49,7 +49,8 @@ def QoI(labels_agg0, labels_cells):
         U_CELLS:    Unique cell IDs
         U_AGG:      Unique aggrgate IDs (Connected components)
 
-        aggregate_positive_cells_list = np.zeros(len(U_CELLS)) - List with number of aggregates per cell.
+        list_number_of_aggregates_per_cell = np.zeros(len(U_CELLS)) - List with number of aggregates per cell.
+        list_number_of_cells_per_aggregate = np.zeros(len(U_AGG)) - List with number of cell per aggregate.
     """
 
     # aggregate mask (exclude aggregates outside cells)
@@ -99,12 +100,36 @@ def QoI(labels_agg0, labels_cells):
     # Q1. Percentage of aggregate-positive cells
     # Q4. Percentage of Ambiguous aggregates
     # Q6. Number of Aggregates per Cell
-    Q.Percentage_Of_AggregatePositive_Cells = 0
     Q.Avg_Number_Aggregates_Per_Cell = 0
+    Q.Percentage_Of_AggregatePositive_Cells = 0
     Q.Percentage_Ambiguous_Aggregates = 0
 
+    list_number_of_aggregates_per_cell = np.zeros(len(U_CELLS))
+    list_number_of_cells_per_aggregate = np.zeros(len(U_AGG))
+    
+    for iagg in U_AGG:
 
-    aggregate_labels_per_cell = np.zeros(np.shape(mask_agg))
+        # indices of aggregate
+        idx_agg = (labels_agg==iagg)
+
+        # cell indices/IDs under aggregate
+        idx_cells = labels_cells[idx_agg]
+        ID_cells  = np.unique(idx_cells[idx_cells>0])
+
+        # total aggregate area
+        total_agg_area = len(idx_agg)
+
+        split_agg_over_cells = np.zeros(len(ID_cells))  # to find ambiguous aggregates (split over many cells)
+
+        # loop over cells under aggregate
+        for icell in ID_cells:
+            # area of aggregate over cell `icell`
+            agg_area = np.sum()
+
+            # total area of cell `icell`
+
+
+        assert(0)
 
 
 

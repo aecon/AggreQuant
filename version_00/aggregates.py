@@ -18,7 +18,7 @@ class Quantities:
         self.Percentage_Ambiguous_Aggregates = 0
         self.Number_Aggregates_Per_Image_ConnectedComponents = 0
         self.Number_Aggregates_Per_Image_SplitOnCells = 0 # number of aggregates split on cells
-        self.Avg_Number_Aggregates_Per_Cell = 0
+        self.Avg_Number_Aggregates_Per_AggPositive_Cell = 0
 
 
 def return_mask(img, value):
@@ -99,8 +99,6 @@ def QoI(labels_agg0, labels_cells):
 
     # Q1. Percentage of aggregate-positive cells
     # Q4. Percentage of Ambiguous aggregates
-    # Q6. Number of Aggregates per Cell
-    Q.Avg_Number_Aggregates_Per_Cell = 0
     Q.Percentage_Of_AggregatePositive_Cells = 0
     Q.Percentage_Ambiguous_Aggregates = 0
 
@@ -123,15 +121,23 @@ def QoI(labels_agg0, labels_cells):
 
         # loop over cells under aggregate
         for icell in ID_cells:
+
             # area of aggregate over cell `icell`
-            agg_area = np.sum()
+            agg_area = np.sum(idx_cells==icell)
 
             # total area of cell `icell`
+            icell_area = np.sum(labels_cells==icell)
+
+            ratio_of_agg_to_icell_area = agg_area / icell_area * 100.
+            if ratio_of_agg_to_icell_area > 1.:  # consider only aggregates covering more than 1% of cell area
+                list_number_of_aggregates_per_cell[icell] += 1
 
 
         assert(0)
 
-
+    # Q6. Average Number of Aggregates per aggregate-positive Cell
+    Q.Avg_Number_Aggregates_Per_AggPositive_Cell = np.mean( list_number_of_aggregates_per_cell[list_number_of_aggregates_per_cell>0] )
+    print(Q.Avg_Number_Aggregates_Per_AggPositive_Cell)
 
 
     assert(0)

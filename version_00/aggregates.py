@@ -97,15 +97,10 @@ def QoI(labels_agg0, labels_cells):
     Q.Percentage_Area_Aggregates = np.sum(mask_agg) / np.sum(mask_cell) * 100.
 
 
-    # Q1. Percentage of aggregate-positive cells
-    # Q4. Percentage of Ambiguous aggregates
-    Q.Percentage_Of_AggregatePositive_Cells = 0
-    Q.Percentage_Ambiguous_Aggregates = 0
-
     list_number_of_aggregates_per_cell = np.zeros(len(U_CELLS))
     list_number_of_cells_per_aggregate = np.zeros(len(U_AGG))
     
-    for iagg in U_AGG:
+    for ia, iagg in enumerate(U_AGG):
 
         # indices of aggregate
         idx_agg = (labels_agg==iagg)
@@ -117,10 +112,10 @@ def QoI(labels_agg0, labels_cells):
         # total aggregate area
         total_agg_area = len(idx_agg)
 
-        split_agg_over_cells = np.zeros(len(ID_cells))  # to find ambiguous aggregates (split over many cells)
+        ratio_area_of_agg_split_over_cells = np.zeros(len(ID_cells))  # to find ambiguous aggregates (split over many cells)
 
         # loop over cells under aggregate
-        for icell in ID_cells:
+        for ic, icell in enumerate(ID_cells):
 
             # area of aggregate over cell `icell`
             agg_area = np.sum(idx_cells==icell)
@@ -128,12 +123,24 @@ def QoI(labels_agg0, labels_cells):
             # total area of cell `icell`
             icell_area = np.sum(labels_cells==icell)
 
+            ratio_area_of_agg_split_over_cells[ic] = agg_area / total_agg_area * 100.
+
             ratio_of_agg_to_icell_area = agg_area / icell_area * 100.
             if ratio_of_agg_to_icell_area > 1.:  # consider only aggregates covering more than 1% of cell area
-                list_number_of_aggregates_per_cell[icell] += 1
+                icell_in_U_CELLS = (U_CELLS == icell)
+                list_number_of_aggregates_per_cell[icell_in_U_CELLS] += 1
 
+        list_number_of_cells_per_aggregate[ia] = np.sum( ratio_area_of_agg_split_over_cells>1. )  # ambiguously split aggregates
+        print(list_number_of_cells_per_aggregate)
 
         assert(0)
+
+
+    # Q4. Percentage of Ambiguous aggregates
+    Q.Percentage_Ambiguous_Aggregates = np.sum(list_number_of_cells_per_aggregate>1) / len(U_AGG) * 100.
+
+    # Q1. Percentage of aggregate-positive cells
+    Q.Percentage_Of_AggregatePositive_Cells = np.sum(list_number_of_aggregates_per_cell>0) / len(U_CELLS) * 100.
 
     # Q6. Average Number of Aggregates per aggregate-positive Cell
     Q.Avg_Number_Aggregates_Per_AggPositive_Cell = np.mean( list_number_of_aggregates_per_cell[list_number_of_aggregates_per_cell>0] )

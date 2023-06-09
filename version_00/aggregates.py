@@ -34,7 +34,7 @@ def exclude_outside_cells(img, cells):
     return tmp2
 
 
-def QoI(labels_agg0, labels_cells):
+def QoI(labels_agg0, labels_cells, bpath, check_code=False):
     """
     Quantities of Interest:
         1. Percentage of aggregate-positive cells
@@ -53,6 +53,8 @@ def QoI(labels_agg0, labels_cells):
         list_number_of_cells_per_aggregate = np.zeros(len(U_AGG)) - List with number of cell per aggregate.
     """
 
+    check_code = True
+
     # aggregate mask (exclude aggregates outside cells)
     tmp_     = return_mask(labels_agg0, 0)
     mask_agg = exclude_outside_cells(tmp_, labels_cells)
@@ -65,16 +67,17 @@ def QoI(labels_agg0, labels_cells):
     mask_cell[labels_cells>0] = 1
 
     # Overlay of aggregates on cells and total aggregates
-    if 0:
+    if (check_code==True) and (False):
         _tmp1 = labels_agg0>0
         _tmp2 = labels_agg>0
         _tmp3 = np.zeros(np.shape(_tmp1))
         _tmp3[_tmp1] =  _tmp3[_tmp1]+1
         _tmp3[_tmp2] =  _tmp3[_tmp2]+1
-        plt.imshow(_tmp3)
-        plt.show()
         print(np.unique(_tmp3))
-        assert(0)
+        plt.imshow(_tmp3)
+        plt.title("All aggregate mask")
+        plt.show()
+
 
     # Unique cell IDs
     U_CELLS = np.unique(labels_cells[labels_cells>0])
@@ -99,7 +102,7 @@ def QoI(labels_agg0, labels_cells):
 
     list_number_of_aggregates_per_cell = np.zeros(len(U_CELLS))
     list_number_of_cells_per_aggregate = np.zeros(len(U_AGG))
-    
+
     for ia, iagg in enumerate(U_AGG):
 
         # indices of aggregate
@@ -111,6 +114,32 @@ def QoI(labels_agg0, labels_cells):
 
         # total aggregate area
         total_agg_area = np.sum(idx_agg)
+        print("aggregate area:", total_agg_area)
+
+        # troubleshooting
+        if check_code==True:
+            tmp_ = np.zeros(np.shape(mask_agg))
+            #print(ID_cells)
+            for ic, icell in enumerate(ID_cells):
+                itmp2_ = (labels_cells == icell)
+                #print(np.shape(itmp2_), np.unique(itmp2_))
+                tmp_[itmp2_] = ic+2
+            tmp_[idx_agg] = -1
+            tmp_[labels_cells==0] = 0
+            tmp_idx_non_zero = np.where(tmp_>0)
+            ymin = np.min(tmp_idx_non_zero[0])
+            ymax = np.max(tmp_idx_non_zero[0])
+            xmin = np.min(tmp_idx_non_zero[1])
+            xmax = np.max(tmp_idx_non_zero[1])
+            tmp_new = np.zeros((ymax-ymin, xmax-xmin))
+            tmp_new[:,:] = tmp_[ymin:ymax, xmin:xmax]
+            cmap = plt.get_cmap('gist_yarg')
+            cmap.set_under('magenta')  # Color for values less than vmin
+            plt.imshow(tmp_new, cmap='gist_yarg', vmin=0, vmax=len(ID_cells)+1)  # the full cells that it covers
+            #plt.show()
+            plt.savefig("fig_pipeline/check_code_%s_IAGG-%04d.png" % (bpath, ia))
+            plt.close()
+
 
         # percentage of aggregate over each overlapping cell
         ratio_area_of_agg_split_over_cells = np.zeros(len(ID_cells))  # to find ambiguous aggregates (split over many cells)
@@ -131,9 +160,15 @@ def QoI(labels_agg0, labels_cells):
                 icell_in_U_CELLS = (U_CELLS == icell)
                 list_number_of_aggregates_per_cell[icell_in_U_CELLS] += 1
 
+        print("ratio_area_of_agg_split_over_cells:", ratio_area_of_agg_split_over_cells)
         assert( np.sum(ratio_area_of_agg_split_over_cells)>80 and np.sum(ratio_area_of_agg_split_over_cells)<=100  )
 
         list_number_of_cells_per_aggregate[ia] = np.sum( ratio_area_of_agg_split_over_cells>1. )  # ambiguously split aggregates
+        print("list_number_of_cells_per_aggregate[ia]:", list_number_of_cells_per_aggregate[ia])
+
+#        if check_code==True:
+#            sys.exit()
+#            assert(0)
 
 
     # Q4. Percentage of Ambiguous aggregates
@@ -157,9 +192,11 @@ def QoI(labels_agg0, labels_cells):
     print(Q.Avg_Number_Aggregates_Per_AggPositive_Cell)
 
 
+#    if check_code==True:
+#        # export results in files
+
+
     assert(0)
-
-
 
 
 def segment_intensity_map(image_file, cells_file, opath, Names):
@@ -234,7 +271,7 @@ def segment_intensity_map(image_file, cells_file, opath, Names):
     # load cell labels
     img_cells = skimage.io.imread(cells_file, plugin='tifffile')
 
-    QoI(labels, img_cells)
+    QoI(labels, img_cells, bpath)
 
 
 def segment_ilastik():

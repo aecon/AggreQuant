@@ -9,10 +9,12 @@ X Coded QoI computation
 - add aggregate diagnostics
 - verify file generation
 
-Version 1.0: add validation set
+Version 1.0:
+- add validation set
 - come up with quantitative metrics
 - include nnUnet in Segmentation tools
 - preprocessing: include file renaming and copying in the python code
+- add GPU support
 
 
 

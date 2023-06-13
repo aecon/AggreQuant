@@ -17,8 +17,24 @@ class Quantities:
         self.Percentage_Area_Aggregates = 0
         self.Percentage_Ambiguous_Aggregates = 0
         self.Number_Aggregates_Per_Image_ConnectedComponents = 0
-        self.Number_Aggregates_Per_Image_SplitOnCells = 0 # number of aggregates split on cells
         self.Avg_Number_Aggregates_Per_AggPositive_Cell = 0
+
+    def export_table(self, table_file):
+        """
+        Export a text file with a table of aggregate characteristics per image set
+        """
+
+#        with open(table_file+"_per_aggregate.txt", 'w') as f:
+#            f.write("%12s %12s \n" % ("Volume(um3)", "NMolTDP"))
+#            for i in range(Nc):
+#                f.write("%12.2e %12d \n" % (volumes[i], particles[i] ))
+#            f.close()
+
+        with open(table_file, 'w') as f:
+            f.write("%15s %15s %15s %15s %15s %16s\n" % ("%Agg.Pos.Cells", "N.Cells", "%Area.Agg.",     "%Ambig.Agg.", "N.Agg.Img(CC)", "Avg.NAgg perCell"))
+            f.write("%15g %15g %15g %15g %15g %16g\n" % (self.Percentage_Of_AggregatePositive_Cells, self.Number_Of_Cells_Per_Image, self.Percentage_Area_Aggregates, self.Percentage_Ambiguous_Aggregates, self.Number_Aggregates_Per_Image_ConnectedComponents, self.Avg_Number_Aggregates_Per_AggPositive_Cell))
+            f.close()
+
 
 
 def return_mask(img, value):
@@ -53,7 +69,7 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
         list_number_of_cells_per_aggregate = np.zeros(len(U_AGG)) - List with number of cell per aggregate.
     """
 
-    check_code = True
+    check_code = False
 
     # aggregate mask (exclude aggregates outside cells)
     tmp_     = return_mask(labels_agg0, 0)
@@ -114,7 +130,7 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
 
         # total aggregate area
         total_agg_area = np.sum(idx_agg)
-        print("aggregate area:", total_agg_area)
+        #print("aggregate area:", total_agg_area)
 
         # troubleshooting
         if check_code==True:
@@ -165,16 +181,11 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
                 icell_in_U_CELLS = (U_CELLS == icell)
                 list_number_of_aggregates_per_cell[icell_in_U_CELLS] += 1
 
-        print("ratio_area_of_agg_split_over_cells:", ratio_area_of_agg_split_over_cells)
+        #print("ratio_area_of_agg_split_over_cells:", ratio_area_of_agg_split_over_cells)
         #assert( np.sum(ratio_area_of_agg_split_over_cells)>80 and np.sum(ratio_area_of_agg_split_over_cells)<=100  ) # TODO: CHECK!
 
         list_number_of_cells_per_aggregate[ia] = np.sum( ratio_area_of_agg_split_over_cells>1. )  # ambiguously split aggregates
-        print("list_number_of_cells_per_aggregate[ia]:", list_number_of_cells_per_aggregate[ia])
-
-#        if check_code==True:
-#            sys.exit()
-#            assert(0)
-
+        #print("list_number_of_cells_per_aggregate[ia]:", list_number_of_cells_per_aggregate[ia])
 
     # Q4. Percentage of Ambiguous aggregates
     Q.Percentage_Ambiguous_Aggregates = np.sum(list_number_of_cells_per_aggregate>1) / len(U_AGG) * 100.
@@ -197,11 +208,11 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
     print(Q.Avg_Number_Aggregates_Per_AggPositive_Cell)
 
 
-#    if check_code==True:
-#        # export results in files
+    table_file = "%s/%s_exported_table.txt" % (opath, bpath)
+    print("Exporting table to %s" % table_file)
+    Q.export_table(table_file)
+    #assert(0)
 
-
-#    assert(0)
 
 
 def segment_intensity_map(image_file, cells_file, opath, Names):
@@ -277,6 +288,7 @@ def segment_intensity_map(image_file, cells_file, opath, Names):
     img_cells = skimage.io.imread(cells_file, plugin='tifffile')
 
     QoI(labels, img_cells, bpath, opath)
+
 
 
 def segment_ilastik():

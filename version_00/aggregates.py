@@ -132,23 +132,25 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
 
     AreaRatioThreshold = 0.1
 
-    for ia, iagg in enumerate(U_AGG):
 
-        printme=False
-        if iagg==22:
-            printme=True
+    # Loop over all aggregates
+    for ia, iagg in enumerate(U_AGG):
 
         # indices of aggregate
         idx_agg = (labels_agg==iagg)   # 2040x2040 T/F
 
+        # total aggregate area
+        total_agg_area = np.sum(idx_agg)
+
         # cell indices/IDs under aggregate
         lbl_cells = labels_cells[idx_agg]  # list of cell Labels
         ID_cells  = np.unique(lbl_cells[lbl_cells>0])
+        assert( len(ID_cells) >= 1 ) # assert there is at least one cell under aggregate
 
-        # total aggregate area
-        total_agg_area = np.sum(idx_agg)
-        if printme==True:
-            print("aggregate area:", total_agg_area)
+        # fraction of aggregate in particular cell, compared to total Aggregate area
+        ratio_area_of_agg_split_over_cells = np.zeros(len(ID_cells))  # to find ambiguous aggregates (split over many cells)
+
+
 
         # troubleshooting
         if check_code==True:
@@ -168,32 +170,13 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
             cmap = plt.get_cmap('gist_yarg')
             cmap.set_under('magenta')  # Color for values less than vmin
 
-            # view figure
-            #plt.imshow(tmp_new, cmap='gist_yarg', vmin=0, vmax=len(ID_cells)+1)  # the full cells that it covers
-            #plt.show()
-            #plt.savefig("fig_pipeline/check_code_%s_IAGG-%04d.png" % (bpath, ia))
-            #plt.close()
-
             # save tif file
             skimage.io.imsave("%s/%s_CHECK_segmented_aggID_%04d_over_cells.tif" % (opath, bpath, iagg), tmp_new, plugin='tifffile')
-            #assert(0)
 
 
-
-        # percentage of aggregate over each overlapping cell
-        ratio_area_of_agg_split_over_cells = np.zeros(len(ID_cells))  # to find ambiguous aggregates (split over many cells)
-        if printme==True:
-            print("N.cells:", len(ID_cells))
-            print("Cell IDs:", ID_cells)
-
-        # assert there is at least one cell under aggregate
-        assert( len(ID_cells) >= 1 )
 
         # loop over cells under aggregate
         for ic, icell in enumerate(ID_cells):
-
-            if printme==True:
-                print(">> Looping over cell (ic, icell):", ic, icell)
 
             # area of aggregate over cell `icell`
             agg_area = np.sum(lbl_cells==icell)
@@ -203,9 +186,6 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
 
             # Fraction of aggregate in particular cell, compared to total Aggregate area
             ratio_area_of_agg_split_over_cells[ic] = agg_area / total_agg_area * 100.
-            if printme==True:
-                print("icell_area:", icell_area)
-                print("ratio_area_of_agg_split_over_cells[ic]", ratio_area_of_agg_split_over_cells[ic])
 
             ratio_of_agg_to_icell_area = agg_area / icell_area * 100.
 
@@ -217,54 +197,33 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
                 # for tif image diagnostics:
                 overlay_cells_agg[(labels_cells==icell)*(mask_agg==0)] = -2
 
-                if printme==True:
-                    print("icell_in_U_CELLS", icell_in_U_CELLS)
-                    print("list_number_of_aggregates_per_cell[icell_in_U_CELLS]", list_number_of_aggregates_per_cell[icell_in_U_CELLS])
 
-
-        if printme==True:
-            print("ratio_area_of_agg_split_over_cells:", ratio_area_of_agg_split_over_cells)
-        #assert( np.sum(ratio_area_of_agg_split_over_cells)>80 and np.sum(ratio_area_of_agg_split_over_cells)<=100  ) # TODO: CHECK!
-
+        if (np.sum(ratio_area_of_agg_split_over_cells)<90) or (np.sum(ratio_area_of_agg_split_over_cells)>101):
+            print("Inconsistent sum of ratio_area_of_agg_split_over_cells")
+            assert(0)
         
-        if printme==True:
-            print("list_number_of_cells_per_aggregate[ia]:", list_number_of_cells_per_aggregate[ia])
-            print(np.sum(idx_agg))
-
         # Color by number of cells per aggregate
         overlay_cells_agg[idx_agg] = list_number_of_cells_per_aggregate[ia]
 
 
-    # store tif image diagnostics
-#    overlay_cells_agg[mask_agg>0]  = 1
+
+    # save tif image diagnostics
     overlay_cells_agg[mask_cell==0] = 0
     skimage.io.imsave("%s/%s_overlay_segmented_cells_aggregates.tif" % (opath, bpath), overlay_cells_agg, plugin='tifffile')
 
     # Q4. Percentage of Ambiguous aggregates
     Q.Percentage_Ambiguous_Aggregates = np.sum(list_number_of_cells_per_aggregate>1) / len(U_AGG) * 100.
-    #print("")
-    #print("list_number_of_cells_per_aggregate")
-    #print(list_number_of_cells_per_aggregate)
-    #print("Ambiguous aggregates (%):", Q.Percentage_Ambiguous_Aggregates)
 
     # Q1. Percentage of aggregate-positive cells
     Q.Percentage_Of_AggregatePositive_Cells = np.sum(list_number_of_aggregates_per_cell>0) / len(U_CELLS) * 100.
-    #print("")
-    #print("list_number_of_aggregates_per_cell")
-    #print(list_number_of_aggregates_per_cell)
-    #print("Aggregate-positive Cells (%):", Q.Percentage_Of_AggregatePositive_Cells)
 
     # Q6. Average Number of Aggregates per aggregate-positive Cell
     Q.Avg_Number_Aggregates_Per_AggPositive_Cell = np.mean( list_number_of_aggregates_per_cell[list_number_of_aggregates_per_cell>0] )
-    #print("")
-    #print("Average number of aggregates, per aggregate-positive cell")
-    #print(Q.Avg_Number_Aggregates_Per_AggPositive_Cell)
 
-
+    # Export to data file
     table_file = "%s/%s_exported_table.txt" % (opath, bpath)
     print("Exporting table to %s" % table_file)
     Q.export_table(table_file)
-    #assert(0)
 
 
 

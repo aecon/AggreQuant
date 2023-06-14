@@ -10,7 +10,7 @@ X Coded QoI computation
 - verify file generation
 
 Version 1.0:
-- add validation set
+- add validation set + Tests
 - come up with quantitative metrics
 - include nnUnet in Segmentation tools
 - preprocessing: include file renaming and copying in the python code

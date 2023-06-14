@@ -57,12 +57,12 @@ def exclude_outside_cells(mask, cells):
 def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
     """
     Quantities of Interest:
-        1. Percentage of aggregate-positive cells
-        2. Number of cells per image
-        3. Total area of aggregates (in percentage of cell area)
-        4. Percentage of ambiguous aggregates (corresponding to more than 1 cell)
-        5. Number of aggregates per image
-        6. Prototype: Number of aggregates per cell
+        1. [CHK] Percentage of aggregate-positive cells
+        2. [CHK] Number of cells per image
+        3. [CHK] Total area of aggregates (in percentage of cell area)
+        4. [CHK] Percentage of ambiguous aggregates (corresponding to more than 1 cell)
+        5. [CHK] Number of aggregates per image
+        6. [CHK] Prototype: Number of aggregates per cell
 
         labels_agg: Connected comp. of aggregates inside cells
         mask_cell:  Binary mask of cells
@@ -110,8 +110,10 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
     # overlay detected cells and aggregates
     overlay_cells_agg = np.zeros(np.shape(labels_cells), dtype=np.dtype(float))
     overlay_cells_agg[mask_cell>0] = -1
-    #skimage.io.imsave("%s/%s_overlay_segmented_cells_aggregates.tif" % (opath, bpath), overlay_cells_agg, plugin='tifffile')
-    #tifffile.imwrite("%s/%s_overlay_segmented_cells_aggregates.tif" % (opath, bpath), overlay_cells_agg, metadata={"axes": "CYX"}, imagej=True)
+
+    # figure: color cells with number of aggregates per cell
+    overlay_nagg_per_cell = np.ones(np.shape(labels_cells), dtype=np.dtype(float)) * -1
+    overlay_nagg_per_cell[mask_cell>0] = 0
 
 
     # QUANTIFICATION
@@ -192,16 +194,20 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
             if ratio_of_agg_to_icell_area > AreaRatioThreshold:  # consider only aggregates covering more than X% of cell area
                 icell_in_U_CELLS = (U_CELLS == icell)
                 list_number_of_aggregates_per_cell[icell_in_U_CELLS] += 1
-                list_number_of_cells_per_aggregate[ia] += 1 # np.sum( ratio_area_of_agg_split_over_cells>1.0 )  # ambiguously split aggregates
+                list_number_of_cells_per_aggregate[ia] += 1
 
                 # for tif image diagnostics:
                 overlay_cells_agg[(labels_cells==icell)*(mask_agg==0)] = -2
+
+                # Color cell by number of aggregates per cell
+                overlay_nagg_per_cell[(labels_cells==icell)] = list_number_of_aggregates_per_cell[icell_in_U_CELLS]
+
 
 
         if (np.sum(ratio_area_of_agg_split_over_cells)<90) or (np.sum(ratio_area_of_agg_split_over_cells)>101):
             print("Inconsistent sum of ratio_area_of_agg_split_over_cells")
             assert(0)
-        
+
         # Color by number of cells per aggregate
         overlay_cells_agg[idx_agg] = list_number_of_cells_per_aggregate[ia]
 
@@ -209,7 +215,10 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
 
     # save tif image diagnostics
     overlay_cells_agg[mask_cell==0] = 0
+    overlay_nagg_per_cell[mask_agg>0] = -2  # comment-out to show only cells
     skimage.io.imsave("%s/%s_overlay_segmented_cells_aggregates.tif" % (opath, bpath), overlay_cells_agg, plugin='tifffile')
+    skimage.io.imsave("%s/%s_overlay_naggregates_per_cell.tif" % (opath, bpath), overlay_nagg_per_cell, plugin='tifffile')
+
 
     # Q4. Percentage of Ambiguous aggregates
     Q.Percentage_Ambiguous_Aggregates = np.sum(list_number_of_cells_per_aggregate>1) / len(U_AGG) * 100.

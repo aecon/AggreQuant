@@ -1,5 +1,5 @@
 
-class Filenames:
+class FileInfo:
 
     def __init__(self):
 
@@ -9,8 +9,8 @@ class Filenames:
         self.COLOR_AGGREGATES = ""
 
         # Output
-        self.OUTDIR_PATH = ""
-        self.OUTDIR = ""
+        self.INPUT_DIR = ""
+        self.OUTPUT_DIR = ""
 
         # Nuclei
         self.NUCLEI_ALL_LABELS = ""

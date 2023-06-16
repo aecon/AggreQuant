@@ -20,7 +20,7 @@ def stamp(s):
 
 def process_nuclei(fileInfo, image_list):
     nuclei = Nuclei(fileInfo)
-    #nuclei.segment_nuclei(image_list)
+    nuclei.segment_nuclei(image_list)
     return nuclei
 
 

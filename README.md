@@ -21,6 +21,13 @@ conda activate tf
 python nuclei.py -i <path-to-tif>
 ```
 
+Installation:  
+* tensorflow: https://www.tensorflow.org/install/pip
+* cupy: https://docs.cupy.dev/en/stable/install.html (`conda install -c conda-forge cupy`)
+* pip install scikit-image
+* pip install stardist
+
+
 ### Cell membrane segmentation
 
 * Using [Cellpose](https://github.com/mouseland/cellpose) pre-trained DL.
@@ -60,4 +67,22 @@ python3 aggregates.py -i <path-to-tif>
 * [ ] - Test nnU-Net for cell and nuclei segmentation. Run on validation cases.
 * [ ] Validation: Select datasets and add to validation stack.
 
+
+### Package tracking
+
+To collect all packages used by the code, [pipreqs](https://github.com/bndr/pipreqs) is used.
+```
+pip install pipreqs
+```
+Then use as
+```
+cd <code>
+pipreqs .
+```
+This generates a file `requirements.txt` inside `<code>/`.
+
+The packages inside the requirements.txt file can be installed with
+```
+pip install -r requirements.txt
+```
 

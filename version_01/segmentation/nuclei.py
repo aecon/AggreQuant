@@ -1,15 +1,16 @@
 import os
 import sys
+import time
 import numpy as np
 import skimage.io
 import skimage.filters
 import skimage.morphology
 from skimage import restoration
 
-import tensorflow as tf
-from stardist.models import StarDist2D
-from csbdeep.utils import normalize
+import cupy as cp
+from cupyx.scipy.ndimage import gaussian_filter
 
+import matplotlib.pyplot as plt
 
 
 class Nuclei:
@@ -24,7 +25,55 @@ class Nuclei:
         self.output_directory = "%s/nuclei" % fileInfo.OUTPUT_DIR
 
 
+    def preprocess_gpu_1(self, img0):
+        mean = np.median(img0)
+        print(np.mean(img0), np.median(img0))
+        tmp = np.zeros(np.shape(img0))
+        tmp[:,:] = img0[:,:]
+        tmp[img0>mean] = mean
+
+        g_ = cp.asarray(tmp, dtype=float)
+        g1 = gaussian_filter(g_, sigma=20, mode='nearest')
+        g0 = cp.asarray(img0, dtype=float)
+        g2 = cp.subtract(g0, g1)
+        g3 = gaussian_filter(g2, sigma=2)
+        img = cp.asnumpy(g3)
+        return img
+
+
+    def preprocess_cpu_1(self, img0):
+        # Takes ~ 1.2 sec
+        img1 = skimage.filters.gaussian(img0, sigma=2)
+        back = skimage.filters.gaussian(img1, sigma=50, mode='nearest', preserve_range=True)
+        img2 = img1 / back
+        return img2
+
+
+    def preprocess_cpu_0(self, img0):
+        # CLAHE takes ~20 sec
+        # background subtraction
+        background = restoration.rolling_ball(img0, radius=50)
+        img1 = img0 - background
+
+        img2 = skimage.exposure.equalize_adapthist(img1, kernel_size=150)
+        rescale_range = np.max(img2) - np.min(img2)
+        Max_uint16 = 65535
+        img2_ = (img2-np.min(img2)) / (np.max(img2) - np.min(img2))
+        img2_ = img2_*Max_uint16
+        img2 = np.asarray(img2_, dtype=np.dtype(np.uint16))
+
+        # smoothing
+        img = skimage.filters.gaussian(img2, sigma=3)
+
+        return img
+
+
     def segment_nuclei(self, image_list, verbose=False):
+
+        import tensorflow as tf
+        tf.autograph.set_verbosity(2)
+        from stardist.models import StarDist2D
+        from csbdeep.utils import normalize
 
         # limit GPU usage
         gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -34,30 +83,32 @@ class Nuclei:
         # import pretrained model
         model = StarDist2D.from_pretrained('2D_versatile_fluo')
 
+        opath = self.output_directory
+        if not os.path.exists(opath):
+            os.makedirs(opath)
+
         # loop over images
         for im,image_file in enumerate(image_list):
+
+            bpath = os.path.basename(image_file)
 
             if verbose:
                 print(">> Processing image: %s" % os.path.basename(image_file))
 
             img0 = skimage.io.imread(image_file, plugin='tifffile')
 
-            # background subtraction
-            background = restoration.rolling_ball(img0, radius=50)
-            img1 = img0 - background
-
-            img2 = skimage.exposure.equalize_adapthist(img1, kernel_size=150)
-            rescale_range = np.max(img2) - np.min(img2)
-            Max_uint16 = 65535
-            img2_ = (img2-np.min(img2)) / (np.max(img2) - np.min(img2))
-            img2_ = img2_*Max_uint16
-            img2 = np.asarray(img2_, dtype=np.dtype(np.uint16))
-
-            # smoothing
-            img = skimage.filters.gaussian(img2, sigma=3)
+            t1 = time.time()
+            img = self.preprocess_cpu_1(img0)
+            t2 = time.time()
+            print("time before segmentation:", t2-t1)
+            skimage.io.imsave("%s/%s_img_gpu.tif" % (opath, bpath), img, plugin='tifffile', check_contrast=False)
 
             # segmentation
-            labels, _ = model.predict_instances(normalize(img))
+            labels, _ = model.predict_instances( normalize(img), predict_kwargs=dict(verbose=False) )
+
+            t3 = time.time()
+            print("time for segmentation:", t3-t2)
+
 
             # threshold on object properties
             min_vol = 300
@@ -94,13 +145,6 @@ class Nuclei:
             if color_by_volume==True:
                 labels[:,:] = labels1[:,:]
 
-            # save segmented nuclei
-            bpath = os.path.basename(image_file)
-            opath = self.output_directory
-
-            if not os.path.exists(opath):
-                os.makedirs(opath)
-
             # find edges
             edges0 = skimage.filters.sobel(labels)
             edges = np.zeros(np.shape(edges0), dtype=np.dtype(np.uint8))
@@ -132,6 +176,11 @@ class Nuclei:
             mask = np.zeros(np.shape(objects), dtype=np.dtype(np.uint8))
             mask[objects>0] = 1
             skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, self.nuclei_seeds), mask, plugin='tifffile', check_contrast=False)
+
+            t4 = time.time()
+            print("time after segmentation:", t4-t3)
+
+            assert(0)
 
 #            # reconstruct edges from nuclei seeds
 #            edges0 = skimage.filters.sobel(mask)

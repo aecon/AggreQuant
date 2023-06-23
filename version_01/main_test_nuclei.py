@@ -94,7 +94,7 @@ def main():
 
     # folders
     fileInfo.INPUT_DIR = path_to_dir
-    fileInfo.OUTPUT_DIR = "%s/output_V0.5_gpu_v1" % fileInfo.INPUT_DIR
+    fileInfo.OUTPUT_DIR = "%s/output_V0.5_cpu_v3" % fileInfo.INPUT_DIR
 
     # nuclei segmentation
     fileInfo.NUCLEI_SEEDS = "seeds"
@@ -125,6 +125,7 @@ def main():
         print("\nRunning nuclei segmentation.")
 
     images_nuclei = sorted(glob.glob("%s/*%s*.tif" % (fileInfo.INPUT_DIR, fileInfo.COLOR_NUCLEI)))
+    print(images_nuclei)
 
     stamp("A")
     nuclei = process_nuclei(fileInfo, images_nuclei)
@@ -149,28 +150,7 @@ def main():
 
 
 
-#    if 0:
-#        print("\n Running cellbody segmentation.")
-#        images_cells = sorted(glob.glob("%s/*%s*.tif" % (path_to_dir, CCELLS)))
-#        print("Found %d cellbody images." % len(images_cells))
-#        if args.debug == True:
-#            print("Running in debug mode. Processing only 5 first images")
-#            cellbody_segmentation(images_cells[0:5], fileInfo)
-#        else:
-#            cellbody_segmentation(images_cells, fileInfo)
-#    
-#    if 0:
-#        print("\n Running aggregate segmentation.")
-#        images_agg = sorted(glob.glob("%s/*%s*.tif" % (path_to_dir, CAGGREGATES)))
-#        print("Found %d aggregate images." % len(images_agg))
-#        if args.debug == True:
-#            print("Running in debug mode. Processing only 5 first images")
-#            aggregate_segmentation(images_agg[0:5], fileInfo)
-#        else:
-#            aggregate_segmentation(images_agg, fileInfo)
-#    
-#    
-#    
+    
 #    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #    # Diagnostics
 #    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,10 +162,7 @@ def main():
 #        print("\nGenerating nuclei Diagnostics.")
 #        Diagnosis.Montage_nuclei_RandomSelectionZoom()
 #    
-#    if 0:
-#        print("\nGenerating cellbody Diagnostics.")
-#        Diagnosis.Montage_cells_RandomSelectionZoom()
-    
+   
 
 
 if __name__ == '__main__':

@@ -10,10 +10,10 @@ Class to compute aggregate features
 
 # statistics_generation.py
 
-class StatisticsGeneration:
-
-    def generate_statistics(self, segmented_images):
-        # Implementation for generating statistics
-
-
+#class StatisticsGeneration:
+#
+#    def generate_statistics(self, segmented_images):
+#        # Implementation for generating statistics
+#
+#
 

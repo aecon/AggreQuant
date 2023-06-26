@@ -23,7 +23,7 @@ class CellSegmentation:
             print("Segmenting cells with algorithm %s" % self.algorithm)
 
 
-    def _scale_values_01_float(img):
+    def _scale_values_01_float(self, img):
         """
         Return image with values scaled between 0 and 1
         """
@@ -51,14 +51,25 @@ class CellSegmentation:
             return False
 
 
+    def _exclude_cells_without_nucleus(self, labels, seeds):
+        AllLabels = np.unique(labels[labels>0])
+        for l in AllLabels:
+            idx = labels==l
+            is_seed = np.sum(seeds[idx])
+            if is_seed < 100:
+                labels[idx] = 0
+                print("No seed for label", l)
+        return labels
+
+
     def _segment_distance_map(self, image_file, seeds_file, allnuclei_file, opath):
 
         bpath = os.path.basename(image_file)
-    
+
         # load image and convert to float
         img0 = skimage.io.imread(image_file, plugin='tifffile')
         img0 = np.asfarray(img0, float)
-    
+
         #iscells = _check_avg_intensity(img0)
     
     
@@ -74,7 +85,7 @@ class CellSegmentation:
         img1 = smt / bkg
     
         #print("After BEQ:", np.min(img1), np.max(img1))
-        img11, scale = _scale_values_01_float(img1)
+        img11, scale = self._scale_values_01_float(img1)
         #print("After scaling 0/1 (float):", np.min(img11), np.max(img11))
         img2 = skimage.exposure.equalize_adapthist(img11, kernel_size=150)
         #print("After CLAHE:", np.min(img2), np.max(img2))
@@ -116,25 +127,21 @@ class CellSegmentation:
         #plt.show()
     
         # Remove cellbodies that do not contain nucleus
-        AllLabels = np.unique(labels[labels>0])
-        for l in AllLabels:
-            idx = labels==l
-            is_seed = np.sum(seeds[idx])
-            if is_seed < 100:
-                labels[idx] = 0
-                print("No seed for label", l)
-        #plt.imshow(labels)
-        #plt.show()
-        skimage.io.imsave("%s/%s_cellbodies_labels.tif" % (opath, bpath), labels, plugin='tifffile')
-    
-        # Assign a cell area to each nucleus
-        nuclei_labels = np.zeros(np.shape(labels), dtype=np.dtype(np.uint16))
-        nuclei_labels[labels>0] = labels[labels>0]
-        nuclei_labels[seeds==0] = 0
-        #plt.imshow(nuclei_labels)
-        #plt.show()
-        skimage.io.imsave("%s/%s_corresponding_nuclei.tif" % (opath, bpath), nuclei_labels, plugin='tifffile')
-    
+        labels2 = self._exclude_cells_without_nucleus(labels, seeds)
+        file_cell_labels = "%s/%s_%s.tif" % (opath, bpath, self.name_cells_labels)
+        skimage.io.imsave(file_cell_labels, labels2, plugin='tifffile')
+
+        return file_cell_labels
+
+
+#        # Assign a cell area to each nucleus
+#        nuclei_labels = np.zeros(np.shape(labels), dtype=np.dtype(np.uint16))
+#        nuclei_labels[labels>0] = labels[labels>0]
+#        nuclei_labels[seeds==0] = 0
+#        #plt.imshow(nuclei_labels)
+#        #plt.show()
+#        skimage.io.imsave("%s/%s_corresponding_nuclei.tif" % (opath, bpath), nuclei_labels, plugin='tifffile')
+#    
 #        # find edges
 #        nuclei_labels[nuclei_labels>0] = 1
 #        edges0 = skimage.filters.sobel(nuclei_labels)
@@ -172,7 +179,7 @@ class CellSegmentation:
         img1 = smt / bkg
     
         #print("After BEQ:", np.min(img1), np.max(img1))
-        img11, scale = _scale_values_01_float(img1)
+        img11, scale = self._scale_values_01_float(img1)
         #print("After scaling 0/1 (float):", np.min(img11), np.max(img11))
         img2 = skimage.exposure.equalize_adapthist(img11, kernel_size=150)
         #print("After CLAHE:", np.min(img2), np.max(img2))
@@ -203,7 +210,7 @@ class CellSegmentation:
     
         # field to use for watershed
         intensity_field_ = skimage.filters.gaussian(img2, sigma=6)
-        intensity_field, _ = _scale_values_01_float(intensity_field_)
+        intensity_field, _ = self._scale_values_01_float(intensity_field_)
         field = 1.0 - intensity_field
         field[allnuclei_mask==1] = 0
         #print(np.min(field), np.max(field))
@@ -223,38 +230,11 @@ class CellSegmentation:
         #plt.show()
     
         # Remove cellbodies that do not contain nucleus
-        AllLabels = np.unique(labels[labels>0])
-        for l in AllLabels:
-            idx = labels==l
-            is_seed = np.sum(seeds[idx])
-            if is_seed < 100:
-                labels[idx] = 0
-                print("No seed for label", l)
-        #plt.imshow(labels)
-        #plt.show()
-        skimage.io.imsave("%s/%s_cellbodies_labels.tif" % (opath, bpath), labels, plugin='tifffile')
-    
-        # Assign a cell area to each nucleus
-        nuclei_labels = np.zeros(np.shape(labels), dtype=np.dtype(np.uint16))
-        nuclei_labels[labels>0] = labels[labels>0]
-        nuclei_labels[seeds==0] = 0
-        #plt.imshow(nuclei_labels)
-        #plt.show()
-        skimage.io.imsave("%s/%s_corresponding_nuclei.tif" % (opath, bpath), nuclei_labels, plugin='tifffile')
-    
-#        # find edges
-#        nuclei_labels[nuclei_labels>0] = 1
-#        edges0 = skimage.filters.sobel(nuclei_labels)
-#        edges = np.zeros(np.shape(edges0), dtype=np.dtype(np.uint8))
-#        edges[edges0>0] = 1
-#        fat_edges = edges #skimage.morphology.binary_dilation(edges)
-#    
-#        # overlay cells and nuclei edges
-#        composite = np.zeros( np.shape(labels), dtype=np.dtype(np.uint16) )
-#        composite[:,:] = labels[:,:]
-#        composite[fat_edges==1] = 0
-#        skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, Names.COMPOSITE_CELLS_AND_NUCLEI ), composite, plugin='tifffile')
+        labels2 = self._exclude_cells_without_nucleus(labels, seeds)
+        file_cell_labels = "%s/%s_%s.tif" % (opath, bpath, self.name_cells_labels)
+        skimage.io.imsave(file_cell_labels, labels2, plugin='tifffile')
 
+        return file_cell_labels
 
 
     def _segment_propagation(self, image_file, seeds_file, allnuclei_file, opath):
@@ -277,7 +257,7 @@ class CellSegmentation:
         img1 = smt / bkg
     
         #print("After BEQ:", np.min(img1), np.max(img1))
-        img11, scale = _scale_values_01_float(img1)
+        img11, scale = self._scale_values_01_float(img1)
         #print("After scaling 0/1 (float):", np.min(img11), np.max(img11))
         img2 = skimage.exposure.equalize_adapthist(img11, kernel_size=150)
         #print("After CLAHE:", np.min(img2), np.max(img2))
@@ -310,7 +290,7 @@ class CellSegmentation:
         distances = ndimage.distance_transform_edt(1-allnuclei_mask)  # float64
         #plt.imshow(distances)
         #plt.show()
-        distances_, _ = _scale_values_01_float(distances)
+        distances_, _ = self._scale_values_01_float(distances)
         distances = 1 - distances_
         #plt.imshow(distances)
         #plt.show()
@@ -319,7 +299,7 @@ class CellSegmentation:
         intensity_field_ = skimage.filters.gaussian(img2, sigma=6)
         field_ = intensity_field_ * (distances)
     
-        field0, _ = _scale_values_01_float(field_)
+        field0, _ = self._scale_values_01_float(field_)
         field = 1.0 - field0
         #plt.imshow(field)
         #plt.show()
@@ -341,38 +321,11 @@ class CellSegmentation:
         #plt.show()
     
         # Remove cellbodies that do not contain nucleus
-        AllLabels = np.unique(labels[labels>0])
-        for l in AllLabels:
-            idx = labels==l
-            is_seed = np.sum(seeds[idx])
-            if is_seed < 100:
-                labels[idx] = 0
-                print("No seed for label", l)
-        #plt.imshow(labels)
-        #plt.show()
-        skimage.io.imsave("%s/%s_cellbodies_labels.tif" % (opath, bpath), labels, plugin='tifffile')
-    
-        # Assign a cell area to each nucleus
-        nuclei_labels = np.zeros(np.shape(labels), dtype=np.dtype(np.uint16))
-        nuclei_labels[labels>0] = labels[labels>0]
-        nuclei_labels[seeds==0] = 0
-        #plt.imshow(nuclei_labels)
-        #plt.show()
-        skimage.io.imsave("%s/%s_corresponding_nuclei.tif" % (opath, bpath), nuclei_labels, plugin='tifffile')
-    
-#        # find edges
-#        nuclei_labels[nuclei_labels>0] = 1
-#        edges0 = skimage.filters.sobel(nuclei_labels)
-#        edges = np.zeros(np.shape(edges0), dtype=np.dtype(np.uint8))
-#        edges[edges0>0] = 1
-#        fat_edges = edges #skimage.morphology.binary_dilation(edges)
-#    
-#        # overlay cells and nuclei edges
-#        composite = np.zeros( np.shape(labels), dtype=np.dtype(np.uint16) )
-#        composite[:,:] = labels[:,:]
-#        composite[fat_edges==1] = 0
-#        skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, Names.COMPOSITE_CELLS_AND_NUCLEI ), composite, plugin='tifffile')
+        labels2 = self._exclude_cells_without_nucleus(labels, seeds)
+        file_cell_labels = "%s/%s_%s.tif" % (opath, bpath, self.name_cells_labels)
+        skimage.io.imsave(file_cell_labels, labels2, plugin='tifffile')
 
+        return file_cell_labels
 
 
     def segment_cells(self, image_file, opath, seeds_file, allnuclei_file):
@@ -397,6 +350,7 @@ class CellSegmentation:
         else:
             print("Segmentation algorithm %s not defined." % self.algorithm)
             sys.exit()
+
 
         return filename_labels 
 

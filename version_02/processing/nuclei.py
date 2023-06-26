@@ -15,10 +15,11 @@ import matplotlib.pyplot as plt
 
 class NucleiSegmentation:
 
-    def __init__(self, name_nuclei_seeds, verbose, debug):
+    def __init__(self, name_nuclei_seeds, name_nuclei_alllabels, verbose, debug):
         self.verbose = verbose
         self.debug = debug
         self.name_nuclei_seeds = name_nuclei_seeds
+        self.name_nuclei_alllabels = name_nuclei_alllabels
         if verbose:
             print("Segmenting nuclei")
 

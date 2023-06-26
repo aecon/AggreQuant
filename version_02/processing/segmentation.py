@@ -6,6 +6,7 @@ import tensorflow as tf
 from utils.parser import FileParser
 from processing.dataset import Dataset, Data
 from processing.nuclei import NucleiSegmentation
+from processing.cells import CellSegmentation
 
 
 class ImageProcessor:
@@ -64,7 +65,7 @@ class ImageProcessor:
             print("")
 
         # process nuclei
-        nuclei = NucleiSegmentation(self.dataset.name_nuclei_seeds, self.verbose, self.debug)
+        nuclei = NucleiSegmentation(self.dataset.name_nuclei_seeds, self.dataset.name_nuclei_alllabels, self.verbose, self.debug)
         nuclei_seeds_file, nuclei_alllabels_file = nuclei.segment_nuclei(self.data.n, self.dataset.output_folder_nuclei)
 
         # register output files to self.data

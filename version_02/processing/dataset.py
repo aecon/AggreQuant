@@ -36,3 +36,28 @@ class Dataset:
         self.name_nuclei_alllabels = "nuclei_all_labels"
         self.name_cells_labels = "cell_labels"
 
+
+    def get_output_file_names(self, input_file, data_type):
+        bpath = os.path.basename(input_file)
+
+        if data_type=="nuclei":
+            filename_all_nuclei = "%s/%s_%s.tif" % (self.output_folder_nuclei, bpath, self.name_nuclei_alllabels)
+            filename_seeds = "%s/%s_%s.tif" % (self.output_folder_nuclei, bpath, self.name_nuclei_seeds)
+            outpaths = {
+                        "seeds": filename_seeds,
+                        "alllabels": filename_all_nuclei
+                        }
+            return outpaths
+
+        elif data_type=="cells":
+            file_cell_labels = "%s/%s_%s.tif" % (self.output_folder_cells, bpath, self.name_cells_labels)
+            outpaths = {
+                        "labels": file_cell_labels
+                        }
+            return outpaths
+
+        else:
+            print("Data type %s not supported!" % data_type)
+            sys.exit()
+
+

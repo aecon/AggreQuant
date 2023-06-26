@@ -22,7 +22,7 @@ class ImageProcessor:
         paths_cells  = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_CELLS)))
         paths_agg    = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_AGGREGATES)))
 
-        self.dataset = Dataset(paths_nuclei, paths_cells, paths_aggregates)
+        self.dataset = Dataset(paths_nuclei, paths_cells, paths_agg)
 
 
 

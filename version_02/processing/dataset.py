@@ -18,8 +18,8 @@ class Dataset:
         self.paths_cells      = paths_cells
         self.paths_aggregates = paths_aggregates
 # ??        self.paths_outdirs    = paths_output_folders
-        self.Nfiles = len(paths_nuceli)
+        self.Nfiles = len(paths_nuclei)
 
-        assert(len(paths_nuceli) == len(paths_cells))
-        assert(len(paths_nuceli) == len(paths_aggregates))
+        assert(len(paths_nuclei) == len(paths_cells))
+        assert(len(paths_nuclei) == len(paths_aggregates))
 

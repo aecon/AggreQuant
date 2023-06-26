@@ -15,17 +15,12 @@ import matplotlib.pyplot as plt
 
 class NucleiSegmentation:
 
-    def __init__(self, image_file):
-        self.fimg = image_file
-        print(self.fimg)
-        assert(0)
-
-
-#?        self.nuclei_seeds = fileInfo.NUCLEI_SEEDS
-#?        self.nuclei_all_labels = fileInfo.NUCLEI_ALL_LABELS
-#?
-#?        self.input_directory = fileInfo.INPUT_DIR
-#?        self.output_directory = "%s/nuclei" % fileInfo.OUTPUT_DIR
+    def __init__(self, name_nuclei_seeds, verbose, debug):
+        self.verbose = verbose
+        self.debug = debug
+        self.name_nuclei_seeds = name_nuclei_seeds
+        if verbose:
+            print("Segmenting nuclei")
 
 
     def _preprocess(self, img0):
@@ -36,46 +31,34 @@ class NucleiSegmentation:
         return img2
 
 
-    def segment_nuclei(self, image_file, opath, verbose=False):
+    def segment_nuclei(self, image_file, opath):
 
         if not os.path.exists(opath):
             print("Output directory does NOT exist! %s" % opath)
             sys.exit()
 
         bpath = os.path.basename(image_file)
+        if self.verbose:
+            print(">> Processing image: %s" % bpath)
 
-        if verbose:
-            print(">> Processing image: %s" % os.path.basename(image_file))
-
-
+        # load image
         img0 = skimage.io.imread(image_file, plugin='tifffile')
 
-
-        assert(0)
-
+        # pre-processing
         t1 = time.time()
         img = self._preprocess(img0)
-        skimage.io.imsave("%s/%s_img_gpu.tif" % (opath, bpath), img, plugin='tifffile', check_contrast=False)
-
         t2 = time.time()
-        print("time before segmentation:", t2-t1)
+        if self.debug:
+            print("time for preprocessing:", t2-t1)
 
-        # limit GPU usage
-        gpus = tf.config.experimental.list_physical_devices('GPU')
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-
-        # import pretrained model
+        # segment with pretrained model
         model = StarDist2D.from_pretrained('2D_versatile_fluo')
-
-        # segmentation
         labels, _ = model.predict_instances( normalize(img), predict_kwargs=dict(verbose=False) )
-
         t3 = time.time()
-        print("time for segmentation:", t3-t2)
+        if self.debug:
+            print("time for segmentation:", t3-t2)
 
-
-        # threshold on object properties
+        # thresholds on object properties
         min_vol = 300
         max_vol = 15000
         remove_small=True
@@ -84,7 +67,8 @@ class NucleiSegmentation:
 
         unique_labels, unique_counts = np.unique(labels, return_counts=True)
         Nlabels = np.shape(unique_labels)[0]
-        print("Detected %d labels" % Nlabels)
+        if self.verbose:
+            print("Detected %d labels" % Nlabels)
 
         if color_by_volume==True:
             labels1 = np.zeros(np.shape(labels))
@@ -105,7 +89,7 @@ class NucleiSegmentation:
                 idx = (labels==unique_labels[i])
                 labels1[idx] = Vol
 
-        if remove_small==True or remove_large==True:
+        if (remove_small==True or remove_large==True) and self.verbose:
             print("After removal of small/large objects, Nlabels=", np.shape(np.unique(labels))[0])
         if color_by_volume==True:
             labels[:,:] = labels1[:,:]
@@ -121,7 +105,7 @@ class NucleiSegmentation:
         objects[:,:] = labels[:,:]
         objects[fat_edges==1] = 0
 
-        skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, self.nuclei_all_labels), objects, plugin='tifffile', check_contrast=False)
+        #skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, self.nuclei_all_labels), objects, plugin='tifffile', check_contrast=False)
 
         # exclude nuclei on the borders
         edge_labels = np.unique(objects[0,:])
@@ -140,12 +124,12 @@ class NucleiSegmentation:
         # store split object mask
         mask = np.zeros(np.shape(objects), dtype=np.dtype(np.uint8))
         mask[objects>0] = 1
-        skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, self.nuclei_seeds), mask, plugin='tifffile', check_contrast=False)
+        skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, self.name_nuclei_seeds), mask, plugin='tifffile', check_contrast=False)
 
         t4 = time.time()
-        print("time after segmentation:", t4-t3)
+        if self.debug:
+            print("time after segmentation:", t4-t3)
 
-        assert(0)
 
 #        # reconstruct edges from nuclei seeds
 #        edges0 = skimage.filters.sobel(mask)

@@ -27,3 +27,6 @@ class Dataset:
         assert(len(self.paths_nuclei) == len(self.paths_cells))
         assert(len(self.paths_nuclei) == len(self.paths_aggregates))
 
+        self.name_nuclei_seeds = "nuclei_seeds"
+
+

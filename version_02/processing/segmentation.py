@@ -1,6 +1,7 @@
 import os
 import sys
 import glob
+import tensorflow as tf
 
 from utils.parser import FileParser
 from processing.dataset import Dataset, Data
@@ -62,13 +63,18 @@ class ImageProcessor:
             print(" > %s" % self.data.a)
             print("")
 
-        nuclei = NucleiSegmentation(self.data.n)
-
+        nuclei = NucleiSegmentation(self.dataset.name_nuclei_seeds, self.verbose, self.debug)
+        nuclei.segment_nuclei(self.data.n, self.dataset.output_folder_nuclei)
 
 
     def segment(self):
 
         self._make_output_directories()
+
+        # limit GPU usage
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
 
         for file_n, file_c, file_a in zip(self.dataset.paths_nuclei, self.dataset.paths_cells, self.dataset.paths_aggregates):
 

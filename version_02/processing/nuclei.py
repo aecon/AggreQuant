@@ -105,7 +105,8 @@ class NucleiSegmentation:
         objects[:,:] = labels[:,:]
         objects[fat_edges==1] = 0
 
-        #skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, self.nuclei_all_labels), objects, plugin='tifffile', check_contrast=False)
+        filename_all_nuclei = "%s/%s_%s.tif" % (opath, bpath, self.name_nuclei_alllabels)
+        skimage.io.imsave(filename_all_nuclei, objects, plugin='tifffile', check_contrast=False)
 
         # exclude nuclei on the borders
         edge_labels = np.unique(objects[0,:])
@@ -124,11 +125,15 @@ class NucleiSegmentation:
         # store split object mask
         mask = np.zeros(np.shape(objects), dtype=np.dtype(np.uint8))
         mask[objects>0] = 1
-        skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, self.name_nuclei_seeds), mask, plugin='tifffile', check_contrast=False)
+        filename_seeds = "%s/%s_%s.tif" % (opath, bpath, self.name_nuclei_seeds)
+        skimage.io.imsave(filename_seeds, mask, plugin='tifffile', check_contrast=False)
 
         t4 = time.time()
         if self.debug:
             print("time after segmentation:", t4-t3)
+
+        return filename_seeds, filename_all_nuclei
+
 
 
 #        # reconstruct edges from nuclei seeds

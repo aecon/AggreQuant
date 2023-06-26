@@ -63,8 +63,23 @@ class ImageProcessor:
             print(" > %s" % self.data.a)
             print("")
 
+        # process nuclei
         nuclei = NucleiSegmentation(self.dataset.name_nuclei_seeds, self.verbose, self.debug)
-        nuclei.segment_nuclei(self.data.n, self.dataset.output_folder_nuclei)
+        nuclei_seeds_file, nuclei_alllabels_file = nuclei.segment_nuclei(self.data.n, self.dataset.output_folder_nuclei)
+
+        # register output files to self.data
+        self.data.on_seeds = nuclei_seeds_file
+        self.data.on_alllabels = nuclei_alllabels_file
+
+        # process cells
+        cells = CellSegmentation(self.dataset.name_cells_labels, self.verbose, self.debug)
+        cells_labels_file = cells.segment_cells(self.data.c, self.dataset.output_folder_cells, self.data.on_seeds, self.data.on_alllabels)
+
+        # register output files to self.data
+        self.data.oc_labels = cells_labels_file
+
+
+        assert(0)
 
 
     def segment(self):
@@ -76,6 +91,7 @@ class ImageProcessor:
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
 
+        # loop over all "pairs" of files
         for file_n, file_c, file_a in zip(self.dataset.paths_nuclei, self.dataset.paths_cells, self.dataset.paths_aggregates):
 
             self._set_data_paths(file_n, file_c, file_a)

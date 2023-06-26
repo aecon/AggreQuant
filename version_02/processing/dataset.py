@@ -5,9 +5,14 @@ from datetime import datetime
 class Data:
     # Info for currently processed data
     def __init__(self, file_nuclei, file_cells, file_aggregates):
+        # inputs
         self.n = file_nuclei
         self.c = file_cells
         self.a = file_aggregates
+        # outputs
+        self.on_seeds = ""
+        self.on_alllabels = ""
+        self.oc_labels = ""
 
 
 class Dataset:
@@ -28,5 +33,6 @@ class Dataset:
         assert(len(self.paths_nuclei) == len(self.paths_aggregates))
 
         self.name_nuclei_seeds = "nuclei_seeds"
-
+        self.name_nuclei_alllabels = "nuclei_all_labels"
+        self.name_cells_labels = "cell_labels"
 

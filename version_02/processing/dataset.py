@@ -16,13 +16,10 @@ class Dataset:
         self.paths_nuclei     = paths_nuclei
         self.paths_cells      = paths_cells
         self.paths_aggregates = paths_aggregates
-# ??        self.paths_outdirs    = paths_output_folders
         self.Nfiles = len(paths_nuclei)
 
         folderID = datetime.today().strftime('%Y-%m-%d_%H-%M-%S')
-
         self.output_folder_main = "%s/output_%s" % (input_directory, folderID)
-        print(self.output_folder_main)
         self.output_folder_nuclei = ""
         self.output_folder_cells = ""
         self.output_folder_aggregates = ""

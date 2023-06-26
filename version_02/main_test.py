@@ -3,7 +3,7 @@ import sys
 import argparse
 
 from utils.parser import FileParser
-
+from processing.segmentation import ImageProcessor
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', type=str, required=True, help="paths.txt file with path to tifs, and colour identifiers")
@@ -14,4 +14,11 @@ args = parser.parse_args()
 
 fileParser = FileParser(args)
 
+
+# Image Processing
+processor = ImageProcessor(fileParser)
+
+
+# Statistics
+# TODO
 

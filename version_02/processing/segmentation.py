@@ -4,6 +4,7 @@ import glob
 
 from utils.parser import FileParser
 from processing.dataset import Dataset, Data
+from processing.nuclei import NucleiSegmentation
 
 
 class ImageProcessor:
@@ -60,6 +61,8 @@ class ImageProcessor:
             print(" > %s" % self.data.c)
             print(" > %s" % self.data.a)
             print("")
+
+        nuclei = NucleiSegmentation(self.data.n)
 
 
 

@@ -52,8 +52,15 @@ class ImageProcessor:
         self.data = Data(file_n, file_c, file_a)
 
 
-#    def _segment(self):
-#
+    def _segment(self):
+
+        if self.verbose:
+            print("\nProcessing files:")
+            print(" > %s" % self.data.n)
+            print(" > %s" % self.data.c)
+            print(" > %s" % self.data.a)
+            print("")
+
 
 
     def segment(self):
@@ -64,5 +71,5 @@ class ImageProcessor:
 
             self._set_data_paths(file_n, file_c, file_a)
 
-            #self._segment()
+            self._segment()
 

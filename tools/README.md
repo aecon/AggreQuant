@@ -4,23 +4,26 @@
 
 ## Copy and Rename files
 
-**Note**:
-* This tool assumes that your tif files contain the identifiers "Blue", "Green", and "FarRed".
+**- IMPORTANT - READ BEFORE USING**:  
 
-Open the terminal inside this folder (Right click -> Open in terminal).
+* Plate folders are expected to have the identifier "_Plate_X" inside their name, where X is the plate number.
+* The scipt will rename the tif files inside the Plate folder, by appending the Plate number at the beginning of the tif file-name.
+* The script assumes that the tif files contain the identifiers "Blue", "Green", and "FarRed".
+
+**- USAGE**:   
+Open the terminal inside the folder that contains the `./run_copy_rename.sh` script (Right click -> Open in terminal).
 
 Then, in the terminal type:
 ```
-./run_copy_rename.sh  <PATH>
+./run_copy_rename.sh
 ```
-where `<PATH>` is the full path to the plate directory, which contains the tiff images.
+then drag and drop the Plate folder, from the File Window to the terminal.  
+In the terminal you should have something like this:
+```
+./run_copy_rename.sh '/media/neptun/LocalDist16TB/MyName/SomePath/My_Plate_1_Folder'
+```
 
-For example:
-```
-./run_copy_rename.sh /Documents/user/my new images/plate1
-```
-
-After you specified the PATH, hit Enter.
+If yes, then in the terminal, hit Enter.
 
 
 

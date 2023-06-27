@@ -7,7 +7,8 @@ from utils.parser import FileParser
 from processing.dataset import Dataset, Data
 from processing.nuclei import NucleiSegmentation
 from processing.cells import CellSegmentation
-
+from processing.aggregates import AggregateSegmentation
+#from processing.quantification import compute_QoI
 
 class ImageProcessor:
 
@@ -55,7 +56,7 @@ class ImageProcessor:
         self.data = Data(file_n, file_c, file_a)
 
 
-    def _segment(self):
+    def _process(self):
 
         if self.verbose:
             print("\nProcessing files:")
@@ -67,27 +68,37 @@ class ImageProcessor:
         # Get paths to generated (output) files
         output_files_nuclei = self.dataset.get_output_file_names(self.data.n, "nuclei")
         output_files_cells  = self.dataset.get_output_file_names(self.data.c, "cells")
+        output_files_aggregates = self.dataset.get_output_file_names(self.data.c, "aggregates")
         if self.debug:
             print(output_files_nuclei)
             print(output_files_cells)
+            print(output_files_aggregates)
 
-        # process nuclei
+        # Process nuclei
         nuclei = NucleiSegmentation(self.data.n, output_files_nuclei, self.verbose, self.debug)
         nuclei.segment_nuclei()
 
-        # process cells
+        # Process cells
         cells = CellSegmentation(self.data.c, output_files_nuclei, output_files_cells, self.verbose, self.debug)
         cells.segment_cells()
+
+        # Process aggregates
+        aggregates = AggregateSegmentation(self.data.a, output_files_aggregates, self.verbose, self.debug)
+        aggregates.segment_aggregates()
+
         assert(0)
 
-        # register output files to self.data
-        self.data.oc_labels = cells_labels_file
-
-
+        # Quantities of Interest
+        compute_QoI(output_files_aggregates, output_files_cells, self.verbose, self.debug)
         assert(0)
 
 
-    def segment(self):
+
+    def _generate_statistics(self):
+        print("TODO.")
+
+
+    def process(self):
 
         self._make_output_directories()
 
@@ -101,5 +112,6 @@ class ImageProcessor:
 
             self._set_data_paths(file_n, file_c, file_a)
 
-            self._segment()
+            self._process()
 
+            #self._generate_statistics()

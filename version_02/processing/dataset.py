@@ -28,6 +28,7 @@ class Dataset:
         self.name_nuclei_seeds = "nuclei_seeds"
         self.name_nuclei_alllabels = "nuclei_all_labels"
         self.name_cells_labels = "cell_labels"
+        self.name_aggregates_alllabels = "aggregates_all_labels"
 
         assert(len(self.paths_nuclei) == len(self.paths_cells))
         assert(len(self.paths_nuclei) == len(self.paths_aggregates))
@@ -49,6 +50,13 @@ class Dataset:
             file_cell_labels = "%s/%s_%s.tif" % (self.output_folder_cells, bpath, self.name_cells_labels)
             outpaths = {
                         "labels": file_cell_labels
+                        }
+            return outpaths
+
+        elif data_type=="aggregates":
+            file_agg_alllabels = "%s/%s_%s.tif" % (self.output_folder_aggregates, bpath, self.name_aggregates_alllabels)
+            outpaths = {
+                        "alllabels": file_agg_alllabels
                         }
             return outpaths
 

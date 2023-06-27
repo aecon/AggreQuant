@@ -8,7 +8,8 @@ from processing.dataset import Dataset, Data
 from processing.nuclei import NucleiSegmentation
 from processing.cells import CellSegmentation
 from processing.aggregates import AggregateSegmentation
-#from processing.quantification import compute_QoI
+from processing.quantification import compute_QoI
+
 
 class ImageProcessor:
 
@@ -42,6 +43,10 @@ class ImageProcessor:
         if not os.path.exists(self.dataset.output_folder_aggregates):
             os.makedirs(self.dataset.output_folder_aggregates)
 
+        self.dataset.output_folder_QoI = "%s/quantification" % self.dataset.output_folder_main
+        if not os.path.exists(self.dataset.output_folder_QoI):
+            os.makedirs(self.dataset.output_folder_QoI)
+
 
     def _set_data_paths(self, file_n, file_c, file_a):
         if not os.path.isfile(file_n):
@@ -66,13 +71,15 @@ class ImageProcessor:
             print("")
 
         # Get paths to generated (output) files
-        output_files_nuclei = self.dataset.get_output_file_names(self.data.n, "nuclei")
-        output_files_cells  = self.dataset.get_output_file_names(self.data.c, "cells")
-        output_files_aggregates = self.dataset.get_output_file_names(self.data.c, "aggregates")
+        output_files_nuclei     = self.dataset.get_output_file_names(self.data.n, "nuclei")
+        output_files_cells      = self.dataset.get_output_file_names(self.data.c, "cells")
+        output_files_aggregates = self.dataset.get_output_file_names(self.data.a, "aggregates")
+        output_files_QoI        = self.dataset.get_output_file_names(self.data.a, "QoI")
         if self.debug:
             print(output_files_nuclei)
             print(output_files_cells)
             print(output_files_aggregates)
+            print(output_files_QoI)
 
         # Process nuclei
         nuclei = NucleiSegmentation(self.data.n, output_files_nuclei, self.verbose, self.debug)
@@ -86,10 +93,8 @@ class ImageProcessor:
         aggregates = AggregateSegmentation(self.data.a, output_files_aggregates, self.verbose, self.debug)
         aggregates.segment_aggregates()
 
-        assert(0)
-
         # Quantities of Interest
-        compute_QoI(output_files_aggregates, output_files_cells, self.verbose, self.debug)
+        compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, self.verbose, self.debug)
         assert(0)
 
 
@@ -115,3 +120,5 @@ class ImageProcessor:
             self._process()
 
             #self._generate_statistics()
+
+

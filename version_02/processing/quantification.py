@@ -9,6 +9,7 @@ import tifffile
 
 
 class Quantities:
+
     def __init__(self):
         self.Percentage_Of_AggregatePositive_Cells = 0
         self.Number_Of_Cells_Per_Image = 0
@@ -16,6 +17,7 @@ class Quantities:
         self.Percentage_Ambiguous_Aggregates = 0
         self.Number_Aggregates_Per_Image_ConnectedComponents = 0
         self.Avg_Number_Aggregates_Per_AggPositive_Cell = 0
+
 
     def export_table(self, table_file):
         """
@@ -35,6 +37,8 @@ class Quantities:
             f.close()
 
 
+
+
 def return_mask(img, value):
     mask = np.zeros(np.shape(img))
     mask[img>value] = 1
@@ -50,7 +54,7 @@ def exclude_outside_cells(mask, cells):
     return tmp2
 
 
-def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
+def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, verbose=False, debug=False):
     """
     Quantities of Interest:
         1. [CHK] Percentage of aggregate-positive cells
@@ -69,7 +73,14 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
         list_number_of_cells_per_aggregate = np.zeros(len(U_AGG)) - List with number of cell per aggregate.
     """
 
-    check_code = False
+    check_code = debug
+
+
+    # load cell labels
+    labels_cells = skimage.io.imread(output_files_cells["labels"], plugin='tifffile')
+
+    # load aggregate labels
+    labels_agg0 = skimage.io.imread(output_files_aggregates["alllabels"], plugin='tifffile')
 
     # aggregate mask (exclude aggregates outside cells)
     tmp_     = return_mask(labels_agg0, 0)
@@ -77,7 +88,8 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
 
     # connected components for aggregates inside cells
     labels_agg = skimage.morphology.label(mask_agg, connectivity=2)
-    skimage.io.imsave("%s/%s_labels_aggregates_InsideCells.tif" % (opath, bpath), labels_agg, plugin='tifffile')
+    if debug:
+        skimage.io.imsave(output_files_QoI["LinsideC"], labels_agg, plugin='tifffile')
 
     # cell maks
     mask_cell = np.zeros(np.shape(labels_cells))
@@ -169,7 +181,8 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
             cmap.set_under('magenta')  # Color for values less than vmin
 
             # save tif file
-            skimage.io.imsave("%s/%s_CHECK_segmented_aggID_%04d_over_cells.tif" % (opath, bpath, iagg), tmp_new, plugin='tifffile')
+            #if debug:
+            # MUST CHANGE FILENAME!   skimage.io.imsave("%s/%s_CHECK_segmented_aggID_%04d_over_cells.tif" % (opath, bpath, iagg), tmp_new, plugin='tifffile')
 
 
 
@@ -212,8 +225,9 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
     # save tif image diagnostics
     overlay_cells_agg[mask_cell==0] = 0
     overlay_nagg_per_cell[mask_agg>0] = -2  # comment-out to show only cells
-    skimage.io.imsave("%s/%s_overlay_segmented_cells_aggregates.tif" % (opath, bpath), overlay_cells_agg, plugin='tifffile')
-    skimage.io.imsave("%s/%s_overlay_naggregates_per_cell.tif" % (opath, bpath), overlay_nagg_per_cell, plugin='tifffile')
+    if debug:
+        skimage.io.imsave(output_files_QoI["OvSegCA"], overlay_cells_agg, plugin='tifffile')
+        skimage.io.imsave(output_files_QoI["NAggrCell"], overlay_nagg_per_cell, plugin='tifffile')
 
 
     # Q4. Percentage of Ambiguous aggregates
@@ -226,18 +240,8 @@ def QoI(labels_agg0, labels_cells, bpath, opath, check_code=False):
     Q.Avg_Number_Aggregates_Per_AggPositive_Cell = np.mean( list_number_of_aggregates_per_cell[list_number_of_aggregates_per_cell>0] )
 
     # Export to data file
-    table_file = "%s/%s_exported_table.txt" % (opath, bpath)
+    table_file = output_files_QoI["QoI"]
     print("Exporting table to %s" % table_file)
     Q.export_table(table_file)
-
-
-
-def QoI():
-
-    # load cell labels
-    img_cells = skimage.io.imread(cells_file, plugin='tifffile')
-
-    QoI(aggregates_alllabels, img_cells, bpath, opath)
-
 
 

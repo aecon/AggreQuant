@@ -24,11 +24,7 @@ class Dataset:
         self.output_folder_nuclei = ""
         self.output_folder_cells = ""
         self.output_folder_aggregates = ""
-
-        self.name_nuclei_seeds = "nuclei_seeds"
-        self.name_nuclei_alllabels = "nuclei_all_labels"
-        self.name_cells_labels = "cell_labels"
-        self.name_aggregates_alllabels = "aggregates_all_labels"
+        self.output_folder_QoI = ""
 
         assert(len(self.paths_nuclei) == len(self.paths_cells))
         assert(len(self.paths_nuclei) == len(self.paths_aggregates))
@@ -38,8 +34,8 @@ class Dataset:
         bpath = os.path.basename(input_file)
 
         if data_type=="nuclei":
-            filename_all_nuclei = "%s/%s_%s.tif" % (self.output_folder_nuclei, bpath, self.name_nuclei_alllabels)
-            filename_seeds = "%s/%s_%s.tif" % (self.output_folder_nuclei, bpath, self.name_nuclei_seeds)
+            filename_all_nuclei = "%s/%s_%s.tif" % (self.output_folder_nuclei, bpath, "nuclei_all_labels")
+            filename_seeds = "%s/%s_%s.tif" % (self.output_folder_nuclei, bpath, "nuclei_seeds")
             outpaths = {
                         "seeds": filename_seeds,
                         "alllabels": filename_all_nuclei
@@ -47,16 +43,29 @@ class Dataset:
             return outpaths
 
         elif data_type=="cells":
-            file_cell_labels = "%s/%s_%s.tif" % (self.output_folder_cells, bpath, self.name_cells_labels)
+            file_cell_labels = "%s/%s_%s.tif" % (self.output_folder_cells, bpath, "cell_labels")
             outpaths = {
                         "labels": file_cell_labels
                         }
             return outpaths
 
         elif data_type=="aggregates":
-            file_agg_alllabels = "%s/%s_%s.tif" % (self.output_folder_aggregates, bpath, self.name_aggregates_alllabels)
+            file_agg_alllabels = "%s/%s_%s.tif" % (self.output_folder_aggregates, bpath, "aggregates_all_labels")
             outpaths = {
                         "alllabels": file_agg_alllabels
+                        }
+            return outpaths
+
+        elif data_type=="QoI":
+            file_QoI = "%s/%s_%s.txt" % (self.output_folder_QoI, bpath, "QoI")
+            img_LabelsInsideCells = "%s/%s_%s.tif" % (self.output_folder_QoI, bpath, "labels_aggregates_InsideCells")
+            img_OverSegCellsAggr = "%s/%s_%s.tif" % (self.output_folder_QoI, bpath, "overlay_segmented_cells_aggregates")
+            img_NumberAggregatesPerCell = "%s/%s_%s.tif" % (self.output_folder_QoI, bpath, "overlay_naggregates_per_cell")
+            outpaths = {
+                        "QoI": file_QoI,
+                        "LinsideC": img_LabelsInsideCells,
+                        "OvSegCA": img_OverSegCellsAggr,
+                        "NAggrCell": img_NumberAggregatesPerCell
                         }
             return outpaths
 

@@ -13,12 +13,13 @@ from skimage.segmentation import watershed
 
 class CellSegmentation:
 
-    def __init__(self, name_cells_labels, verbose, debug, algorithm="distance"):
-        self.verbose = verbose
-        self.debug = debug
-        self.name_cells_labels = name_cells_labels
-        self.algorithm = algorithm
-
+    def __init__(self, input_file, output_files_nuclei, output_files_cells, verbose=False, debug=False, algorithm="distance"):
+        self.input_file             = input_file
+        self.output_files_nuclei    = output_files_nuclei # struct defined in Dataset
+        self.output_files_cells     = output_files_cells  # struct defined in Dataset
+        self.algorithm              = algorithm
+        self.verbose                = verbose
+        self.debug                  = debug
         if verbose:
             print("Segmenting cells with algorithm %s" % self.algorithm)
 
@@ -62,7 +63,9 @@ class CellSegmentation:
         return labels
 
 
-    def _segment_distance_map(self, image_file, seeds_file, allnuclei_file, opath):
+    def _segment_distance_map(self):
+
+        image_file = self.input_file
 
         bpath = os.path.basename(image_file)
 
@@ -103,35 +106,33 @@ class CellSegmentation:
         cell_mask = skimage.morphology.remove_small_holes(cell_mask_, area_threshold=400)
         #plt.imshow(cell_mask)
         #plt.show()
-    
+
         # 2. SPLIT CELL MASK BASED on NUCLEI SEEDS
-    
+
         # load image and convert to float
-        allnuclei = skimage.io.imread(allnuclei_file, plugin='tifffile')
+        allnuclei = skimage.io.imread(self.output_files_nuclei["alllabels"], plugin='tifffile')
         allnuclei_mask = np.zeros(np.shape(allnuclei), dtype=np.dtype(np.uint8))
         allnuclei_mask[allnuclei>0] = 1
-    
+
         # load image and convert to float
-        seeds = skimage.io.imread(seeds_file, plugin='tifffile')  # uint8
-    
+        seeds = skimage.io.imread(self.output_files_nuclei["seeds"], plugin='tifffile')  # uint8
+
         # compute distances to all nuclei
         distances = ndimage.distance_transform_edt(1-allnuclei_mask)  # float64
         #plt.imshow(distances)
         #plt.show()
-    
+
         # watershed of distance map
         labels_ = watershed(distances, mask=cell_mask, watershed_line=True)
         labels = np.zeros(np.shape(allnuclei_mask), dtype=np.dtype(np.uint16))
         labels[labels_>0] = labels_[labels_>0]
         #plt.imshow(labels)
         #plt.show()
-    
+
         # Remove cellbodies that do not contain nucleus
         labels2 = self._exclude_cells_without_nucleus(labels, seeds)
-        file_cell_labels = "%s/%s_%s.tif" % (opath, bpath, self.name_cells_labels)
-        skimage.io.imsave(file_cell_labels, labels2, plugin='tifffile')
+        skimage.io.imsave(self.output_files_cells["labels"], labels2, plugin='tifffile')
 
-        return file_cell_labels
 
 
 #        # Assign a cell area to each nucleus
@@ -156,8 +157,10 @@ class CellSegmentation:
 #        skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, Names.COMPOSITE_CELLS_AND_NUCLEI ), composite, plugin='tifffile')
 
 
-    def _segment_intensity_map(self, image_file, seeds_file, allnuclei_file, opath):
-    
+    def _segment_intensity_map(self):
+   
+        image_file = self.input_file
+ 
         # TODO:
         # > compute average intensity of image. Proceed based on average intensity ..
     
@@ -201,12 +204,12 @@ class CellSegmentation:
         # 2. SPLIT CELL MASK BASED on NUCLEI SEEDS
     
         # load image and convert to float
-        allnuclei = skimage.io.imread(allnuclei_file, plugin='tifffile')
+        allnuclei = skimage.io.imread(self.output_files_nuclei["alllabels"], plugin='tifffile')
         allnuclei_mask = np.zeros(np.shape(allnuclei), dtype=np.dtype(np.uint8))
         allnuclei_mask[allnuclei>0] = 1
     
         # load image and convert to float
-        seeds = skimage.io.imread(seeds_file, plugin='tifffile')  # uint8
+        seeds = skimage.io.imread(self.output_files_nuclei["seeds"], plugin='tifffile')  # uint8
     
         # field to use for watershed
         intensity_field_ = skimage.filters.gaussian(img2, sigma=6)
@@ -231,14 +234,14 @@ class CellSegmentation:
     
         # Remove cellbodies that do not contain nucleus
         labels2 = self._exclude_cells_without_nucleus(labels, seeds)
-        file_cell_labels = "%s/%s_%s.tif" % (opath, bpath, self.name_cells_labels)
-        skimage.io.imsave(file_cell_labels, labels2, plugin='tifffile')
-
-        return file_cell_labels
+        skimage.io.imsave(self.output_files_cells["labels"], labels2, plugin='tifffile')
 
 
-    def _segment_propagation(self, image_file, seeds_file, allnuclei_file, opath):
-    
+
+    def _segment_propagation(self):
+
+        image_file = self.input_file
+ 
         bpath = os.path.basename(image_file)
     
         # load image and convert to float
@@ -279,12 +282,12 @@ class CellSegmentation:
         # 2. SPLIT CELL MASK BASED on NUCLEI SEEDS
     
         # load image and convert to float
-        allnuclei = skimage.io.imread(allnuclei_file, plugin='tifffile')
+        allnuclei = skimage.io.imread(self.output_files_nuclei["alllabels"], plugin='tifffile')
         allnuclei_mask = np.zeros(np.shape(allnuclei), dtype=np.dtype(np.uint8))
         allnuclei_mask[allnuclei>0] = 1
     
         # load image and convert to float
-        seeds = skimage.io.imread(seeds_file, plugin='tifffile')  # uint8
+        seeds = skimage.io.imread(self.output_files_nuclei["seeds"], plugin='tifffile')  # uint8
     
         # compute distances to all nuclei
         distances = ndimage.distance_transform_edt(1-allnuclei_mask)  # float64
@@ -322,36 +325,27 @@ class CellSegmentation:
     
         # Remove cellbodies that do not contain nucleus
         labels2 = self._exclude_cells_without_nucleus(labels, seeds)
-        file_cell_labels = "%s/%s_%s.tif" % (opath, bpath, self.name_cells_labels)
-        skimage.io.imsave(file_cell_labels, labels2, plugin='tifffile')
-
-        return file_cell_labels
+        skimage.io.imsave(self.output_files_cells["labels"], labels2, plugin='tifffile')
 
 
-    def segment_cells(self, image_file, opath, seeds_file, allnuclei_file):
 
-        if not os.path.exists(opath):
-            print("Output directory does NOT exist! %s" % opath)
-            sys.exit()
+    def segment_cells(self):
 
         # Choose segmentation algorithm for cells
         if self.algorithm == "distance":
-            filename_labels = self._segment_distance_map(image_file, seeds_file, allnuclei_file, opath)
+            self._segment_distance_map()
 
         elif self.algorithm == "intensity":
-            filename_labels = self._segment_intensity_map(image_file, seeds_file, allnuclei_file, opath)
+            self._segment_intensity_map()
 
         elif self.algorithm == "propagation":
-            filename_labels = self._segment_propagation(image_file, seeds_file, allnuclei_file, opath)
+            self._segment_propagation()
 
 #        elif self.algorithm == "cellpose":
-#            filename_labels = self._segment_cellpose(image_file, seeds_file, allnuclei_file, opath)
+#            self._segment_cellpose()
 
         else:
             print("Segmentation algorithm %s not defined." % self.algorithm)
             sys.exit()
-
-
-        return filename_labels 
 
 

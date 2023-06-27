@@ -64,17 +64,21 @@ class ImageProcessor:
             print(" > %s" % self.data.a)
             print("")
 
-        # process nuclei
-        nuclei = NucleiSegmentation(self.dataset.name_nuclei_seeds, self.dataset.name_nuclei_alllabels, self.verbose, self.debug)
-        nuclei_seeds_file, nuclei_alllabels_file = nuclei.segment_nuclei(self.data.n, self.dataset.output_folder_nuclei)
+        # Get paths to generated (output) files
+        output_files_nuclei = self.dataset.get_output_file_names(self.data.n, "nuclei")
+        output_files_cells  = self.dataset.get_output_file_names(self.data.c, "cells")
+        if self.debug:
+            print(output_files_nuclei)
+            print(output_files_cells)
 
-        # register output files to self.data
-        self.data.on_seeds = nuclei_seeds_file
-        self.data.on_alllabels = nuclei_alllabels_file
+        # process nuclei
+        nuclei = NucleiSegmentation(self.data.n, output_files_nuclei, self.verbose, self.debug)
+        nuclei.segment_nuclei()
 
         # process cells
-        cells = CellSegmentation(self.dataset.name_cells_labels, self.verbose, self.debug)
-        cells_labels_file = cells.segment_cells(self.data.c, self.dataset.output_folder_cells, self.data.on_seeds, self.data.on_alllabels)
+        cells = CellSegmentation(self.data.c, output_files_nuclei, output_files_cells, self.verbose, self.debug)
+        cells.segment_cells()
+        assert(0)
 
         # register output files to self.data
         self.data.oc_labels = cells_labels_file

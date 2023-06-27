@@ -15,11 +15,11 @@ import matplotlib.pyplot as plt
 
 class NucleiSegmentation:
 
-    def __init__(self, name_nuclei_seeds, name_nuclei_alllabels, verbose, debug):
-        self.verbose = verbose
-        self.debug = debug
-        self.name_nuclei_seeds = name_nuclei_seeds
-        self.name_nuclei_alllabels = name_nuclei_alllabels
+    def __init__(self, input_file, output_files, verbose=False, debug=False):
+        self.input_file     = input_file
+        self.output_files   = output_files  # struct defined in Dataset
+        self.verbose        = verbose
+        self.debug          = debug
         if verbose:
             print("Segmenting nuclei")
 
@@ -32,11 +32,9 @@ class NucleiSegmentation:
         return img2
 
 
-    def segment_nuclei(self, image_file, opath):
+    def segment_nuclei(self):
 
-        if not os.path.exists(opath):
-            print("Output directory does NOT exist! %s" % opath)
-            sys.exit()
+        image_file = self.input_file
 
         bpath = os.path.basename(image_file)
         if self.verbose:
@@ -106,8 +104,7 @@ class NucleiSegmentation:
         objects[:,:] = labels[:,:]
         objects[fat_edges==1] = 0
 
-        filename_all_nuclei = "%s/%s_%s.tif" % (opath, bpath, self.name_nuclei_alllabels)
-        skimage.io.imsave(filename_all_nuclei, objects, plugin='tifffile', check_contrast=False)
+        skimage.io.imsave(self.output_files["alllabels"], objects, plugin='tifffile', check_contrast=False)
 
         # exclude nuclei on the borders
         edge_labels = np.unique(objects[0,:])
@@ -126,14 +123,11 @@ class NucleiSegmentation:
         # store split object mask
         mask = np.zeros(np.shape(objects), dtype=np.dtype(np.uint8))
         mask[objects>0] = 1
-        filename_seeds = "%s/%s_%s.tif" % (opath, bpath, self.name_nuclei_seeds)
-        skimage.io.imsave(filename_seeds, mask, plugin='tifffile', check_contrast=False)
+        skimage.io.imsave(self.output_files["seeds"], mask, plugin='tifffile', check_contrast=False)
 
         t4 = time.time()
         if self.debug:
             print("time after segmentation:", t4-t3)
-
-        return filename_seeds, filename_all_nuclei
 
 
 

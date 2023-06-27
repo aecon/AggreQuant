@@ -95,7 +95,6 @@ class ImageProcessor:
 
         # Quantities of Interest
         compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, self.verbose, self.debug)
-        assert(0)
 
 
 

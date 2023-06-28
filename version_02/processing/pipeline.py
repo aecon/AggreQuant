@@ -11,6 +11,7 @@ from processing.nuclei import NucleiSegmentation
 from processing.cells import CellSegmentation
 from processing.aggregates import AggregateSegmentation
 from processing.quantification import compute_QoI
+from statistics.statistics import Statistics
 
 
 class ImageProcessor:
@@ -18,6 +19,7 @@ class ImageProcessor:
     def __init__(self, fileParser):
         self.dataset = []
         self.data = []
+        self.statistics = []
         self.debug = fileParser.debug
         self.verbose = fileParser.verbose
 
@@ -28,24 +30,19 @@ class ImageProcessor:
         paths_nuclei = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_NUCLEI)))
         paths_cells  = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_CELLS)))
         paths_agg    = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_AGGREGATES)))
-
         self.dataset = Dataset(paths_nuclei, paths_cells, paths_agg, fileParser.input_directory)
 
 
     def _make_output_directories(self):
-        self.dataset.output_folder_nuclei = "%s/nuclei" % self.dataset.output_folder_main
         if not os.path.exists(self.dataset.output_folder_nuclei):
             os.makedirs(self.dataset.output_folder_nuclei)
 
-        self.dataset.output_folder_cells = "%s/cells" % self.dataset.output_folder_main
         if not os.path.exists(self.dataset.output_folder_cells):
             os.makedirs(self.dataset.output_folder_cells)
 
-        self.dataset.output_folder_aggregates = "%s/aggregates" % self.dataset.output_folder_main
         if not os.path.exists(self.dataset.output_folder_aggregates):
             os.makedirs(self.dataset.output_folder_aggregates)
 
-        self.dataset.output_folder_QoI = "%s/quantification" % self.dataset.output_folder_main
         if not os.path.exists(self.dataset.output_folder_QoI):
             os.makedirs(self.dataset.output_folder_QoI)
 
@@ -103,10 +100,6 @@ class ImageProcessor:
             print("Detected less than 10 nuclei! Will exlude this image-set from quantification.")
 
 
-    def _generate_statistics(self):
-        print("TODO.")
-
-
     def process(self):
 
         self._make_output_directories()
@@ -138,6 +131,10 @@ class ImageProcessor:
 
             self._process(NucleiModel)
 
-            #self._generate_statistics()
 
+    def generate_statistics(self):
+
+        platename = "%s_%s" % ( os.path.basename(os.path.dirname(self.dataset.input_folder)), os.path.basename(self.dataset.input_folder) )
+        self.statistics = Statistics(self.dataset, platename, self.verbose, self.debug)
+        self.statistics.generate_statistics()
 

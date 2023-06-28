@@ -12,15 +12,13 @@ parser.add_argument('-debug', action='store_true')
 parser.add_argument('-verbose', action='store_true')
 args = parser.parse_args()
 
-
-# File parser
 fileParser = FileParser(args)
 
-# Image processing
 processor = ImageProcessor(fileParser)
-processor.process()
 
+# Image Processing + Quantification
+#processor.process()
 
 # Statistics
-# TODO
+processor.generate_statistics()
 

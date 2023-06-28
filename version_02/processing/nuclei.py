@@ -15,9 +15,10 @@ import matplotlib.pyplot as plt
 
 class NucleiSegmentation:
 
-    def __init__(self, input_file, output_files, verbose=False, debug=False):
+    def __init__(self, input_file, output_files, model=None, verbose=False, debug=False):
         self.input_file     = input_file
         self.output_files   = output_files  # struct defined in Dataset
+        self.model          = model # StarDist pre-trained model
         self.verbose        = verbose
         self.debug          = debug
         if verbose:
@@ -51,8 +52,7 @@ class NucleiSegmentation:
             print("time for preprocessing:", t2-t1)
 
         # segment with pretrained model
-        model = StarDist2D.from_pretrained('2D_versatile_fluo')
-        labels, _ = model.predict_instances( normalize(img), predict_kwargs=dict(verbose=False) )
+        labels, _ = self.model.predict_instances( normalize(img), predict_kwargs=dict(verbose=False) )
         t3 = time.time()
         if self.debug:
             print("time for segmentation:", t3-t2)

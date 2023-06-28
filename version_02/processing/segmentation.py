@@ -1,7 +1,9 @@
 import os
 import sys
 import glob
+import click
 import tensorflow as tf
+from stardist.models import StarDist2D
 
 from utils.parser import FileParser
 from processing.dataset import Dataset, Data
@@ -61,7 +63,7 @@ class ImageProcessor:
         self.data = Data(file_n, file_c, file_a)
 
 
-    def _process(self):
+    def _process(self, NucleiModel):
 
         if self.verbose:
             print("\nProcessing files:")
@@ -82,7 +84,7 @@ class ImageProcessor:
             print(output_files_QoI)
 
         # Process nuclei
-        nuclei = NucleiSegmentation(self.data.n, output_files_nuclei, self.verbose, self.debug)
+        nuclei = NucleiSegmentation(self.data.n, output_files_nuclei, NucleiModel, self.verbose, self.debug)
         nuclei.segment_nuclei()
 
         # Process cells
@@ -111,12 +113,27 @@ class ImageProcessor:
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
 
+        # display progress bar
+        bar = click.progressbar(length=self.dataset.Nfiles, show_eta=False)
+
+        # Load pretrained StarDitst model only once!
+        NucleiModel = StarDist2D.from_pretrained('2D_versatile_fluo')
+
+        print("\n\nBEGIN IMAGE PROCESSING. TOTAL NUMBER OF IMAGE PAIRS:", self.dataset.Nfiles)
+
         # loop over all "pairs" of files
         for file_n, file_c, file_a in zip(self.dataset.paths_nuclei, self.dataset.paths_cells, self.dataset.paths_aggregates):
 
+            print("\n\nProcessing files:")
+            print("  ", file_n)
+            print("  ", file_c)
+            print("  ", file_a)
+            print("Total Progress:")
+            bar.update(1); print("\n")
+
             self._set_data_paths(file_n, file_c, file_a)
 
-            self._process()
+            self._process(NucleiModel)
 
             #self._generate_statistics()
 

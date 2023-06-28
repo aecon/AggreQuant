@@ -129,7 +129,7 @@ class NucleiSegmentation:
         if self.debug:
             print("time after segmentation:", t4-t3)
 
-
+        Nnuclei = len(np.unique(objects))
 
 #        # reconstruct edges from nuclei seeds
 #        edges0 = skimage.filters.sobel(mask)
@@ -141,4 +141,6 @@ class NucleiSegmentation:
 #        composite[0,:,:] = img2[:,:]
 #        composite[1,:,:] = edges[:,:]
 #        skimage.io.imsave("%s/%s_composite_edges.tif" % (opath, bpath), composite, plugin='tifffile', check_contrast=False)
+
+        return Nnuclei
 

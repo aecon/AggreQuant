@@ -85,19 +85,22 @@ class ImageProcessor:
 
         # Process nuclei
         nuclei = NucleiSegmentation(self.data.n, output_files_nuclei, NucleiModel, self.verbose, self.debug)
-        nuclei.segment_nuclei()
+        Number_of_nuclei = nuclei.segment_nuclei()
 
-        # Process cells
-        cells = CellSegmentation(self.data.c, output_files_nuclei, output_files_cells, self.verbose, self.debug)
-        cells.segment_cells()
+        if Number_of_nuclei>=10:
+            # Process cells
+            cells = CellSegmentation(self.data.c, output_files_nuclei, output_files_cells, self.verbose, self.debug)
+            cells.segment_cells()
 
-        # Process aggregates
-        aggregates = AggregateSegmentation(self.data.a, output_files_aggregates, self.verbose, self.debug)
-        aggregates.segment_aggregates()
+            # Process aggregates
+            aggregates = AggregateSegmentation(self.data.a, output_files_aggregates, self.verbose, self.debug)
+            aggregates.segment_aggregates()
 
-        # Quantities of Interest
-        compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, self.verbose, self.debug)
+            # Quantities of Interest
+            compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, self.verbose, self.debug)
 
+        else:
+            print("Detected less than 10 nuclei! Will exlude this image-set from quantification.")
 
 
     def _generate_statistics(self):

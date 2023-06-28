@@ -65,7 +65,7 @@ class AggregateSegmentation:
             print("Connected cmoponents (original):", np.max(labels))
     
         # remove small holes
-        noholes = skimage.morphology.remove_small_holes(segmented, area_threshold=400, connectivity=2)
+        noholes = skimage.morphology.remove_small_holes(segmented.astype(bool, copy=True), area_threshold=400, connectivity=2)
         labels = skimage.morphology.label(noholes, connectivity=2)
         if self.debug:
             print("Removed small holes:", np.max(labels))
@@ -81,6 +81,6 @@ class AggregateSegmentation:
         bpath = os.path.basename(image_file)
         labels = np.asarray(labels, dtype=np.uint32)
         assert(np.max(labels) == obj)
-        skimage.io.imsave(self.output_files_aggregates["alllabels"], labels, plugin='tifffile')
+        skimage.io.imsave(self.output_files_aggregates["alllabels"], labels, plugin='tifffile', check_contrast=False)
 
 

@@ -49,7 +49,7 @@ def exclude_outside_cells(mask, cells):
 #    tmp1 = np.asarray(scipy.ndimage.maximum_filter(mask, size=2), dtype=np.dtype(np.uint16))  # remove watershed lines
     tmp1 = np.zeros(np.shape(mask), dtype=np.dtype(np.uint8))
     tmp1[mask>0] = 1
-    tmp2 = skimage.morphology.remove_small_holes(tmp1, area_threshold=25, connectivity=2) # remove holes
+    tmp2 = skimage.morphology.remove_small_holes(tmp1.astype(bool, copy=True), area_threshold=25, connectivity=2) # remove holes
     tmp2[cells==0] = 0  # exclude everything not covered by a cell
     return tmp2
 
@@ -89,7 +89,7 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, v
     # connected components for aggregates inside cells
     labels_agg = skimage.morphology.label(mask_agg, connectivity=2)
     if debug:
-        skimage.io.imsave(output_files_QoI["LinsideC"], labels_agg, plugin='tifffile')
+        skimage.io.imsave(output_files_QoI["LinsideC"], labels_agg, plugin='tifffile', check_contrast=False)
 
     # cell maks
     mask_cell = np.zeros(np.shape(labels_cells))
@@ -226,8 +226,8 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, v
     overlay_cells_agg[mask_cell==0] = 0
     overlay_nagg_per_cell[mask_agg>0] = -2  # comment-out to show only cells
     if debug:
-        skimage.io.imsave(output_files_QoI["OvSegCA"], overlay_cells_agg, plugin='tifffile')
-        skimage.io.imsave(output_files_QoI["NAggrCell"], overlay_nagg_per_cell, plugin='tifffile')
+        skimage.io.imsave(output_files_QoI["OvSegCA"], overlay_cells_agg, plugin='tifffile', check_contrast=False)
+        skimage.io.imsave(output_files_QoI["NAggrCell"], overlay_nagg_per_cell, plugin='tifffile', check_contrast=False)
 
 
     # Q4. Percentage of Ambiguous aggregates

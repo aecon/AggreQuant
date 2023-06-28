@@ -13,7 +13,7 @@ from skimage.segmentation import watershed
 
 class CellSegmentation:
 
-    def __init__(self, input_file, output_files_nuclei, output_files_cells, verbose=False, debug=False, algorithm="distance"):
+    def __init__(self, input_file, output_files_nuclei, output_files_cells, verbose=False, debug=False, algorithm="propagation"):
         self.input_file             = input_file
         self.output_files_nuclei    = output_files_nuclei # struct defined in Dataset
         self.output_files_cells     = output_files_cells  # struct defined in Dataset
@@ -59,7 +59,8 @@ class CellSegmentation:
             is_seed = np.sum(seeds[idx])
             if is_seed < 100:
                 labels[idx] = 0
-                print("No seed for label", l)
+                if self.verbose:
+                    print("No seed for label", l)
         return labels
 
 
@@ -103,7 +104,7 @@ class CellSegmentation:
         #plt.show()
     
         # remove small holes
-        cell_mask = skimage.morphology.remove_small_holes(cell_mask_, area_threshold=400)
+        cell_mask = skimage.morphology.remove_small_holes(cell_mask_.astype(bool, copy=True), area_threshold=400)
         #plt.imshow(cell_mask)
         #plt.show()
 
@@ -131,7 +132,7 @@ class CellSegmentation:
 
         # Remove cellbodies that do not contain nucleus
         labels2 = self._exclude_cells_without_nucleus(labels, seeds)
-        skimage.io.imsave(self.output_files_cells["labels"], labels2, plugin='tifffile')
+        skimage.io.imsave(self.output_files_cells["labels"], labels2, plugin='tifffile', check_contrast=False)
 
 
 
@@ -141,7 +142,7 @@ class CellSegmentation:
 #        nuclei_labels[seeds==0] = 0
 #        #plt.imshow(nuclei_labels)
 #        #plt.show()
-#        skimage.io.imsave("%s/%s_corresponding_nuclei.tif" % (opath, bpath), nuclei_labels, plugin='tifffile')
+#        skimage.io.imsave("%s/%s_corresponding_nuclei.tif" % (opath, bpath), nuclei_labels, plugin='tifffile', check_contrast=False)
 #    
 #        # find edges
 #        nuclei_labels[nuclei_labels>0] = 1
@@ -154,7 +155,7 @@ class CellSegmentation:
 #        composite = np.zeros( np.shape(labels), dtype=np.dtype(np.uint16) )
 #        composite[:,:] = labels[:,:]
 #        composite[fat_edges==1] = 0
-#        skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, Names.COMPOSITE_CELLS_AND_NUCLEI ), composite, plugin='tifffile')
+#        skimage.io.imsave("%s/%s_%s.tif" % (opath, bpath, Names.COMPOSITE_CELLS_AND_NUCLEI ), composite, plugin='tifffile', check_contrast=False)
 
 
     def _segment_intensity_map(self):
@@ -234,7 +235,7 @@ class CellSegmentation:
     
         # Remove cellbodies that do not contain nucleus
         labels2 = self._exclude_cells_without_nucleus(labels, seeds)
-        skimage.io.imsave(self.output_files_cells["labels"], labels2, plugin='tifffile')
+        skimage.io.imsave(self.output_files_cells["labels"], labels2, plugin='tifffile', check_contrast=False)
 
 
 
@@ -325,7 +326,7 @@ class CellSegmentation:
     
         # Remove cellbodies that do not contain nucleus
         labels2 = self._exclude_cells_without_nucleus(labels, seeds)
-        skimage.io.imsave(self.output_files_cells["labels"], labels2, plugin='tifffile')
+        skimage.io.imsave(self.output_files_cells["labels"], labels2, plugin='tifffile', check_contrast=False)
 
 
 

@@ -198,7 +198,7 @@ class CellSegmentation:
         #plt.show()
     
         # remove small holes
-        cell_mask = skimage.morphology.remove_small_holes(cell_mask_, area_threshold=400)
+        cell_mask = skimage.morphology.remove_small_holes(cell_mask_.astype(bool, copy=True), area_threshold=400)
         #plt.imshow(cell_mask)
         #plt.show()
     
@@ -276,7 +276,7 @@ class CellSegmentation:
         #plt.show()
     
         # remove small holes
-        cell_mask = skimage.morphology.remove_small_holes(cell_mask_, area_threshold=400)
+        cell_mask = skimage.morphology.remove_small_holes(cell_mask_.astype(bool, copy=True), area_threshold=400)
         #plt.imshow(cell_mask)
         #plt.show()
     

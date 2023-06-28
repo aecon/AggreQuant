@@ -3,7 +3,7 @@ import sys
 import argparse
 
 from utils.parser import FileParser
-from processing.segmentation import ImageProcessor
+from processing.pipeline import ImageProcessor
 
 
 parser = argparse.ArgumentParser()

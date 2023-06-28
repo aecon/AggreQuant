@@ -232,7 +232,8 @@ class CellSegmentation:
         # load image and convert to float
         img0 = skimage.io.imread(image_file, plugin='tifffile')
         img0 = np.asfarray(img0, float)
-    
+        min_Cell_Intensity = 800
+
         # 1. GENERATE MASK OF CELLBODY AREA
         # background division
         smt = skimage.filters.gaussian(img0, sigma=2)
@@ -249,6 +250,7 @@ class CellSegmentation:
         #print("After scaling 0/1 (float):", np.min(img11), np.max(img11))
         img2 = skimage.exposure.equalize_adapthist(img11, kernel_size=150)
         #print("After CLAHE:", np.min(img2), np.max(img2))
+        img2[img0<min_Cell_Intensity] = 0
 
         IMIN = scale[0]
         IMAX = scale[1]
@@ -278,8 +280,11 @@ class CellSegmentation:
         distances = ndimage.distance_transform_edt(1-allnuclei_mask)  # float64
         #plt.imshow(distances)
         #plt.show()
+        max_distance = 150  # in pixels
+        #print(np.min(distances), np.max(distances))
+        distances[distances>=max_distance] = 0
         distances_, _ = self._scale_values_01_float(distances)
-        distances = 1 - distances_
+        distances = np.power((1 - distances_), 2)
         #plt.imshow(distances)
         #plt.show()
 

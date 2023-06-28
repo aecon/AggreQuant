@@ -17,8 +17,8 @@ fileParser = FileParser(args)
 processor = ImageProcessor(fileParser)
 
 # Image Processing + Quantification
-#processor.process()
+processor.process()
 
 # Statistics
-processor.generate_statistics()
+#processor.generate_statistics()
 

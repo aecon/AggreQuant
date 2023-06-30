@@ -61,7 +61,6 @@ class ImageProcessor:
 
 
     def _process(self, NucleiModel):
-
         if self.verbose:
             print("\nProcessing files:")
             print(" > %s" % self.data.n)
@@ -135,7 +134,6 @@ class ImageProcessor:
 
 
     def generate_statistics(self):
-
         platename = "%s_%s" % ( os.path.basename(os.path.dirname(self.dataset.input_folder)), os.path.basename(self.dataset.input_folder) )
         self.statistics = Statistics(self.dataset, platename, self.verbose, self.debug)
         self.statistics.generate_statistics()

@@ -17,13 +17,16 @@ from statistics.diagnostics import *
 
 class ImageProcessor:
 
-    def __init__(self, fileParser):
+    def __init__(self, fileParser, process_nuclei=True, process_cells=True, process_aggregates=True):
         self.dataset = []
         self.data = []
         self.statistics = []
         self.debug = fileParser.debug
         self.verbose = fileParser.verbose
         self.fileParser = fileParser
+        self.process_nuclei = process_nuclei
+        self.process_cells = process_cells
+        self.process_aggregates = process_aggregates
 
 
     def _set_dataset_paths(self, fileParser):
@@ -80,23 +83,22 @@ class ImageProcessor:
             print(output_files_QoI)
 
         # Process nuclei
-        nuclei = NucleiSegmentation(self.data.n, output_files_nuclei, NucleiModel, self.verbose, self.debug)
-        Number_of_nuclei = nuclei.segment_nuclei()
+        if self.process_nuclei:
+            nuclei = NucleiSegmentation(self.data.n, output_files_nuclei, NucleiModel, self.verbose, self.debug)
+            Number_of_nuclei = nuclei.segment_nuclei()
 
-        if Number_of_nuclei>=10:
+        if self.process_cells:
             # Process cells
             cells = CellSegmentation(self.data.c, output_files_nuclei, output_files_cells, self.verbose, self.debug)
             cells.segment_cells()
 
+        if self.process_aggregates:
             # Process aggregates
             aggregates = AggregateSegmentation(self.data.a, output_files_aggregates, self.verbose, self.debug)
             aggregates.segment_aggregates()
 
             # Quantities of Interest
             compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, self.verbose, self.debug)
-
-        else:
-            print("Detected less than 10 nuclei! Will exlude this image-set from quantification.")
 
 
     def set_paths(self):
@@ -143,11 +145,26 @@ class ImageProcessor:
         if not os.path.exists(self.dataset.output_folder_diagnostics):
             os.makedirs(self.dataset.output_folder_diagnostics)
 
-#        montage_filename = "%s/montage_simple_nuclei.tif" % (self.dataset.output_folder_diagnostics)
-#        montage_simple(self.dataset.paths_nuclei, montage_filename, debug=False)
+        if 0:
+            montage_filename = "%s/montage_simple_nuclei.tif" % (self.dataset.output_folder_diagnostics)
+            montage_simple(self.dataset.paths_nuclei, montage_filename, debug=False)
 
-        montage_filename = "%s/montage_overlay_nuclei.tif" % (self.dataset.output_folder_diagnostics)
-        paths_seg_nuclei = sorted(glob.glob("%s/*Blue*seeds*.tif" % (self.dataset.output_folder_nuclei)))
-        montage_overlay_two_images(self.dataset.paths_nuclei, paths_seg_nuclei, montage_filename, debug=False, verbose=False)
+        # overlay nuclei
+        if 0:
+            montage_filename = "%s/montage_overlay_nuclei.tif" % (self.dataset.output_folder_diagnostics)
+            paths_seg_nuclei = sorted(glob.glob("%s/*Blue*seeds*.tif" % (self.dataset.output_folder_nuclei)))
+            montage_overlay_two_images(self.dataset.paths_nuclei, paths_seg_nuclei, montage_filename, debug=False, verbose=False)
+
+        # overlay cells
+        if 0:
+            montage_filename = "%s/montage_overlay_cells.tif" % (self.dataset.output_folder_diagnostics)
+            paths_seg_cells = sorted(glob.glob("%s/*Red*labels*.tif" % (self.dataset.output_folder_cells)))
+            montage_overlay_two_images(self.dataset.paths_cells, paths_seg_cells, montage_filename, debug=False, verbose=False)
+
+        # overlay aggregates
+        if 1:
+            montage_filename = "%s/montage_overlay_aggregates.tif" % (self.dataset.output_folder_diagnostics)
+            paths_seg_agg = sorted(glob.glob("%s/*Green*labels*.tif" % (self.dataset.output_folder_aggregates)))
+            montage_overlay_two_images(self.dataset.paths_aggregates, paths_seg_agg, montage_filename, debug=False, verbose=False)
 
 

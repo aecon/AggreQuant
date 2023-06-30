@@ -90,7 +90,9 @@ def montage_overlay_two_images(images_raw, images_seg, output_filename, debug=Fa
         img0_seg = skimage.io.imread(images_seg[r], plugin='tifffile')
         img0_seg[img0_seg>0] = 1
         # reconstruct edges from nuclei seeds
-        edges0 = skimage.filters.sobel(img0_seg)
+        mask = np.zeros(np.shape(img0_seg))
+        mask[img0_seg>0] = 1
+        edges0 = skimage.filters.sobel(mask)
         img0_seg = np.zeros(np.shape(edges0), dtype=np.dtype(np.uint8))
         img0_seg[edges0>0] = 1
 
@@ -115,7 +117,7 @@ def montage_overlay_two_images(images_raw, images_seg, output_filename, debug=Fa
         image_deck_raw.append(img_raw)
 
     # make montage
-    montage = np.zeros( (panel_size[0]*Npixels+Nspace*(panel_size[0]-1) , panel_size[1]*Npixels+Nspace*(panel_size[1]-1) ) , dtype=np.dtype(np.uint16))
+    montage = np.zeros((2, panel_size[0]*Npixels+Nspace*(panel_size[0]-1) , panel_size[1]*Npixels+Nspace*(panel_size[1]-1) ) , dtype=np.dtype(np.uint16))
     for i in range(panel_size[0]):
         for j in range(panel_size[1]):
             i0 = i*(Npixels+Nspace)
@@ -123,15 +125,16 @@ def montage_overlay_two_images(images_raw, images_seg, output_filename, debug=Fa
             j0 = j*(Npixels+Nspace)
             j1 = j0 + Npixels
             k = i*(panel_size[1]) + j
-            tile = image_deck_raw[k][:,:]
-            tile_s = image_deck_seg[k][:,:]
-            tile[tile_s==1] = 65000
-            montage[i0:i1, j0:j1] = tile
+            #tile = image_deck_raw[k][:,:]
+            #tile_s = image_deck_seg[k][:,:]
+            #tile[tile_s==1] = 65000
+            montage[0, i0:i1, j0:j1] = image_deck_raw[k][:,:]
+            montage[1, i0:i1, j0:j1] = image_deck_seg[k][:,:]
 
     if verbose:
         print("Montage tif shape:", np.shape(montage))
 
     # save montage
-    skimage.io.imsave("%s_%dx%d.tif" % (output_filename, panel_size[0], panel_size[1]), montage, plugin='tifffile')
+    skimage.io.imsave("%s_%dx%d.tif" % (output_filename, panel_size[0], panel_size[1]), montage, plugin='tifffile', imagej=True)
 
 

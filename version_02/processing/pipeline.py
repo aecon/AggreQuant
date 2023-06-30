@@ -12,6 +12,7 @@ from processing.cells import CellSegmentation
 from processing.aggregates import AggregateSegmentation
 from processing.quantification import compute_QoI
 from statistics.statistics import Statistics
+from statistics.diagnostics import *
 
 
 class ImageProcessor:
@@ -22,8 +23,7 @@ class ImageProcessor:
         self.statistics = []
         self.debug = fileParser.debug
         self.verbose = fileParser.verbose
-
-        self._set_dataset_paths(fileParser)
+        self.fileParser = fileParser
 
 
     def _set_dataset_paths(self, fileParser):
@@ -100,10 +100,12 @@ class ImageProcessor:
             print("Detected less than 10 nuclei! Will exlude this image-set from quantification.")
 
 
-    def process(self):
-
+    def set_paths(self):
+        self._set_dataset_paths(self.fileParser)
         self._make_output_directories()
 
+
+    def process(self):
         # limit GPU usage
         gpus = tf.config.experimental.list_physical_devices('GPU')
         for gpu in gpus:
@@ -137,4 +139,17 @@ class ImageProcessor:
         platename = "%s_%s" % ( os.path.basename(os.path.dirname(self.dataset.input_folder)), os.path.basename(self.dataset.input_folder) )
         self.statistics = Statistics(self.dataset, platename, self.verbose, self.debug)
         self.statistics.generate_statistics()
+
+
+    def make_montage(self):
+        if not os.path.exists(self.dataset.output_folder_diagnostics):
+            os.makedirs(self.dataset.output_folder_diagnostics)
+
+#        montage_filename = "%s/montage_simple_nuclei.tif" % (self.dataset.output_folder_diagnostics)
+#        montage_simple(self.dataset.paths_nuclei, montage_filename, debug=False)
+
+        montage_filename = "%s/montage_overlay_nuclei.tif" % (self.dataset.output_folder_diagnostics)
+        paths_seg_nuclei = sorted(glob.glob("%s/*Blue*.tif" % (self.dataset.output_folder_nuclei)))
+        montage_overlay_two_images(self.dataset.paths_nuclei, paths_seg_nuclei, montage_filename, debug=False, verbose=False)
+
 

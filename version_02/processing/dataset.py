@@ -21,12 +21,13 @@ class Dataset:
 
         self.input_folder     = input_directory
 
-        folderID = datetime.today().strftime('%Y-%m-%d_%H-%M-%S')
+        folderID = "2023-06-28_18-08-52" #datetime.today().strftime('%Y-%m-%d_%H-%M-%S')
         self.output_folder_main = "%s/output_%s" % (input_directory, folderID)
         self.output_folder_nuclei = "%s/nuclei" % self.output_folder_main
         self.output_folder_cells = "%s/cells" % self.output_folder_main
         self.output_folder_aggregates = "%s/aggregates" % self.output_folder_main
         self.output_folder_QoI = "%s/quantification" % self.output_folder_main
+        self.output_folder_diagnostics = "%s/diagnostics" % self.output_folder_main
 
         assert(len(self.paths_nuclei) == len(self.paths_cells))
         assert(len(self.paths_nuclei) == len(self.paths_aggregates))

@@ -65,19 +65,19 @@ def montage_overlay_two_images(images_raw, images_seg, output_filename, debug=Fa
         panel_size = [1, Nfiles] # rows, columns
     else:
         panel_size = [8, 16]
-
-    assert(panel_size[1]%2 == 0) # Number of columns must be divisible by 2!
-    Npixels = 512
+    Npixels = 768
     Nspace = 5
 
-    # N is the number of raw images.
-    N = panel_size[0] * int(panel_size[1] * 0.5)
+    N = panel_size[0] * panel_size[1]
     if Nfiles < N:
-        print("Must have at least %d images!" % (N) )
+        print("Must have at least %d images!" % (N ) )
         sys.exit(1)
 
+    # random selection of images
+    rand = np.random.choice(Nfiles, size=N, replace=False)
+
     print("Nraw", len(images_raw))
-    print("Nraw", len(images_raw))
+    print("Nseg", len(images_seg))
     assert(len(images_seg) == len(images_raw))
 
     # random selection of images
@@ -89,6 +89,10 @@ def montage_overlay_two_images(images_raw, images_seg, output_filename, debug=Fa
     for r in rand:
         img0_seg = skimage.io.imread(images_seg[r], plugin='tifffile')
         img0_seg[img0_seg>0] = 1
+        # reconstruct edges from nuclei seeds
+        edges0 = skimage.filters.sobel(img0_seg)
+        img0_seg = np.zeros(np.shape(edges0), dtype=np.dtype(np.uint8))
+        img0_seg[edges0>0] = 1
 
         img0_raw = skimage.io.imread(images_raw[r], plugin='tifffile')
 
@@ -102,27 +106,27 @@ def montage_overlay_two_images(images_raw, images_seg, output_filename, debug=Fa
         img_seg[:,:] = img0_seg[P0:P0+Npixels, P0:P0+Npixels]
         img_raw = np.zeros((Npixels,Npixels))
         img_raw[:,:] = img0_raw[P0:P0+Npixels, P0:P0+Npixels]
-        IMIN = np.min(img_raw)
-        IMAX = np.max(img_raw)
-        img_raw = (img_raw-IMIN) / (IMAX-IMIN)
+
+#        IMIN = np.min(img_raw)
+#        IMAX = np.max(img_raw)
+#        img_raw = (img_raw-IMIN) / (IMAX-IMIN)
+
         image_deck_seg.append(img_seg)
         image_deck_raw.append(img_raw)
 
     # make montage
-    montage = np.zeros( (panel_size[0]*Npixels+Nspace*(panel_size[0]-1) , panel_size[1]*Npixels+Nspace*(panel_size[1]-1) ) , dtype=np.dtype(float))
-
-    for i in range(panel_size[0]):      # row
-        for j in range(panel_size[1]):  # column
+    montage = np.zeros( (panel_size[0]*Npixels+Nspace*(panel_size[0]-1) , panel_size[1]*Npixels+Nspace*(panel_size[1]-1) ) , dtype=np.dtype(np.uint16))
+    for i in range(panel_size[0]):
+        for j in range(panel_size[1]):
             i0 = i*(Npixels+Nspace)
             i1 = i0 + Npixels
             j0 = j*(Npixels+Nspace)
             j1 = j0 + Npixels
-            if j%2==0:  # seg column
-                k =  i*int(0.5*panel_size[1]) + (j//2)
-                montage[i0:i1, j0:j1] = image_deck_seg[k][:,:]
-            if j%2==1:  # raw column
-                k =  i*int(0.5*panel_size[1]) + (j//2)
-                montage[i0:i1, j0:j1] = image_deck_raw[k][:,:]
+            k = i*(panel_size[1]) + j
+            tile = image_deck_raw[k][:,:]
+            tile_s = image_deck_seg[k][:,:]
+            tile[tile_s==1] = 65000
+            montage[i0:i1, j0:j1] = tile
 
     if verbose:
         print("Montage tif shape:", np.shape(montage))

@@ -147,7 +147,7 @@ class ImageProcessor:
 #        montage_simple(self.dataset.paths_nuclei, montage_filename, debug=False)
 
         montage_filename = "%s/montage_overlay_nuclei.tif" % (self.dataset.output_folder_diagnostics)
-        paths_seg_nuclei = sorted(glob.glob("%s/*Blue*.tif" % (self.dataset.output_folder_nuclei)))
+        paths_seg_nuclei = sorted(glob.glob("%s/*Blue*seeds*.tif" % (self.dataset.output_folder_nuclei)))
         montage_overlay_two_images(self.dataset.paths_nuclei, paths_seg_nuclei, montage_filename, debug=False, verbose=False)
 
 

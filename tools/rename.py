@@ -7,6 +7,9 @@ import argparse
 
 
 ###############################
+# RUN AS:
+# ./rename.py -f "DRAG AND DROP PLATE FOLDER"
+#
 # EDIT HERE
 pattern_from = "Plate2_"   # very important!! We need the underscore in the end
 pattern_to   = "Plate2B_"

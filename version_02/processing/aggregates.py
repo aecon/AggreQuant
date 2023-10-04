@@ -48,16 +48,20 @@ class AggregateSegmentation:
         # normalized
         norm = img / back
         assert(np.min(norm)>=0)
-    
+
+        # noise reduction
+        tmp_ = scipy.ndimage.gaussian_filter(norm, sigma=4, mode='reflect') 
+        norm[:,:] = tmp_[:,:]
+
         # segment
-        threshold = np.percentile(norm, 98)
+        threshold = max(np.percentile(norm, 98), 1.08)
         segmented_ = np.zeros(np.shape(img), dtype=np.uint8)
         segmented_[norm>threshold] = 1
         if self.debug:
             print("seg. threshold:", threshold)
     
         # median
-        segmented = scipy.ndimage.median_filter(segmented_, size=2)
+        segmented = scipy.ndimage.median_filter(segmented_, size=4)
     
         # connected components
         labels = skimage.morphology.label(segmented, connectivity=2)

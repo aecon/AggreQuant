@@ -34,77 +34,7 @@ class ImageProcessor:
         self.process_aggregates = process_aggregates
 
 
-    def _set_dataset_paths(self, fileParser):
-        paths_nuclei = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_NUCLEI)))
-        paths_cells  = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_CELLS)))
-        paths_agg    = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_AGGREGATES)))
-        self.dataset = Dataset(paths_nuclei, paths_cells, paths_agg, fileParser.input_directory)
-
-
-    def _make_output_directories(self):
-        if not os.path.exists(self.dataset.output_folder_nuclei):
-            os.makedirs(self.dataset.output_folder_nuclei)
-
-        if not os.path.exists(self.dataset.output_folder_cells):
-            os.makedirs(self.dataset.output_folder_cells)
-
-        if not os.path.exists(self.dataset.output_folder_aggregates):
-            os.makedirs(self.dataset.output_folder_aggregates)
-
-        if not os.path.exists(self.dataset.output_folder_QoI):
-            os.makedirs(self.dataset.output_folder_QoI)
-
-
-    def _set_data_paths(self, file_n, file_c, file_a):
-        if not os.path.isfile(file_n):
-            print("File %s does NOT exist!", file_n)
-            sys.exit()
-        if not os.path.isfile(file_c):
-            print("File %s does NOT exist!", file_c)
-            sys.exit()
-        if not os.path.isfile(file_a):
-            print("File %s does NOT exist!", file_a)
-            sys.exit()
-        self.data = Data(file_n, file_c, file_a)
-
-
-    def _process(self, NucleiModel):
-        if self.verbose:
-            print("\nProcessing files:")
-            print(" > %s" % self.data.n)
-            print(" > %s" % self.data.c)
-            print(" > %s" % self.data.a)
-            print("")
-
-        # Get paths to generated (output) files
-        output_files_nuclei     = self.dataset.get_output_file_names(self.data.n, "nuclei")
-        output_files_cells      = self.dataset.get_output_file_names(self.data.c, "cells")
-        output_files_aggregates = self.dataset.get_output_file_names(self.data.a, "aggregates")
-        output_files_QoI        = self.dataset.get_output_file_names(self.data.a, "QoI")
-        if self.debug:
-            print(output_files_nuclei)
-            print(output_files_cells)
-            print(output_files_aggregates)
-            print(output_files_QoI)
-
-        # Process nuclei
-        if self.process_nuclei:
-            nuclei = NucleiSegmentation(self.data.n, output_files_nuclei, NucleiModel, self.verbose, self.debug)
-            Number_of_nuclei = nuclei.segment_nuclei()
-
-        if self.process_cells:
-            # Process cells
-            cells = CellSegmentation(self.data.c, output_files_nuclei, output_files_cells, self.verbose, self.debug)
-            cells.segment_cells()
-
-        if self.process_aggregates:
-            # Process aggregates
-            aggregates = AggregateSegmentation(self.data.a, output_files_aggregates, self.verbose, self.debug)
-            aggregates.segment_aggregates()
-
-            # Quantities of Interest
-            compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, self.verbose, self.debug)
-
+    # Public functions
 
     def set_paths(self):
         self._set_dataset_paths(self.fileParser)
@@ -171,5 +101,80 @@ class ImageProcessor:
             montage_filename = "%s/montage_overlay_aggregates.tif" % (self.dataset.output_folder_diagnostics)
             paths_seg_agg = sorted(glob.glob("%s/*Green*labels*.tif" % (self.dataset.output_folder_aggregates)))
             montage_overlay_two_images(self.dataset.paths_aggregates, paths_seg_agg, montage_filename, debug=False, verbose=False)
+
+
+
+    # Intended private functions
+
+    def _set_data_paths(self, file_n, file_c, file_a):
+        if not os.path.isfile(file_n):
+            print("File %s does NOT exist!", file_n)
+            sys.exit()
+        if not os.path.isfile(file_c):
+            print("File %s does NOT exist!", file_c)
+            sys.exit()
+        if not os.path.isfile(file_a):
+            print("File %s does NOT exist!", file_a)
+            sys.exit()
+        self.data = Data(file_n, file_c, file_a)
+
+
+    def _set_dataset_paths(self, fileParser):
+        paths_nuclei = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_NUCLEI)))
+        paths_cells  = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_CELLS)))
+        paths_agg    = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_AGGREGATES)))
+        self.dataset = Dataset(paths_nuclei, paths_cells, paths_agg, fileParser.input_directory)
+
+
+    def _make_output_directories(self):
+        if not os.path.exists(self.dataset.output_folder_nuclei):
+            os.makedirs(self.dataset.output_folder_nuclei)
+
+        if not os.path.exists(self.dataset.output_folder_cells):
+            os.makedirs(self.dataset.output_folder_cells)
+
+        if not os.path.exists(self.dataset.output_folder_aggregates):
+            os.makedirs(self.dataset.output_folder_aggregates)
+
+        if not os.path.exists(self.dataset.output_folder_QoI):
+            os.makedirs(self.dataset.output_folder_QoI)
+
+
+    def _process(self, NucleiModel):
+        if self.verbose:
+            print("\nProcessing files:")
+            print(" > %s" % self.data.n)
+            print(" > %s" % self.data.c)
+            print(" > %s" % self.data.a)
+            print("")
+
+        # Get paths to generated (output) files
+        output_files_nuclei     = self.dataset.get_output_file_names(self.data.n, "nuclei")
+        output_files_cells      = self.dataset.get_output_file_names(self.data.c, "cells")
+        output_files_aggregates = self.dataset.get_output_file_names(self.data.a, "aggregates")
+        output_files_QoI        = self.dataset.get_output_file_names(self.data.a, "QoI")
+        if self.debug:
+            print(output_files_nuclei)
+            print(output_files_cells)
+            print(output_files_aggregates)
+            print(output_files_QoI)
+
+        # Process nuclei
+        if self.process_nuclei:
+            nuclei = NucleiSegmentation(self.data.n, output_files_nuclei, NucleiModel, self.verbose, self.debug)
+            Number_of_nuclei = nuclei.segment_nuclei()
+
+        if self.process_cells:
+            # Process cells
+            cells = CellSegmentation(self.data.c, output_files_nuclei, output_files_cells, self.verbose, self.debug)
+            cells.segment_cells()
+
+        if self.process_aggregates:
+            # Process aggregates
+            aggregates = AggregateSegmentation(self.data.a, output_files_aggregates, self.verbose, self.debug)
+            aggregates.segment_aggregates()
+
+            # Quantities of Interest
+            compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, self.verbose, self.debug)
 
 

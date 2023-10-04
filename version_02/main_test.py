@@ -2,7 +2,7 @@ import os
 import sys
 import argparse
 
-from processing.pipeline import ImageProcessor
+from processing.processor import ImageProcessor
 
 # File parsing
 parser = argparse.ArgumentParser()

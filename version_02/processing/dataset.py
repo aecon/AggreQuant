@@ -23,6 +23,7 @@ class Dataset:
         self.output_folder_cells = "%s/cells" % self.output_folder_main
         self.output_folder_aggregates = "%s/aggregates" % self.output_folder_main
         self.output_folder_QoI = "%s/quantification" % self.output_folder_main
+        self.output_folder_QoI_tifs = "%s/quantification/tifs" % self.output_folder_main
         self.output_folder_diagnostics = "%s/diagnostics" % self.output_folder_main
 
         assert(len(self.paths_nuclei) == len(self.paths_cells))
@@ -57,9 +58,9 @@ class Dataset:
 
         elif data_type=="QoI":
             file_QoI = "%s/%s_%s.txt" % (self.output_folder_QoI, bpath, "QoI")
-            img_LabelsInsideCells = "%s/%s_%s.tif" % (self.output_folder_QoI, bpath, "labels_aggregates_InsideCells")
-            img_OverSegCellsAggr = "%s/%s_%s.tif" % (self.output_folder_QoI, bpath, "overlay_segmented_cells_aggregates")
-            img_NumberAggregatesPerCell = "%s/%s_%s.tif" % (self.output_folder_QoI, bpath, "overlay_naggregates_per_cell")
+            img_LabelsInsideCells = "%s/tifs/%s_%s.tif" % (self.output_folder_QoI, bpath, "labels_aggregates_InsideCells")
+            img_OverSegCellsAggr = "%s/tifs/%s_%s.tif" % (self.output_folder_QoI, bpath, "overlay_segmented_cells_aggregates")
+            img_NumberAggregatesPerCell = "%s/tifs/%s_%s.tif" % (self.output_folder_QoI, bpath, "overlay_naggregates_per_cell")
             outpaths = {
                         "QoI": file_QoI,
                         "LinsideC": img_LabelsInsideCells,

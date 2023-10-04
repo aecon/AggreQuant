@@ -29,15 +29,18 @@ class ImageProcessor:
 
         self.debug = argparser.debug
         self.verbose = argparser.verbose
-        self.production = argparser.production
+        self.validation = argparser.validation
         self.overwrite_output_folder = argparser.overwrite_output_folder
+        self.dump_QoI_tifs = argparser.dump_QoI_tifs
 
         self.process_nuclei = process_nuclei
         self.process_cells = process_cells
         self.process_aggregates = process_aggregates
 
 
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Public functions
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     def set_paths(self):
         self._set_dataset_paths(self.fileParser)
@@ -73,6 +76,8 @@ class ImageProcessor:
             self._process(NucleiModel)
 
 
+
+
     def generate_statistics(self):
         platename = "%s_%s" % ( os.path.basename(os.path.dirname(self.dataset.input_folder)), os.path.basename(self.dataset.input_folder) )
         self.statistics = Statistics(self.dataset, platename, self.verbose, self.debug)
@@ -95,7 +100,7 @@ class ImageProcessor:
             os.makedirs(self.dataset.output_folder_diagnostics)
 
         # Case: Validation run
-        if self.production==False:
+        if self.validation==True:
             if self.process_nuclei:
                 print("Generating montage for nuclei segmentation\n")
                 montage_filename = "%s/montage_overlay_nuclei.tif" % (self.dataset.output_folder_diagnostics)
@@ -141,7 +146,9 @@ class ImageProcessor:
 
 
 
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Intended private functions
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     def _set_data_paths(self, file_n, file_c, file_a):
         if not os.path.isfile(file_n):
@@ -175,6 +182,11 @@ class ImageProcessor:
 
         if not os.path.exists(self.dataset.output_folder_QoI):
             os.makedirs(self.dataset.output_folder_QoI)
+
+        if self.dump_QoI_tifs:
+            if not os.path.exists(self.dataset.output_folder_QoI_tifs):
+                os.makedirs(self.dataset.output_folder_QoI_tifs)
+
 
 
     def _process(self, NucleiModel):
@@ -211,7 +223,6 @@ class ImageProcessor:
             aggregates = AggregateSegmentation(self.data.a, output_files_aggregates, self.verbose, self.debug)
             aggregates.segment_aggregates()
 
-            # Quantities of Interest
-            compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, self.verbose, self.debug)
-
+        compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
+            self.verbose, self.debug, self.dump_QoI_tifs)
 

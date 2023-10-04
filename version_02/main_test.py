@@ -9,8 +9,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-i', type=str, required=True, help="paths.txt file with path to tifs, and colour identifiers")
 parser.add_argument('-debug', action='store_true')
 parser.add_argument('-verbose', action='store_true')
-parser.add_argument('-production', action='store_true')  # default should change to TRUE !
+# To generate validatio montages (4x5 layout)
+parser.add_argument('-validation', action='store_true')
+# To write results inside a default folder: <outdir>/`validation`
 parser.add_argument('-overwrite_output_folder', action='store_true')
+# To dump tifs from the QoI computation process
+parser.add_argument('-dump_QoI_tifs', action='store_true')
 args = parser.parse_args()
 
 
@@ -22,8 +26,8 @@ processor = ImageProcessor(args)
 # Set the folder/file paths
 processor.set_paths()
 
-# Perform Image Processing + QoI computation
-#processor.process()
+# Image Processing + QoI computation
+processor.process()
 
 # Generate statistics
 #processor.generate_statistics()

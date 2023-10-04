@@ -44,7 +44,8 @@ def exclude_outside_cells(mask, cells):
     return tmp2
 
 
-def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, verbose=False, debug=False):
+def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
+    verbose=False, debug=False, dump_QoI_tifs=False):
     """
     Quantities of Interest:
         1. [CHK] Percentage of aggregate-positive cells
@@ -78,7 +79,7 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, v
 
     # connected components for aggregates inside cells
     labels_agg = skimage.morphology.label(mask_agg, connectivity=2)
-    if debug:
+    if debug or dump_QoI_tifs:
         skimage.io.imsave(output_files_QoI["LinsideC"], labels_agg, plugin='tifffile', check_contrast=False)
 
     # cell maks
@@ -215,7 +216,7 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI, v
     # save tif image diagnostics
     overlay_cells_agg[mask_cell==0] = 0
     overlay_nagg_per_cell[mask_agg>0] = -2  # comment-out to show only cells
-    if debug:
+    if debug or dump_QoI_tifs:
         skimage.io.imsave(output_files_QoI["OvSegCA"], overlay_cells_agg, plugin='tifffile', check_contrast=False)
         skimage.io.imsave(output_files_QoI["NAggrCell"], overlay_nagg_per_cell, plugin='tifffile', check_contrast=False)
 

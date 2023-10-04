@@ -21,14 +21,17 @@ class ImageProcessor:
 
     def __init__(self, argparser, process_nuclei=True, process_cells=True, process_aggregates=True):
         fileParser = FileParser(argparser)
+        self.fileParser = fileParser
 
         self.dataset = []
         self.data = []
         self.statistics = []
-        self.debug = fileParser.debug
-        self.dump_tifs = fileParser.dump_tifs
-        self.verbose = fileParser.verbose
-        self.fileParser = fileParser
+
+        self.debug = argparser.debug
+        self.verbose = argparser.verbose
+        self.production = argparser.production
+        self.overwrite_output_folder = argparser.overwrite_output_folder
+
         self.process_nuclei = process_nuclei
         self.process_cells = process_cells
         self.process_aggregates = process_aggregates
@@ -77,30 +80,57 @@ class ImageProcessor:
 
 
     def make_montage(self):
+        """
+        Makes a montage (i.e. a grid of images) with the aim of
+        checking the segmentation and quantification quality.
+
+        Functions are separated in `validaton` and `production` groups.
+        - production: a random sample of images is selected for the montage.
+        - validation: all images of the validation dataset are displayed.
+        """
+
         if not os.path.exists(self.dataset.output_folder_diagnostics):
             os.makedirs(self.dataset.output_folder_diagnostics)
 
-        if 0:
-            montage_filename = "%s/montage_simple_nuclei.tif" % (self.dataset.output_folder_diagnostics)
-            montage_simple(self.dataset.paths_nuclei, montage_filename, debug=False)
+        # Case: Validation run
+        if self.production==False:
+            if self.process_nuclei:
+                print("Generating montage for nuclei segmentation.")
+                montage_filename = "%s/montage_overlay_nuclei.tif" % (self.dataset.output_folder_diagnostics)
+                paths_seg_nuclei = sorted(glob.glob("%s/*Blue*seeds*.tif" % (self.dataset.output_folder_nuclei)))
+                montage_overlay_two_images_validation(self.dataset.paths_nuclei, paths_seg_nuclei, montage_filename)
 
-        # overlay nuclei
-        if 0:
-            montage_filename = "%s/montage_overlay_nuclei.tif" % (self.dataset.output_folder_diagnostics)
-            paths_seg_nuclei = sorted(glob.glob("%s/*Blue*seeds*.tif" % (self.dataset.output_folder_nuclei)))
-            montage_overlay_two_images(self.dataset.paths_nuclei, paths_seg_nuclei, montage_filename, debug=False, verbose=False)
+            if self.process_cells:
+                print("Generating montage for cell segmentation.")
+                montage_filename = "%s/montage_overlay_cells.tif" % (self.dataset.output_folder_diagnostics)
+                paths_seg_cells = sorted(glob.glob("%s/*Red*labels*.tif" % (self.dataset.output_folder_cells)))
+                montage_overlay_two_images_validation(self.dataset.paths_cells, paths_seg_cells, montage_filename)
 
-        # overlay cells
-        if 0:
-            montage_filename = "%s/montage_overlay_cells.tif" % (self.dataset.output_folder_diagnostics)
-            paths_seg_cells = sorted(glob.glob("%s/*Red*labels*.tif" % (self.dataset.output_folder_cells)))
-            montage_overlay_two_images(self.dataset.paths_cells, paths_seg_cells, montage_filename, debug=False, verbose=False)
 
-        # overlay aggregates
-        if 1:
-            montage_filename = "%s/montage_overlay_aggregates.tif" % (self.dataset.output_folder_diagnostics)
-            paths_seg_agg = sorted(glob.glob("%s/*Green*labels*.tif" % (self.dataset.output_folder_aggregates)))
-            montage_overlay_two_images(self.dataset.paths_aggregates, paths_seg_agg, montage_filename, debug=False, verbose=False)
+       
+        else: # Case: Production run
+
+            if 0:
+                montage_filename = "%s/montage_simple_nuclei.tif" % (self.dataset.output_folder_diagnostics)
+                montage_simple(self.dataset.paths_nuclei, montage_filename, debug=False)
+
+            # overlay nuclei
+            if 0:
+                montage_filename = "%s/montage_overlay_nuclei.tif" % (self.dataset.output_folder_diagnostics)
+                paths_seg_nuclei = sorted(glob.glob("%s/*Blue*seeds*.tif" % (self.dataset.output_folder_nuclei)))
+                montage_overlay_two_images(self.dataset.paths_nuclei, paths_seg_nuclei, montage_filename, debug=False, verbose=False)
+
+            # overlay cells
+            if 0:
+                montage_filename = "%s/montage_overlay_cells.tif" % (self.dataset.output_folder_diagnostics)
+                paths_seg_cells = sorted(glob.glob("%s/*Red*labels*.tif" % (self.dataset.output_folder_cells)))
+                montage_overlay_two_images(self.dataset.paths_cells, paths_seg_cells, montage_filename, debug=False, verbose=False)
+
+            # overlay aggregates
+            if 1:
+                montage_filename = "%s/montage_overlay_aggregates.tif" % (self.dataset.output_folder_diagnostics)
+                paths_seg_agg = sorted(glob.glob("%s/*Green*labels*.tif" % (self.dataset.output_folder_aggregates)))
+                montage_overlay_two_images(self.dataset.paths_aggregates, paths_seg_agg, montage_filename, debug=False, verbose=False)
 
 
 
@@ -123,7 +153,7 @@ class ImageProcessor:
         paths_nuclei = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_NUCLEI)))
         paths_cells  = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_CELLS)))
         paths_agg    = sorted(glob.glob("%s/*%s*.tif" % (fileParser.input_directory, fileParser.COLOUR_AGGREGATES)))
-        self.dataset = Dataset(paths_nuclei, paths_cells, paths_agg, fileParser.input_directory)
+        self.dataset = Dataset(paths_nuclei, paths_cells, paths_agg, fileParser.input_directory, self.overwrite_output_folder)
 
 
     def _make_output_directories(self):

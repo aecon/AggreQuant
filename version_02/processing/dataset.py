@@ -6,7 +6,8 @@ from datetime import datetime
 # Info for entire dataset (many files)
 
 class Dataset:
-    def __init__(self, paths_nuclei, paths_cells, paths_aggregates, input_directory):
+    def __init__(self, paths_nuclei, paths_cells, paths_aggregates,
+         input_directory, overwrite_output_folder=False):
         self.paths_nuclei     = paths_nuclei
         self.paths_cells      = paths_cells
         self.paths_aggregates = paths_aggregates
@@ -15,6 +16,8 @@ class Dataset:
         self.input_folder     = input_directory
 
         folderID = datetime.today().strftime('%Y-%m-%d_%H-%M-%S')
+        if overwrite_output_folder==True:
+            folderID = "validation"
         self.output_folder_main = "%s/output_%s" % (input_directory, folderID)
         self.output_folder_nuclei = "%s/nuclei" % self.output_folder_main
         self.output_folder_cells = "%s/cells" % self.output_folder_main

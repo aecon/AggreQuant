@@ -18,24 +18,14 @@ class Quantities:
         self.Number_Aggregates_Per_Image_ConnectedComponents = 0
         self.Avg_Number_Aggregates_Per_AggPositive_Cell = 0
 
-
     def export_table(self, table_file):
         """
         Export a text file with a table of aggregate characteristics per image set
         """
-
-#        with open(table_file+"_per_aggregate.txt", 'w') as f:
-#            f.write("%12s %12s \n" % ("Volume(um3)", "NMolTDP"))
-#            for i in range(Nc):
-#                f.write("%12.2e %12d \n" % (volumes[i], particles[i] ))
-#            f.close()
-
-        # Summary for per-Image quantities
         with open(table_file, 'w') as f:
             f.write("%15s %15s %15s %15s %15s %16s\n" % ("%Agg.Pos.Cells", "N.Cells", "%Area.Agg.", "%Ambig.Agg.", "N.Agg.Img(CC)", "Avg.NAgg.perCell"))
             f.write("%15g %15g %15g %15g %15g %16g\n" % (self.Percentage_Of_AggregatePositive_Cells, self.Number_Of_Cells_Per_Image, self.Percentage_Area_Aggregates, self.Percentage_Ambiguous_Aggregates, self.Number_Aggregates_Per_Image_ConnectedComponents, self.Avg_Number_Aggregates_Per_AggPositive_Cell))
             f.close()
-
 
 
 

@@ -8,8 +8,9 @@ from processing.processor import ImageProcessor
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', type=str, required=True, help="paths.txt file with path to tifs, and colour identifiers")
 parser.add_argument('-debug', action='store_true')
-parser.add_argument('-dump_tifs', action='store_true')
 parser.add_argument('-verbose', action='store_true')
+parser.add_argument('-production', action='store_true')  # default should change to TRUE !
+parser.add_argument('-overwrite_output_folder', action='store_true')
 args = parser.parse_args()
 
 
@@ -22,11 +23,11 @@ processor = ImageProcessor(args)
 processor.set_paths()
 
 # Perform Image Processing + QoI computation
-processor.process()
+#processor.process()
 
 # Generate statistics
 #processor.generate_statistics()
 
 # Generate diagnostic images (montage)
-#processor.make_montage()
+processor.make_montage()
 

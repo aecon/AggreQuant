@@ -9,6 +9,7 @@ class FileParser:
         self.pathfile = args.i
         self.verbose = args.verbose
         self.debug = args.debug
+        self.dump_tifs = args.dump_tifs
 
         self.input_directory = ""
         self.COLOUR_NUCLEI = ""

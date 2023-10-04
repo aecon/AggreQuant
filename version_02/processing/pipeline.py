@@ -2,10 +2,11 @@ import os
 import sys
 import glob
 import click
+import argparse
 import tensorflow as tf
 from stardist.models import StarDist2D
 
-from utils.parser import FileParser
+from processing.parser import FileParser
 from processing.dataset import Dataset
 from processing.data import Data
 from processing.nuclei import NucleiSegmentation
@@ -18,11 +19,14 @@ from statistics.diagnostics import *
 
 class ImageProcessor:
 
-    def __init__(self, fileParser, process_nuclei=True, process_cells=True, process_aggregates=True):
+    def __init__(self, argparser, process_nuclei=True, process_cells=True, process_aggregates=True):
+        fileParser = FileParser(argparser)
+
         self.dataset = []
         self.data = []
         self.statistics = []
         self.debug = fileParser.debug
+        self.dump_tifs = fileParser.dump_tifs
         self.verbose = fileParser.verbose
         self.fileParser = fileParser
         self.process_nuclei = process_nuclei

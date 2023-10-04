@@ -6,7 +6,8 @@ import tensorflow as tf
 from stardist.models import StarDist2D
 
 from utils.parser import FileParser
-from processing.dataset import Dataset, Data
+from processing.dataset import Dataset
+from processing.data import Data
 from processing.nuclei import NucleiSegmentation
 from processing.cells import CellSegmentation
 from processing.aggregates import AggregateSegmentation
@@ -115,7 +116,7 @@ class ImageProcessor:
         # display progress bar
         bar = click.progressbar(length=self.dataset.Nfiles, show_eta=False)
 
-        # Load pretrained StarDitst model only once!
+        # Load pretrained StarDist model only once!
         NucleiModel = StarDist2D.from_pretrained('2D_versatile_fluo')
 
         print("\n\nBEGIN IMAGE PROCESSING. TOTAL NUMBER OF IMAGE PAIRS:", self.dataset.Nfiles)

@@ -119,6 +119,17 @@ class ImageProcessor:
                 paths_seg_agg = sorted(glob.glob("%s/*Green*labels*.tif" % (self.dataset.output_folder_aggregates)))
                 montage_overlay_two_images_validation(self.dataset.paths_aggregates, paths_seg_agg, montage_filename)
 
+            if self.process_nuclei and self.process_cells and self.process_aggregates: 
+                print("Generating 6-Channel montage\n")
+                montage_filename = "%s/montage_overlay_6Channels.tif" % (self.dataset.output_folder_diagnostics)
+                paths_seg_nuclei = sorted(glob.glob("%s/*Blue*seeds*.tif" % (self.dataset.output_folder_nuclei)))
+                paths_seg_cells = sorted(glob.glob("%s/*Red*labels*.tif" % (self.dataset.output_folder_cells)))
+                paths_seg_agg = sorted(glob.glob("%s/*Green*labels*.tif" % (self.dataset.output_folder_aggregates)))
+                montage_overlay_6Channels_validation(self.dataset.paths_nuclei, paths_seg_nuclei,
+                    self.dataset.paths_cells, paths_seg_cells,
+                    self.dataset.paths_aggregates, paths_seg_agg,
+                    montage_filename)
+
        
         else: # Case: Production run
 

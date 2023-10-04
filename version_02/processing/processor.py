@@ -89,23 +89,30 @@ class ImageProcessor:
         - validation: all images of the validation dataset are displayed.
         """
 
+        print("\n\nSTEP MONTAGE:\n")
+
         if not os.path.exists(self.dataset.output_folder_diagnostics):
             os.makedirs(self.dataset.output_folder_diagnostics)
 
         # Case: Validation run
         if self.production==False:
             if self.process_nuclei:
-                print("Generating montage for nuclei segmentation.")
+                print("Generating montage for nuclei segmentation\n")
                 montage_filename = "%s/montage_overlay_nuclei.tif" % (self.dataset.output_folder_diagnostics)
                 paths_seg_nuclei = sorted(glob.glob("%s/*Blue*seeds*.tif" % (self.dataset.output_folder_nuclei)))
                 montage_overlay_two_images_validation(self.dataset.paths_nuclei, paths_seg_nuclei, montage_filename)
 
             if self.process_cells:
-                print("Generating montage for cell segmentation.")
+                print("Generating montage for cell segmentation\n")
                 montage_filename = "%s/montage_overlay_cells.tif" % (self.dataset.output_folder_diagnostics)
                 paths_seg_cells = sorted(glob.glob("%s/*Red*labels*.tif" % (self.dataset.output_folder_cells)))
                 montage_overlay_two_images_validation(self.dataset.paths_cells, paths_seg_cells, montage_filename)
 
+            if self.process_aggregates:
+                print("Generating montage for aggregate segmentation\n")
+                montage_filename = "%s/montage_overlay_aggregates.tif" % (self.dataset.output_folder_diagnostics)
+                paths_seg_agg = sorted(glob.glob("%s/*Green*labels*.tif" % (self.dataset.output_folder_aggregates)))
+                montage_overlay_two_images_validation(self.dataset.paths_aggregates, paths_seg_agg, montage_filename)
 
        
         else: # Case: Production run
@@ -127,7 +134,7 @@ class ImageProcessor:
                 montage_overlay_two_images(self.dataset.paths_cells, paths_seg_cells, montage_filename, debug=False, verbose=False)
 
             # overlay aggregates
-            if 1:
+            if 0:
                 montage_filename = "%s/montage_overlay_aggregates.tif" % (self.dataset.output_folder_diagnostics)
                 paths_seg_agg = sorted(glob.glob("%s/*Green*labels*.tif" % (self.dataset.output_folder_aggregates)))
                 montage_overlay_two_images(self.dataset.paths_aggregates, paths_seg_agg, montage_filename, debug=False, verbose=False)

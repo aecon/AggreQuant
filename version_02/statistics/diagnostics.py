@@ -147,7 +147,7 @@ def montage_overlay_6Channels_validation(images_raw_nuclei, images_seg_nuclei,
     assert(len(images_seg_cells) == len(images_seg_agg))
 
     Nfiles = len(images_raw_nuclei)
-    Ncolumns = 5
+    Ncolumns = 7
     Nrows = int(np.ceil(Nfiles / Ncolumns))
     panel_size = [Nrows, Ncolumns]
 
@@ -229,7 +229,7 @@ def montage_overlay_two_images_validation(images_raw, images_seg, output_filenam
     assert(len(images_seg) == len(images_raw))
 
     Nfiles = len(images_raw)
-    Ncolumns = 5
+    Ncolumns = 7
     Nrows = int(np.ceil(Nfiles / Ncolumns))
     panel_size = [Nrows, Ncolumns]
 

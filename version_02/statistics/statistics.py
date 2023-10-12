@@ -45,6 +45,7 @@ class Statistics:
                 pattern = "- %s" % ControlColumn
                 files_all_fields_per_well = [x for x in sublistR if pattern in x]
                 assert(len(files_all_fields_per_well)<=self.plate.Nfields)
+                #print("Number of fields:", len(files_all_fields_per_well))
 
                 # initialize Well
                 column = int(ControlColumn) - 1 # numbering starts with 0!
@@ -96,7 +97,7 @@ class Statistics:
         plt.scatter(4*np.ones(8), group_13Up, label="Rab13_2")
         plt.ylim([0,80])
         plt.legend()
-#        plt.show()
+        plt.savefig("Statistics_Plate_%s.png" % self.plate.name)
         plt.close()
 
 

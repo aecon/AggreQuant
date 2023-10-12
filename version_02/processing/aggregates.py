@@ -33,7 +33,7 @@ class AggregateSegmentation:
             print(np.median(img), np.min(img), np.max(img))
     
         # cap values
-        threshold = np.percentile(img, 98)
+        threshold = 3500 #based on visual inspection of many images #np.percentile(img, 98)
         if self.debug:
             print("threshold:", threshold)
         capped = np.zeros(np.shape(img))
@@ -54,7 +54,7 @@ class AggregateSegmentation:
         norm[:,:] = tmp_[:,:]
 
         # segment
-        threshold = max(np.percentile(norm, 98), 1.08)
+        threshold = 2.20 #based on visual inspection #max(np.percentile(norm, 98), 1.08)
         segmented_ = np.zeros(np.shape(img), dtype=np.uint8)
         segmented_[norm>threshold] = 1
         if self.debug:
@@ -69,7 +69,8 @@ class AggregateSegmentation:
             print("Connected cmoponents (original):", np.max(labels))
     
         # remove small holes
-        noholes = skimage.morphology.remove_small_holes(segmented.astype(bool, copy=True), area_threshold=400, connectivity=2)
+        Amin_hole = 6000
+        noholes = skimage.morphology.remove_small_holes(segmented.astype(bool, copy=True), area_threshold=Amin_hole, connectivity=2)
         labels = skimage.morphology.label(noholes, connectivity=2)
         if self.debug:
             print("Removed small holes:", np.max(labels))

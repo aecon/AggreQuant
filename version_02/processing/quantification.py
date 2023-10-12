@@ -64,8 +64,6 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
         list_number_of_cells_per_aggregate = np.zeros(len(U_AGG)) - List with number of cell per aggregate.
     """
 
-    check_code = debug
-
 
     # load cell labels
     labels_cells = skimage.io.imread(output_files_cells["labels"], plugin='tifffile')
@@ -79,7 +77,7 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
 
     # connected components for aggregates inside cells
     labels_agg = skimage.morphology.label(mask_agg, connectivity=2)
-    if debug or dump_QoI_tifs:
+    if debug:
         skimage.io.imsave(output_files_QoI["LinsideC"], labels_agg, plugin='tifffile', check_contrast=False)
 
     # cell maks
@@ -87,7 +85,7 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
     mask_cell[labels_cells>0] = 1
 
     # Overlay of aggregates on cells and total aggregates
-    if (check_code==True) and (False):
+    if (debug==True) and (False):
         _tmp1 = labels_agg0>0
         _tmp2 = labels_agg>0
         _tmp3 = np.zeros(np.shape(_tmp1))
@@ -131,7 +129,8 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
     list_number_of_aggregates_per_cell = np.zeros(len(U_CELLS))
     list_number_of_cells_per_aggregate = np.zeros(len(U_AGG))
 
-    AreaRatioThreshold = 0.1
+    AreaRatioThreshold = 1  # this is in percentage to total cell area
+    MinAggAreaPixels = 25   # minimum aggregate area in pixels
 
 
     # Loop over all aggregates
@@ -154,7 +153,7 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
 
 
         # troubleshooting
-        if check_code==True:
+        if debug==True:
             tmp_ = np.zeros(np.shape(mask_agg))
             for ic, icell in enumerate(ID_cells):
                 itmp2_ = (labels_cells == icell)
@@ -191,7 +190,9 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
 
             ratio_of_agg_to_icell_area = agg_area / icell_area * 100.
 
-            if ratio_of_agg_to_icell_area > AreaRatioThreshold:  # consider only aggregates covering more than X% of cell area
+            # consider only aggregates covering more than X% of cell area,
+            # and that they have at least 9 pixels inside the cell
+            if (ratio_of_agg_to_icell_area > AreaRatioThreshold) and (agg_area>MinAggAreaPixels):
                 icell_in_U_CELLS = (U_CELLS == icell)
                 list_number_of_aggregates_per_cell[icell_in_U_CELLS] += 1
                 list_number_of_cells_per_aggregate[ia] += 1

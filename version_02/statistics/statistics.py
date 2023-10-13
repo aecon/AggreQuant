@@ -67,6 +67,18 @@ class Statistics:
                     self.plate.wells[global_index][field] = data
 
 
+    def _agg_pos_cells_in_well(self, field_PAggPosCells, field_Ncells):
+        """
+            Sum over all detected cells in each field inside a well.
+            Sum over all aggregate-positive cells in fields of the well.
+            Return percentage of aggregate positive cells in well.
+        """
+        well_Ncells = np.sum(field_Ncells)
+        field_NAggPosCells = np.multiply(field_PAggPosCells/100., field_Ncells)
+        TotalAggPosCells = np.sum(field_NAggPosCells)
+        return TotalAggPosCells / well_Ncells * 100.
+ 
+
     def _percent_aggregate_positive_cells_Controls(self):
 
         group_5Up  = np.zeros(self.plate.NumberOfControlRows)
@@ -75,25 +87,31 @@ class Statistics:
         group_13Dn = np.zeros(self.plate.NumberOfControlRows)
 
         for i in range(self.plate.NumberOfControlRows):
+            # Control Column 05:
             global_index = self.plate.get_global_well_number(i, 4)
             data = np.asarray(self.plate.wells[global_index])
-            QoI = data[:,0]
-            group_5Up[i] = np.mean(QoI)
+            PercAggPosCells = data[:,0] # per field quantities
+            Ncells          = data[:,1] # per field quantities
+            group_5Up[i] = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
 
             global_index = self.plate.get_global_well_number(i+self.plate.NumberOfControlRows, 4)
             data = np.asarray(self.plate.wells[global_index])
-            QoI = data[:,0]
-            group_5Dn[i] = np.mean(QoI)
+            PercAggPosCells = data[:,0] # per field quantities
+            Ncells          = data[:,1] # per field quantities
+            group_5Dn[i] = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
 
+            # Control Column 13:
             global_index = self.plate.get_global_well_number(i, 12)
             data = np.asarray(self.plate.wells[global_index])
-            QoI = data[:,0]
-            group_13Up[i] = np.mean(QoI)
+            PercAggPosCells = data[:,0] # per field quantities
+            Ncells          = data[:,1] # per field quantities
+            group_13Up[i] = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
 
             global_index = self.plate.get_global_well_number(i+self.plate.NumberOfControlRows, 12)
             data = np.asarray(self.plate.wells[global_index])
-            QoI = data[:,0]
-            group_13Dn[i] = np.mean(QoI)
+            PercAggPosCells = data[:,0] # per field quantities
+            Ncells          = data[:,1] # per field quantities
+            group_13Dn[i] = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
 
 
         plt.scatter(1*np.ones(self.plate.NumberOfControlRows), group_5Up, label="NT_1")
@@ -104,6 +122,24 @@ class Statistics:
         plt.legend()
         plt.savefig("Statistics_Plate_%s.png" % self.plate.name)
         plt.close()
+
+
+        """
+        Export a text file with a specific QoI for all 4 Control wells in plate
+        - structure:
+            QoI: percentage of aggregate positive cells
+            NT_1    Rab13_1     NT_2    Rab13_2
+            x
+            x
+            ... for as many fields
+
+        """
+        table_file = "Statistics_Plate_%s_PercentAggregatePosCells.txt" % self.plate.name
+        with open(table_file, 'w') as f:
+            f.write("%15s %15s %15s %15s\n" % ("NT_1", "Rab13_1", "NT_2", "Rab13_2"))
+            for i in range(self.plate.NumberOfControlRows):
+                f.write("%15g %15g %15g %15g\n" % (group_5Up[i], group_5Dn[i], group_13Dn[i], group_13Up[i]) )
+
 
 
     def generate_statistics(self):

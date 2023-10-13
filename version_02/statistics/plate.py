@@ -8,6 +8,7 @@ class Plate:
         self.Nfields = 9
         self.Nwells = 384
         self.ControlColumns = ["05", "13"]
+        self.NumberOfControlRows = 8
         self.wells = [None] * self.Nwells
 
 

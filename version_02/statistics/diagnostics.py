@@ -52,7 +52,7 @@ def montage_simple(image_list, output_filename, debug=False, verbose=False):
         print("Montage tif shape:", np.shape(montage))
 
     # save montage
-    skimage.io.imsave("%s_montage%dx%d.tif" % (output_filename, panel_size[0], panel_size[1]), montage, plugin='tifffile')
+    skimage.io.imsave("%s_montage%dx%d.tif" % (output_filename, panel_size[0], panel_size[1]), montage, plugin='tifffile', check_contrast=False)
 
 
 
@@ -135,7 +135,7 @@ def montage_overlay_two_images(images_raw, images_seg, output_filename, debug=Fa
         print("Montage tif shape:", np.shape(montage))
 
     # save montage
-    skimage.io.imsave("%s_%dx%d.tif" % (output_filename, panel_size[0], panel_size[1]), montage, plugin='tifffile', imagej=True)
+    skimage.io.imsave("%s_%dx%d.tif" % (output_filename, panel_size[0], panel_size[1]), montage, plugin='tifffile', imagej=True, check_contrast=False)
 
 
 def montage_overlay_6Channels_validation(images_raw_nuclei, images_seg_nuclei, 
@@ -222,7 +222,7 @@ def montage_overlay_6Channels_validation(images_raw_nuclei, images_seg_nuclei,
             montage[5, i0:i1, j0:j1] = image_deck_seg_agg[k][:,:]
 
     # save montage
-    skimage.io.imsave("%s_%dx%d.tif" % (output_filename, panel_size[0], panel_size[1]), montage, plugin='tifffile', imagej=True)
+    skimage.io.imsave("%s_%dx%d.tif" % (output_filename, panel_size[0], panel_size[1]), montage, plugin='tifffile', imagej=True, check_contrast=False)
 
 def montage_overlay_two_images_validation(images_raw, images_seg, output_filename):
 
@@ -284,4 +284,4 @@ def montage_overlay_two_images_validation(images_raw, images_seg, output_filenam
             montage[1, i0:i1, j0:j1] = image_deck_seg[k][:,:]
 
     # save montage
-    skimage.io.imsave("%s_%dx%d.tif" % (output_filename, panel_size[0], panel_size[1]), montage, plugin='tifffile', imagej=True)
+    skimage.io.imsave("%s_%dx%d.tif" % (output_filename, panel_size[0], panel_size[1]), montage, plugin='tifffile', imagej=True, check_contrast=False)

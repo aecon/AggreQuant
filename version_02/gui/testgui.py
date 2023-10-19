@@ -1,3 +1,6 @@
+#!/home/neptun/.local/miniconda3/envs/tf/bin/python
+
+
 import tkinter as tk
 from tkinter import ttk, filedialog
 from tkinter import *
@@ -19,9 +22,9 @@ class GUI:
 
     def _initialize(self):
         self.window.title('aSynuclein processing')
-        self.window.geometry('600x200')
+        self.window.geometry('550x200')
         self.window.columnconfigure([0, 1, 2], minsize=100)
-        self.window.rowconfigure([0, 1, 2, 3], minsize=30)
+        self.window.rowconfigure([0, 1, 2, 3, 4], minsize=30)
 
 
     def _browse_button(self):
@@ -58,10 +61,10 @@ class GUI:
         # Nuclei filename
         row += 1
         label_nuc = tk.Label(text="Filename label for nuclei")
-        label_nuc.grid(row=row, column=0, sticky="nw")
+        label_nuc.grid(row=row, column=0, sticky="nw", pady=10)
 
         self.entry_nuc = tk.Entry(width=self.entry_width)
-        self.entry_nuc.grid(row=row, column=1, sticky="nw")
+        self.entry_nuc.grid(row=row, column=1, sticky="nw", pady=10)
 
         # Cells filename
         row += 1
@@ -81,7 +84,7 @@ class GUI:
 
         # Close the dialog when button is clicked
         button_OK = tk.Button(self.window, text="OK", command=self._close)
-        button_OK.grid()
+        button_OK.grid(sticky="se", pady=10)
 
         # run the tkinter event loop. It listens for 
         # events, such as button clicks or keypresses
@@ -93,9 +96,9 @@ class GUI:
 
 gui = GUI()
 
-
 print("input folder:", gui.input_folder.get())
 print("label nuclei:", gui.colour_nuc.get())
 print("label cells:", gui.colour_cel.get())
 print("label aggregates:", gui.colour_agg.get())
+
 

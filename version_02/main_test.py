@@ -34,7 +34,7 @@ processor.set_paths()
 processor.process()
 
 # Generate statistics
-#processor.generate_statistics()
+processor.generate_statistics()
 
 # Generate diagnostic images (montage)
 processor.make_montage()

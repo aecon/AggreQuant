@@ -114,6 +114,7 @@ class Statistics:
             group_13Dn[i] = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
 
 
+        # Figure 1: percent of average positive cells
         plt.scatter(1*np.ones(self.plate.NumberOfControlRows), group_5Up, label="NT_1")
         plt.scatter(2*np.ones(self.plate.NumberOfControlRows), group_5Dn, label="Rab13_1")
         plt.scatter(3*np.ones(self.plate.NumberOfControlRows), group_13Dn, label="NT_2")
@@ -121,6 +122,17 @@ class Statistics:
         plt.ylim([0,80])
         plt.legend()
         plt.savefig("Statistics_Plate_%s.png" % self.plate.name)
+        plt.close()
+
+
+        # Figure 2: CENTERED percent of average positive cells
+        plt.scatter(1*np.ones(self.plate.NumberOfControlRows), group_5Up -np.mean(group_5Up), label="NT_1")
+        plt.scatter(2*np.ones(self.plate.NumberOfControlRows), group_5Dn -np.mean(group_5Up), label="Rab13_1")
+        plt.scatter(3*np.ones(self.plate.NumberOfControlRows), group_13Dn-np.mean(group_13Dn), label="NT_2")
+        plt.scatter(4*np.ones(self.plate.NumberOfControlRows), group_13Up-np.mean(group_13Dn), label="Rab13_2")
+        plt.ylim([-60,60])
+        plt.legend()
+        plt.savefig("Statistics_Plate_Centered_NT%s.png" % self.plate.name)
         plt.close()
 
 

@@ -130,7 +130,7 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
     list_number_of_cells_per_aggregate = np.zeros(len(U_AGG))
 
     AreaRatioThreshold = 1  # this is in percentage to total cell area
-    MinAggAreaPixels = 25   # minimum aggregate area in pixels
+    MinAggAreaPixels = 9   # minimum aggregate area in pixels
 
 
     # Loop over all aggregates
@@ -192,7 +192,8 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
 
             # consider only aggregates covering more than X% of cell area,
             # and that they have at least 9 pixels inside the cell
-            if (ratio_of_agg_to_icell_area > AreaRatioThreshold) and (agg_area>MinAggAreaPixels):
+            #if (ratio_of_agg_to_icell_area > AreaRatioThreshold) and (agg_area>MinAggAreaPixels):
+            if (agg_area>MinAggAreaPixels):
                 icell_in_U_CELLS = (U_CELLS == icell)
                 list_number_of_aggregates_per_cell[icell_in_U_CELLS] += 1
                 list_number_of_cells_per_aggregate[ia] += 1

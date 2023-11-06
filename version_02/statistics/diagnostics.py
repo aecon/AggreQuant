@@ -231,6 +231,7 @@ def montage_overlay_two_images_validation(images_raw, images_seg, output_filenam
     Nfiles = len(images_raw)
     Ncolumns = 7
     Nrows = int(np.ceil(Nfiles / Ncolumns))
+    Nrows = min(Nrows, 4)     
     panel_size = [Nrows, Ncolumns]
 
     Npixels = 768
@@ -255,7 +256,8 @@ def montage_overlay_two_images_validation(images_raw, images_seg, output_filenam
         assert(np.sum(np.shape(img0_seg)) == np.sum(np.shape(img0_raw)))
         shape = np.shape(img0_seg)
         L = shape[0] - Npixels
-        P0 = np.random.randint(0, high=L, size=1)[0]
+        #P0 = np.random.randint(0, high=L, size=1)[0]
+        P0 = int(L/2)
         img_seg = np.zeros((Npixels,Npixels))
         img_seg[:,:] = img0_seg[P0:P0+Npixels, P0:P0+Npixels]
         img_raw = np.zeros((Npixels,Npixels))
@@ -280,8 +282,9 @@ def montage_overlay_two_images_validation(images_raw, images_seg, output_filenam
             #tile = image_deck_raw[k][:,:]
             #tile_s = image_deck_seg[k][:,:]
             #tile[tile_s==1] = 65000
-            montage[0, i0:i1, j0:j1] = image_deck_raw[k][:,:]
-            montage[1, i0:i1, j0:j1] = image_deck_seg[k][:,:]
+            if k<len(image_deck_raw):
+                montage[0, i0:i1, j0:j1] = image_deck_raw[k][:,:]
+                montage[1, i0:i1, j0:j1] = image_deck_seg[k][:,:]
 
     # save montage
     skimage.io.imsave("%s_%dx%d.tif" % (output_filename, panel_size[0], panel_size[1]), montage, plugin='tifffile', imagej=True, check_contrast=False)

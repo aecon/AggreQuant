@@ -41,7 +41,7 @@ class AggregateSegmentation:
         capped[img>threshold] = threshold
     
         # background division
-        back = scipy.ndimage.gaussian_filter(capped, sigma=100, mode='reflect')
+        back = scipy.ndimage.gaussian_filter(capped, sigma=20, mode='reflect')
         if self.debug:
             print(np.median(back), np.min(back), np.max(back))
     
@@ -49,12 +49,12 @@ class AggregateSegmentation:
         norm = img / back
         assert(np.min(norm)>=0)
 
-        # noise reduction
-        tmp_ = scipy.ndimage.gaussian_filter(norm, sigma=4, mode='reflect') 
+        # noise reduction: same as Cellprofiler pipeline
+        tmp_ = scipy.ndimage.gaussian_filter(norm, sigma=1, mode='reflect') 
         norm[:,:] = tmp_[:,:]
 
         # segment
-        threshold = 2.20 #based on visual inspection #max(np.percentile(norm, 98), 1.08)
+        threshold = 1.60 #based on visual inspection #max(np.percentile(norm, 98), 1.08)
         segmented_ = np.zeros(np.shape(img), dtype=np.uint8)
         segmented_[norm>threshold] = 1
         if self.debug:

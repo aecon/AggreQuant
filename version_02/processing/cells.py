@@ -232,32 +232,44 @@ class CellSegmentation:
         # load image and convert to float
         img0 = skimage.io.imread(image_file, plugin='tifffile')
         img0 = np.asfarray(img0, float)
-        min_Cell_Intensity = 800
+
+        # Calculate thresholds
+        # - XX-th percentile: ignore very bright foreground in background estimation
+        cap_threshold = np.percentile(img0, 99.8)
+        print("cap_threshold:", cap_threshold)
+
 
         # 1. GENERATE MASK OF CELLBODY AREA
         # background division
-        smt = skimage.filters.gaussian(img0, sigma=2)
-        #print("Smooth s=2:", np.min(smt), np.max(smt))
+        denoised = skimage.filters.gaussian(img0, sigma=2)
+
+        # cap foreground
         img_cap = np.zeros(np.shape(img0))
         img_cap[:,:] = img0[:,:]
-        img_cap[img0>1000] = 1000
-        bkg = skimage.filters.gaussian(img_cap, sigma=50)
-        #print("Smooth s=50, capped:", np.min(bkg), np.max(bkg))
-        img1 = smt / bkg
+        img_cap[img0>cap_threshold] = cap_threshold
 
-        #print("After BEQ:", np.min(img1), np.max(img1))
-        img11, scale = self._scale_values_01_float(img1)
-        #print("After scaling 0/1 (float):", np.min(img11), np.max(img11))
+        # estimate background
+        bkg = skimage.filters.gaussian(img_cap, sigma=50)
+
+        # intensity normalization
+        normalized = denoised / bkg
+
+        # CLAHE
+        img11, scale = self._scale_values_01_float(normalized)
         img2 = skimage.exposure.equalize_adapthist(img11, kernel_size=150)
-        #print("After CLAHE:", np.min(img2), np.max(img2))
-        img2[img0<min_Cell_Intensity] = 0
+
+        # Ignore pixels with small intensities
+        # - minimum cross-entropy: split foreground and background distributions
+        min_Cell_Intensity = skimage.filters.threshold_li(denoised)
+        print("threshold_li:", min_Cell_Intensity)
+        img2[denoised<min_Cell_Intensity] = 0
 
         IMIN = scale[0]
         IMAX = scale[1]
         cells_area = img2*(IMAX-IMIN)+IMIN
 
         cell_mask_ = np.zeros(np.shape(cells_area), dtype=np.dtype(np.uint8))
-        cell_mask_[cells_area>1.5] = 1
+        cell_mask_[cells_area>1.2] = 1
         #plt.imshow(cell_mask_)
         #plt.show()
 
@@ -276,11 +288,14 @@ class CellSegmentation:
         # load image and convert to float
         seeds = skimage.io.imread(self.output_files_nuclei["seeds"], plugin='tifffile')  # uint8
 
+        # extend cell mask to include nuclei seeds
+        cell_mask[seeds==1] = 1
+
         # compute distances to all nuclei
         distances = ndimage.distance_transform_edt(1-allnuclei_mask)  # float64
         #plt.imshow(distances)
         #plt.show()
-        max_distance = 150  # in pixels
+        max_distance = 100  # in pixels
         #print(np.min(distances), np.max(distances))
         distances[distances>=max_distance] = 0
         distances_, _ = self._scale_values_01_float(distances)
@@ -290,7 +305,7 @@ class CellSegmentation:
 
         # field to use for watershed
         intensity_field_ = skimage.filters.gaussian(img2, sigma=6)
-        field_ = intensity_field_ * (distances)
+        field_ = intensity_field_ * np.power(distances, np.ones(np.shape(distances))*0.5 )
 
         field0, _ = self._scale_values_01_float(field_)
         field = 1.0 - field0

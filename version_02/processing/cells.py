@@ -235,8 +235,7 @@ class CellSegmentation:
 
         # Calculate thresholds
         # - XX-th percentile: ignore very bright foreground in background estimation
-        cap_threshold = np.percentile(img0, 99.8)
-        print("cap_threshold:", cap_threshold)
+        cap_threshold = np.percentile(img0, 99.8); print("cap_threshold:", cap_threshold)
 
 
         # 1. GENERATE MASK OF CELLBODY AREA
@@ -255,18 +254,17 @@ class CellSegmentation:
         normalized = denoised / bkg
 
         # CLAHE
-        img11, scale = self._scale_values_01_float(normalized)
-        img2 = skimage.exposure.equalize_adapthist(img11, kernel_size=150)
+        scaledNormalized, scale = self._scale_values_01_float(normalized)
+        scaledClahe = skimage.exposure.equalize_adapthist(scaledNormalized, kernel_size=150)
 
         # Ignore pixels with small intensities
         # - minimum cross-entropy: split foreground and background distributions
-        min_Cell_Intensity = skimage.filters.threshold_li(denoised)
-        print("threshold_li:", min_Cell_Intensity)
-        img2[denoised<min_Cell_Intensity] = 0
+        min_Cell_Intensity = skimage.filters.threshold_li(denoised); print("threshold_li:", min_Cell_Intensity)
+        scaledClahe[denoised<min_Cell_Intensity] = 0
 
         IMIN = scale[0]
         IMAX = scale[1]
-        cells_area = img2*(IMAX-IMIN)+IMIN
+        cells_area = scaledClahe*(IMAX-IMIN)+IMIN
 
         cell_mask_ = np.zeros(np.shape(cells_area), dtype=np.dtype(np.uint8))
         cell_mask_[cells_area>1.2] = 1
@@ -299,12 +297,12 @@ class CellSegmentation:
         #print(np.min(distances), np.max(distances))
         distances[distances>=max_distance] = 0
         distances_, _ = self._scale_values_01_float(distances)
-        distances = np.power((1 - distances_), 2)
+        distances2 = np.power((1 - distances_), 2)
         #plt.imshow(distances)
         #plt.show()
 
         # field to use for watershed
-        intensity_field_ = skimage.filters.gaussian(img2, sigma=6)
+        intensity_field_ = skimage.filters.gaussian(scaledClahe, sigma=6)
         field_ = intensity_field_ * np.power(distances, np.ones(np.shape(distances))*0.5 )
 
         field0, _ = self._scale_values_01_float(field_)

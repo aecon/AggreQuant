@@ -12,7 +12,6 @@
 
 ## Modules
 
-
 ### Nuclei segmentation
 
 * Uses [StarDist](https://github.com/stardist/stardist) pre-trained DL.
@@ -20,7 +19,6 @@
 
 ```
 conda activate tf
-python nuclei.py -i <path-to-tif>
 ```
 
 Installation:  
@@ -36,7 +34,6 @@ Installation:
 
 ```
 conda activate cellpose
-python cells_cp.py -i <path-to-tif>
 ```
 
 * Using the Propagation algorithm from [CellProfiler](https://cellprofiler.org).  
@@ -48,11 +45,18 @@ python cells_cp.py -i <path-to-tif>
 - The dividing lines between secondary objects are determined by a combination of: the distance to the nearest primary object, and intensity gradients.  
 
 
+### aggregate segmentation
 
-### aSyn aggregate segmentation
+- Uses conventional Image Processing filters. Requires `scikit-image`.
+
+
+
+### Unit tests
 
 ```
-python3 aggregates.py -i <path-to-tif>
+conda install pytest
+cd unitTests
+./run.sh
 ```
 
 
@@ -71,31 +75,23 @@ python3 aggregates.py -i <path-to-tif>
 
 
 
-### Package tracking
+
+## Package tracking
 
 To collect all packages used by the code, [pipreqs](https://github.com/bndr/pipreqs) is used.
 ```
 conda install pipreqs
 ```
-Then use as
+
+Collect installed packages:
 ```
-cd <code>
-pipreqs .
+pip freeze > requirements.txt
 ```
-This generates a file `requirements.txt` inside `<code>/`.
 
 The packages inside the requirements.txt file can be installed with
 ```
 pip install -r requirements.txt
 ```
-
-### Unit tests
-
-```
-conda install pytest
-pytest
-```
-
 
 
 

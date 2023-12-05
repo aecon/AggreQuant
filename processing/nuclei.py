@@ -44,6 +44,9 @@ class NucleiSegmentation:
         # load image
         img0 = skimage.io.imread(image_file, plugin='tifffile')
 
+        # Check image condition: Blurry? Very few cells? Empty? Large artefacts?
+        # This sounds like a CNN classification ..
+
         # pre-processing
         t1 = time.time()
         img = self._preprocess(img0)
@@ -143,4 +146,29 @@ class NucleiSegmentation:
 #        skimage.io.imsave("%s/%s_composite_edges.tif" % (opath, bpath), composite, plugin='tifffile', check_contrast=False)
 
         return Nnuclei
+
+
+
+#    # WIP:
+#    def segment_nuclei_CellProfiler(self):
+#
+#        image_file = self.input_file
+#
+#        bpath = os.path.basename(image_file)
+#        if self.verbose:
+#            print(">> Processing image: %s" % bpath)
+#
+#        # load image
+#        img0 = skimage.io.imread(image_file, plugin='tifffile')
+#
+#
+#        """
+#        CellProfiler pipeline:
+#        1. Compute thresholds (Global threshold, Minimum Cross Entropy)
+#        2. 
+#        """
+
+
+
+
 

@@ -1,3 +1,6 @@
-*.tif
 *__pycache__
+*.tif
 *.pdf
+*.png
+RESULTS
+validation_dataset

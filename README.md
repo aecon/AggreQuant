@@ -38,11 +38,11 @@ conda activate cellpose
 
 * Using the Propagation algorithm from [CellProfiler](https://cellprofiler.org).  
 
-- Identifies cell boundary as a Secondary object.  
-- Uses primary objects seeds.  
-- Secondary objects are identified based on the shortest path to an adjacent primary object.  
-- The distance metric is a sum of the absolute differences in a 3x3 (8-connected) kernel.  
-- The dividing lines between secondary objects are determined by a combination of: the distance to the nearest primary object, and intensity gradients.  
+    * Identifies cell boundary as a Secondary object.  
+    * Uses primary objects seeds.  
+    * Secondary objects are identified based on the shortest path to an adjacent primary object.  
+    * The distance metric is a sum of the absolute differences in a 3x3 (8-connected) kernel.  
+    * The dividing lines between secondary objects are determined by a combination of: the distance to the nearest primary object, and intensity gradients.  
 
 
 ### aggregate segmentation

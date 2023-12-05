@@ -2,7 +2,8 @@
 
 ## Requirements
 
-* [pytest](https://docs.pytest.org/en/7.4.x/)
+[`pytest`](https://docs.pytest.org/en/7.4.x/)
+
 
 ## Installation
 

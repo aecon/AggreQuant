@@ -3,12 +3,14 @@
 
 ## Requirements
 
-* tensorflow2
+* [scikit-image](https://scikit-image.org/docs/stable/user_guide/install.html)
+* [tensorflow2](//www.tensorflow.org/install/pip)
 * [StarDist](https://github.com/stardist/stardist)
+* [pytest](https://docs.pytest.org/en/7.4.x/)
 
 
 
-## Quantification
+## Modules
 
 
 ### Nuclei segmentation
@@ -68,6 +70,7 @@ python3 aggregates.py -i <path-to-tif>
 * [ ] Validation: Select datasets and add to validation stack.
 
 
+
 ### Package tracking
 
 To collect all packages used by the code, [pipreqs](https://github.com/bndr/pipreqs) is used.
@@ -85,4 +88,29 @@ The packages inside the requirements.txt file can be installed with
 ```
 pip install -r requirements.txt
 ```
+
+### Unit tests
+
+```
+conda install pytest
+pytest
+```
+
+
+
+
+## Authors
+
+The package was written by Athena Economides, for the publication:
+
+```
+XXX TO BE ADDED XXX
+```
+
+Lab of Prof. Adriano Aguzzi
+Institute of Neuropathology  
+University of Zurich  
+Schmelzbergstrasse 12  
+CH-8091 Zurich  
+Switzerland
 

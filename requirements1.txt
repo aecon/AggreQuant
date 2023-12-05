@@ -1,0 +1,17 @@
+cupy==12.1.0
+h5py==3.8.0
+imageio==2.31.1
+keras==2.12.0
+matplotlib==3.7.1
+numba==0.57.0
+numpy==1.23.5
+pipreqs==0.4.13
+pytest @ file:///home/conda/feedstock_root/build_artifacts/pytest_1698233724984/work
+scikit-image==0.21.0
+scipy==1.10.1
+six==1.16.0
+stardist==0.8.3
+tensorflow==2.12.0
+tifffile==2023.4.12
+cellpose==2.2.2
+csbdeep==0.7.3

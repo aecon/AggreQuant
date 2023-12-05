@@ -75,7 +75,7 @@ python3 aggregates.py -i <path-to-tif>
 
 To collect all packages used by the code, [pipreqs](https://github.com/bndr/pipreqs) is used.
 ```
-pip install pipreqs
+conda install pipreqs
 ```
 Then use as
 ```

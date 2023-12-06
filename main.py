@@ -25,8 +25,7 @@ args = parser.parse_args()
 # IMAGE PROCESSING + ANALYSIS PIPELINE
 
 # Create the processor
-processor = ImageProcessor(args, process_nuclei=False, process_cells=False)
-#processor = ImageProcessor(args)
+processor = ImageProcessor(args)
 
 # Set the folder/file paths
 processor.set_paths()

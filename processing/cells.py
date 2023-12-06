@@ -51,6 +51,16 @@ class CellSegmentation:
         return labels
 
 
+    def _segment_cellpose(self):
+        print("WIP")
+        """
+        The cellpose models have been trained on images which were rescaled
+        to all have the same diameter (30 pixels in the case of the cyto model
+        and 17 pixels in the case of the nuclei model). 
+        """
+
+
+
     def _segment_distance_map(self):
 
         image_file = self.input_file

@@ -1,5 +1,9 @@
 # aSynAgreeCount
 
+A python package for analysis of image-based, High-Throughput / High-Content Screens.
+
+
+
 
 ## Requirements
 
@@ -9,21 +13,42 @@
 * [pytest](https://docs.pytest.org/en/7.4.x/)
 
 
+
+
+
 ## Installation
 
+### Conda environment
 Create and activate a new conda environment
 ```
 conda create --name aSynAgreeCount python=3.9
 conda activate aSynAgreeCount
 ```
 
-**Cellpose 2.0 with GUI**  
-
+### Cellpose 2.0 with GUI  
 * [Installation instructions](https://github.com/MouseLand/cellpose)
-
-Summary:
+* Summary:
 ```
 python -m pip install cellpose[gui]
+```
+
+### Tensorflow
+* [Installation instructions](https://www.tensorflow.org/install/pip)
+* Summary:
+```
+# For GPU users:
+pip install --extra-index-url https://pypi.nvidia.com tensorrt-bindings==8.6.1 tensorrt-libs==8.6.1
+pip install -U tensorflow[and-cuda]
+# Verification of the installation:
+python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+```
+
+### StarDist
+* [Installation instructions](https://github.com/stardist/stardist#installation)
+
+### Additional python packages
+```
+python -m pip install scikit-image, matplotlib click
 ```
 
 
@@ -69,7 +94,6 @@ conda activate cellpose
 - Uses conventional Image Processing filters. Requires `scikit-image`.
 
 
-
 ### Unit tests
 
 ```
@@ -77,6 +101,9 @@ conda install pytest
 cd unitTests
 ./run.sh
 ```
+
+
+
 
 
 
@@ -92,6 +119,8 @@ cd unitTests
 * [ ] - Test nnU-Net for cell and nuclei segmentation. Run on validation cases.
 * [ ] Validation: Select datasets and add to validation stack.
 * [ ] Parallelize computations over image sets (see _prototype/multiprocess examples).
+
+
 
 
 
@@ -112,6 +141,8 @@ The packages inside the requirements.txt file can be installed with
 ```
 pip install -r requirements.txt
 ```
+
+
 
 
 

@@ -9,6 +9,25 @@
 * [pytest](https://docs.pytest.org/en/7.4.x/)
 
 
+## Installation
+
+Create and activate a new conda environment
+```
+conda create --name aSynAgreeCount python=3.9
+conda activate aSynAgreeCount
+```
+
+**Cellpose 2.0 with GUI**  
+
+* [Installation instructions](https://github.com/MouseLand/cellpose)
+
+Summary:
+```
+python -m pip install cellpose[gui]
+```
+
+
+
 
 ## Modules
 
@@ -72,6 +91,7 @@ cd unitTests
 * [ ] - Finalize version 0.0. Include aggregate segmentation and quantification. Add validation cases.
 * [ ] - Test nnU-Net for cell and nuclei segmentation. Run on validation cases.
 * [ ] Validation: Select datasets and add to validation stack.
+* [ ] Parallelize computations over image sets (see _prototype/multiprocess examples).
 
 
 

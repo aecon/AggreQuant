@@ -21,7 +21,7 @@ A python package for analysis of image-based, High-Throughput / High-Content Scr
 ### Conda environment
 Create and activate a new conda environment
 ```
-conda create --name aSynAgreeCount python=3.9
+conda create --name aSynAgreeCount python=3.9.18
 conda activate aSynAgreeCount
 ```
 
@@ -53,7 +53,7 @@ pip install stardist
 
 ### Additional python packages
 ```
-python -m pip install scikit-image, matplotlib click
+python -m pip install scikit-image matplotlib click
 ```
 
 
@@ -124,6 +124,9 @@ cd unitTests
 * [ ] - Test nnU-Net for cell and nuclei segmentation. Run on validation cases.
 * [ ] Validation: Select datasets and add to validation stack.
 * [ ] Parallelize computations over image sets (see _prototype/multiprocess examples).
+* [ ] Add option to use cellpose for cell detection
+    * [ ] with only cell channel as input (terrible resutls)
+    * [ ] with both nuclei and cell channel inputs
 
 
 

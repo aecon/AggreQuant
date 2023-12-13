@@ -50,11 +50,14 @@ python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'
 pip install stardist
 ```
 
-
 ### Additional python packages
 ```
-python -m pip install scikit-image matplotlib click
+pip install -r requirements.txt
 ```
+<!---
+I installed:
+    python -m pip install scikit-image matplotlib click
+-->
 
 
 

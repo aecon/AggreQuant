@@ -15,3 +15,4 @@ tensorflow==2.12.0
 tifffile==2023.4.12
 cellpose==2.2.2
 csbdeep==0.7.3
+click==8.1.7

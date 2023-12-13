@@ -4,18 +4,6 @@ A python package for analysis of image-based, High-Throughput / High-Content Scr
 
 
 
-
-## Requirements
-
-* [scikit-image](https://scikit-image.org/docs/stable/user_guide/install.html)
-* [tensorflow2](//www.tensorflow.org/install/pip)
-* [StarDist](https://github.com/stardist/stardist)
-* [pytest](https://docs.pytest.org/en/7.4.x/)
-
-
-
-
-
 ## Installation
 
 ### Conda environment
@@ -56,7 +44,7 @@ pip install -r requirements.txt
 ```
 <!---
 I installed:
-    python -m pip install scikit-image matplotlib click
+    python -m pip install scikit-image matplotlib click pytest
 -->
 
 

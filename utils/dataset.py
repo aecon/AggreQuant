@@ -110,6 +110,8 @@ class Dataset:
 
 
     def get_output_file_names(self, input_file, data_type):
+        me = "get_output_file_names"
+
         bpath = os.path.basename(input_file)
 
         if data_type=="nuclei":
@@ -149,7 +151,7 @@ class Dataset:
             return outpaths
 
         else:
-            print("Data type %s not supported!" % data_type)
+            p.err("Data type %s not supported!" % data_type, me)
             sys.exit()
 
 

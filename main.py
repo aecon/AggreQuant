@@ -1,41 +1,57 @@
 import os
 import sys
-import argparse
 
-from processing.processor import ImageProcessor
+from processing.dataset import Dataset
 
-# File parsing
-parser = argparse.ArgumentParser()
-parser.add_argument('-i', type=str, required=True, help="paths.txt file with path to tifs, and colour identifiers")
-parser.add_argument('-debug', action='store_true')
-parser.add_argument('-verbose', action='store_true')
-
-# To generate validation montages (4x5 layout)
-parser.add_argument('-validation', action='store_true')
-
-# To write results inside a default folder: <outdir>/`validation`
-parser.add_argument('-overwrite_output_folder', action='store_true')
-
-# To dump tifs from the QoI computation process
-parser.add_argument('-dump_QoI_tifs', action='store_true')
-
-args = parser.parse_args()
+#import argparse
+# parser.add_argument('-overwrite_output_folder', action='store_true')
+# parser.add_argument('-dump_QoI_tifs', action='store_true')
 
 
-# IMAGE PROCESSING + ANALYSIS PIPELINE
+"""
+HIGH THROUGHPUT SCREEN IMAGE PROCESSING AND QUANTIFICATION
 
-# Create the processor
-processor = ImageProcessor(args)
+Application:
+    This main script coordinates all operations:
+    - stores information about the dataset (input/output paths).
+    - stores information about currently processed data.
+    - launches parallel processing of image-pairs.
 
-# Set the folder/file paths
-processor.set_paths()
+Variables:
+    - verbose : whether informative status messages are displayed
+      in the standard output.
+    - output_directory : choice for the name of the output directory.
+      The output directory is generated as a sub-directory inside the
+      input directory specified in the yml setup file.
+      Possible options:
+      * "date" : generates a new directory with current date/time.
+      * "debug" : generates/overwrites "output_debug" directory.
+      * anything else inside quotes: a user defined name
+"""
 
-# Image Processing + QoI computation
-processor.process()
 
-# Generate statistics
-processor.generate_statistics()
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# SETTINGS
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+verbose = True
 
-# Generate diagnostic images (montage)
-processor.make_montage()
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# APPLICATION
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+dataset = Dataset("setup.yml", verbose)
+#processor = ImageProcessor("setup.yml")
+
+
+# # Set the folder/file paths
+# processor.set_paths()
+# 
+# # Image Processing + QoI computation
+# processor.process()
+# 
+# # Generate statistics
+# processor.generate_statistics()
+# 
+# # Generate diagnostic images (montage)
+# processor.make_montage()
 

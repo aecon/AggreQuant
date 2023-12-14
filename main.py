@@ -6,10 +6,6 @@ from processing.pipeline import process, process_multi
 from processing.montage import montage
 from processing.statistics import statistics
 
-#import argparse
-# parser.add_argument('-overwrite_output_folder', action='store_true')
-# parser.add_argument('-dump_QoI_tifs', action='store_true')
-
 
 """
 HIGH THROUGHPUT SCREEN IMAGE PROCESSING AND QUANTIFICATION

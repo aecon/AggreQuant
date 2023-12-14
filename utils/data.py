@@ -1,4 +1,9 @@
-# Info for currently processed data
+"""
+Paths to the currently processed data:
+- a signle nuclei file
+- a corresponding cells file
+- a corresponding aggregates file
+"""
 
 class Data:
     def __init__(self, file_nuclei, file_cells, file_aggregates):

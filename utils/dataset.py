@@ -16,6 +16,13 @@ The Dataset class stores information for the entire dataset.
     self.paths_aggregates   : sorted paths to all aggregate tif files
     self.Nfiles             : number of tif files per structure
     self.dump_QoI_tifs      : true/false: whether to generate QOI tif files
+    self.output_folder_main
+    self.output_folder_nuclei
+    self.output_folder_cells
+    self.output_folder_aggregates
+    self.output_folder_QoI
+    self.output_folder_QoI_tifs
+    self.output_folder_diagnostics
 
 * member functions:
     self.make_output_directories : creates output directories

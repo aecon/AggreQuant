@@ -1,7 +1,10 @@
 import os
 import sys
 
-from processing.dataset import Dataset
+from utils.dataset import Dataset
+from processing.pipeline import process, process_multi
+from processing.montage import montage
+from processing.statistics import statistics
 
 #import argparse
 # parser.add_argument('-overwrite_output_folder', action='store_true')
@@ -34,24 +37,18 @@ Variables:
 # SETTINGS
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 verbose = True
+debug = True
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # APPLICATION
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 dataset = Dataset("setup.yml", verbose)
-#processor = ImageProcessor("setup.yml")
 
+process(dataset, verbose, debug)
+#process_multi(dataset, verbose, debug)
+sys.exit()
+assert(0)
 
-# # Set the folder/file paths
-# processor.set_paths()
-# 
-# # Image Processing + QoI computation
-# processor.process()
-# 
-# # Generate statistics
-# processor.generate_statistics()
-# 
-# # Generate diagnostic images (montage)
-# processor.make_montage()
-
+statistics(dataset, verbose, debug)
+montage(dataset, verbose, debug)

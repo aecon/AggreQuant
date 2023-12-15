@@ -8,6 +8,8 @@ import skimage.morphology
 
 from csbdeep.utils import normalize
 
+
+# TODO:
 # Check image condition: Blurry? Very few cells? Empty? Large artefacts?
 # This sounds like a CNN classification ..
 
@@ -183,25 +185,11 @@ def segment_method_stardist(model, image_file, output_files, _verbose, _debug):
     _save_mask(objects, output_files["seeds"])
 
 
-
-#    # WIP:
-#    def segment_nuclei_cellpose(image_file, verbose):
-#
-#        bpath = os.path.basename(image_file)
-#        if verbose:
-#            print(">> Processing image: %s" % bpath)
-#
-#        # load image
-#        img0 = skimage.io.imread(image_file, plugin='tifffile')
-#
-#
-#        """
-#        CellProfiler pipeline:
-#        1. Compute thresholds (Global threshold, Minimum Cross Entropy)
-#        2. 
-#        """
-
-
-
-
+# TODO
+def segment_method_cellpose(image_file, verbose):
+    """
+    Use Cellpose for nuclei detection
+    """
+    print("UNDER DEVELOPMENT")
+    assert(0)
 

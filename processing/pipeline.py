@@ -3,11 +3,10 @@ import sys
 import glob
 import multiprocessing
 
-
 from utils import printer as p
 from utils.dataset import Dataset
 from statistics.diagnostics import *
-from processing.nuclei import segment_nuclei
+from processing.nuclei import segment_method_stardist
 
 # testing
 
@@ -19,11 +18,15 @@ debug = False
 def _image_triplet(file_n, file_c, file_a, dataset, parallel, _model):
 
     if parallel:
+        # start new tensorflow session for each process
         import tensorflow as tf
+
         # limit GPU usage
         gpus = tf.config.experimental.list_physical_devices('GPU')
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
+
+        # load StarDist model
         from stardist.models import StarDist2D
         model = StarDist2D.from_pretrained('2D_versatile_fluo')
     else:
@@ -41,8 +44,8 @@ def _image_triplet(file_n, file_c, file_a, dataset, parallel, _model):
         p.msg(output_files_QoI, me)
     print(file_n, file_a, file_c, flush=True)
 
-    segment_nuclei(
-        file_n, output_files_nuclei, verbose, debug, model)
+    segment_method_stardist(
+        model, file_n, output_files_nuclei, verbose, debug)
 
 
 

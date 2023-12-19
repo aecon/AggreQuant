@@ -86,6 +86,8 @@ def process(dataset, _verbose, _debug):
         dataset.paths_nuclei, dataset.paths_cells, dataset.paths_aggregates):
         _image_triplet(file_n, file_c, file_a, dataset, False, model)
 
+        print("Total Progress:")
+        bar.update(1); print("\n")
 
 
 # TODO

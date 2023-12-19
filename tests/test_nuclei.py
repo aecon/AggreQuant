@@ -6,31 +6,42 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
 sys.path.append(parent_dir)
 
-
 import unittest
 import numpy as np
-from processing.nuclei import NucleiSegmentation
-from processing.dataset import Dataset
+from processing import nuclei
+from stardist.models import StarDist2D
 
 
-class TestNucleiSegmentation(unittest.TestCase):
+class TestNuclei(unittest.TestCase):
 
-    def test_segmentation(self):
-        data_n = "data/Plate_HA13rep1_K - 13(fld 3 wv 390 - Blue).tif"
-        data_a = "data/Plate_HA13rep1_K - 13(fld 3 wv 473 - Green2).tif"
-        data_c = "data/Plate_HA13rep1_K - 13(fld 3 wv 631 - FarRed).tif"
+    def test_load(self):
+        f = "data/Plate_HA13rep1_K - 13(fld 3 wv 390 - Blue).tif"
+        d = nuclei._load_image(f)
+        r = np.sum(d)
+        self.assertEqual(r,738293912)
 
-        dataset = Dataset(data_n, data_c, data_a, fileParser.input_directory, self.overwrite_output_folder)
-        output_files_nuclei = dataset.get_output_file_names(self.data.n, "nuclei")
+    def test_preprocess(self):
+        f = "data/Plate_HA13rep1_K - 13(fld 3 wv 390 - Blue).tif"
+        d = nuclei._load_image(f)
+        p = nuclei._pre_process(d)
+        r = int(np.max(p)*1000)
+        self.assertEqual(r,7055)
 
-        NucleiModel = 
-        verbose = False
-        debug = False
-        nuclei = NucleiSegmentation(data_n, output_files_nuclei, NucleiModel, verbose, debug)
-        Number_of_nuclei = nuclei.segment_nuclei()
+#    def test_segmentStarDist(self):
+#        f = "data/Plate_HA13rep1_K - 13(fld 3 wv 390 - Blue).tif"
+#        d = nuclei._load_image(f)
+#        model = StarDist2D.from_pretrained('2D_versatile_fluo')
+#        labels = nuclei._segment_stardist(d, model)
+#        N = np.unique(labels)
+#        self.assertEqual(r,100)
 
-        self.assertEqual(Number_of_nuclei, 500)
-
+#    def test_size_exclusion(self):
+#        f = "data/Plate_HA13rep1_K - 13(fld 3 wv 390 - Blue).tif"
+#        d = nuclei._load_image(f)
+#        m = np.median(d)
+#        d[d<m]=0
+#        d[d>=m]=1
+    
 
 if __name__ == '__main__':
     unittest.main()

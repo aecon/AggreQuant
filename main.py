@@ -39,7 +39,7 @@ debug = True
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # APPLICATION
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-dataset = Dataset("apps/setup.yml", verbose)
+dataset = Dataset("apps/setup_20230909_plate3.yml", verbose)
 
 process(dataset, verbose, debug)
 

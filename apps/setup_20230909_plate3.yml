@@ -3,5 +3,5 @@ dataset:
   COLOUR_NUCLEI: "390 - Blue"
   COLOUR_AGGREGATES: "473 - Green2"
   COLOUR_CELLS: "631 - FarRed"
-  OUTPUT_DIRECTORY: "date"
-  DUMP_QOI_TIFS: True
+  OUTPUT_DIRECTORY: "output_20231219"
+  DUMP_QOI_TIFS: False

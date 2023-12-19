@@ -1,0 +1,7 @@
+dataset:
+  DIRECTORY: "/media/neptun/LocalDisk16TB/Athena/PROJECT_aSyn/inCell_transfer_20230909_0832/plate4"
+  COLOUR_NUCLEI: "390 - Blue"
+  COLOUR_AGGREGATES: "473 - Green2"
+  COLOUR_CELLS: "631 - FarRed"
+  OUTPUT_DIRECTORY: "date"
+  DUMP_QOI_TIFS: True

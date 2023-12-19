@@ -2,7 +2,7 @@ import os
 import sys
 
 from utils.dataset import Dataset
-from processing.pipeline import process, process_multi
+from processing.pipeline import process
 from processing.montage import montage
 from processing.statistics import statistics
 
@@ -39,12 +39,11 @@ debug = True
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # APPLICATION
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-dataset = Dataset("setup.yml", verbose)
+dataset = Dataset("apps/setup.yml", verbose)
 
 process(dataset, verbose, debug)
-#process_multi(dataset, verbose, debug)
-sys.exit()
-assert(0)
 
-statistics(dataset, verbose, debug)
-montage(dataset, verbose, debug)
+#statistics(dataset, verbose, debug)
+
+#montage(dataset, verbose, debug)
+

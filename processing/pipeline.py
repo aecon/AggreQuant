@@ -8,14 +8,14 @@ from utils.dataset import Dataset
 from statistics.diagnostics import *
 from processing.nuclei import segment_method_stardist
 
-# testing
-
 
 verbose = False
 debug = False
 
 
 def _image_triplet(file_n, file_c, file_a, dataset, parallel, _model):
+
+    me = "_image_triplet"
 
     if parallel:
         # start new tensorflow session for each process
@@ -37,7 +37,7 @@ def _image_triplet(file_n, file_c, file_a, dataset, parallel, _model):
     output_files_cells      = dataset.get_output_file_names(file_c, "cells")
     output_files_aggregates = dataset.get_output_file_names(file_a, "aggregates")
     output_files_QoI        = dataset.get_output_file_names(file_a, "QoI")
-    if 0:
+    if not parallel:
         p.msg(output_files_nuclei, me)
         p.msg(output_files_cells, me)
         p.msg(output_files_aggregates, me)
@@ -70,26 +70,27 @@ def process(dataset, _verbose, _debug):
 
 
 
-def process_multi(dataset, _verbose, _debug):
-    me = "process_multi"
-    verbose = _verbose
-    debug = _debug
-
-    # TODO: add RAM memory in computation of NUM_CPU_CORES
-    MAX_CPU_CORES = multiprocessing.cpu_count()
-    NUM_CPU_CORES = min(dataset.Nfiles, MAX_CPU_CORES)
-    p.msg("Using %d CPU cores" % NUM_CPU_CORES, me)
-
-    # Create pool of worker processes
-    with multiprocessing.Pool(processes=NUM_CPU_CORES) as pool:
-
-        # Process image triplets in parallel
-        pool.starmap(
-            _image_triplet,
-            [(file_n, file_c, file_a, dataset, True, None) for file_n, file_c, file_a in zip(
-                dataset.paths_nuclei,dataset.paths_cells,dataset.paths_aggregates)]
-            )
-
-        # Close pool of worker processes
-        pool.close()
-        pool.join()
+# TODO: UNDER CONSTRUCTION ..
+#def process_multi(dataset, _verbose, _debug):
+#    me = "process_multi"
+#    verbose = _verbose
+#    debug = _debug
+#
+#    # TODO: add RAM memory in computation of NUM_CPU_CORES
+#    MAX_CPU_CORES = multiprocessing.cpu_count()
+#    NUM_CPU_CORES = min(dataset.Nfiles, MAX_CPU_CORES)
+#    p.msg("Using %d CPU cores" % NUM_CPU_CORES, me)
+#
+#    # Create pool of worker processes
+#    with multiprocessing.Pool(processes=NUM_CPU_CORES) as pool:
+#
+#        # Process image triplets in parallel
+#        pool.starmap(
+#            _image_triplet,
+#            [(file_n, file_c, file_a, dataset, True, None) for file_n, file_c, file_a in zip(
+#                dataset.paths_nuclei,dataset.paths_cells,dataset.paths_aggregates)]
+#            )
+#
+#        # Close pool of worker processes
+#        pool.close()
+#        pool.join()

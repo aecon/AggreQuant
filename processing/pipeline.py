@@ -1,12 +1,16 @@
 import os
 import sys
 import glob
+import click
 import multiprocessing
 
 from utils import printer as p
 from utils.dataset import Dataset
 from statistics.diagnostics import *
 from processing.nuclei import segment_method_stardist
+from processing.cells import segment_cells
+from processing.aggregates import segment_aggregates
+from processing.quantification import compute_QoI
 
 
 verbose = False
@@ -44,9 +48,20 @@ def _image_triplet(file_n, file_c, file_a, dataset, parallel, _model):
         p.msg(output_files_QoI, me)
     print(file_n, file_a, file_c, flush=True)
 
+    # nuclei segmentation
     segment_method_stardist(
         model, file_n, output_files_nuclei, verbose, debug)
 
+    # cell segmentation
+    segment_cells("propagation", file_c, output_files_cells,
+        output_files_nuclei, verbose, debug)
+
+    # aggregate segmentation
+    segment_aggregates(file_a, output_files_aggregates, verbose, debug)
+
+    # Compute Quantities of Interest
+    compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
+        verbose, debug, dataset.dump_QoI_tifs)
 
 
 def process(dataset, _verbose, _debug):
@@ -64,13 +79,16 @@ def process(dataset, _verbose, _debug):
     from stardist.models import StarDist2D
     model = StarDist2D.from_pretrained('2D_versatile_fluo')
 
+    # display progress bar
+    bar = click.progressbar(length=dataset.Nfiles, show_eta=False)
+
     for file_n, file_c, file_a in zip(
         dataset.paths_nuclei, dataset.paths_cells, dataset.paths_aggregates):
         _image_triplet(file_n, file_c, file_a, dataset, False, model)
 
 
 
-# TODO: UNDER CONSTRUCTION ..
+# TODO
 #def process_multi(dataset, _verbose, _debug):
 #    me = "process_multi"
 #    verbose = _verbose

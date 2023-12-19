@@ -7,7 +7,7 @@ import skimage.filters
 import skimage.morphology
 
 from csbdeep.utils import normalize
-
+from processing import image_functions as IF
 
 # TODO:
 # Check image condition: Blurry? Very few cells? Empty? Large artefacts?
@@ -15,19 +15,6 @@ from csbdeep.utils import normalize
 
 verbose = False
 debug = False
-
-
-def _load_image(image_file):
-    """
-    Input:
-        Path to a tif image
-    Output:
-        narray of the same size and shape as the number of pixels in x and y 
-    """
-    if verbose:
-        print(">> Processing image: %s" % os.path.basename(image_file))
-    img = skimage.io.imread(image_file, plugin='tifffile')
-    return img
 
 
 def _pre_process(img0):
@@ -165,7 +152,7 @@ def segment_method_stardist(model, image_file, output_files, _verbose, _debug):
     verbose = _verbose
     debug = _debug
 
-    img0 = _load_image(image_file)
+    img0 = IF.load_image(image_file, verbose)
 
     # pre-processing
     img = _pre_process(img0)

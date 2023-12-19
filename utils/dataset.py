@@ -53,6 +53,8 @@ class Dataset:
         if verbose:
             p.msg("Dictionary contents: %s" % dictionary, me)
 
+        self.input_folder = dictionary["DIRECTORY"]
+
         # set paths to inputs: assumes all tifs located in the same DIRECTORY
         _paths_nuclei = sorted(glob.glob("%s/*%s*.tif" %
             (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"])))

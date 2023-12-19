@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
-from processing.dataset import Dataset
+from utils.dataset import Dataset
 from statistics.plate import Plate
 
 

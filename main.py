@@ -43,7 +43,7 @@ dataset = Dataset("apps/setup.yml", verbose)
 
 process(dataset, verbose, debug)
 
-#statistics(dataset, verbose, debug)
+statistics(dataset, verbose, debug)
 
 #montage(dataset, verbose, debug)
 

@@ -17,6 +17,15 @@ verbose = False
 debug = False
 
 
+# list of parameters
+# - pre process
+sigma_denoise = 2
+sigma_background = 50
+# - post process
+min_area = 300
+max_area = 15000
+
+
 def _pre_process(img0):
     """
     Input:
@@ -28,9 +37,9 @@ def _pre_process(img0):
           with a Gaussian filter with standard deviation, sigma=a. 
     """
     # takes ~1.2 sec
-    img1 = skimage.filters.gaussian(img0, sigma=2)
+    img1 = skimage.filters.gaussian(img0, sigma=sigma_denoise)
     back = skimage.filters.gaussian(
-        img1, sigma=50, mode='nearest', preserve_range=True)
+        img1, sigma=sigma_background, mode='nearest', preserve_range=True)
     img = img1 / back
     return img
 
@@ -50,8 +59,6 @@ def _segment_stardist(img, model):
 
 def _post_process_size_exclusion(labels):
     # thresholds on object properties
-    min_area = 300
-    max_area = 15000
     remove_small=True
     remove_large=True
 #    color_by_volume=False

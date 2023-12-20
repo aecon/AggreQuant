@@ -121,6 +121,8 @@ cd unitTests
 
 * For publication:
     * Data: `validation_dataset_Nov032023` for segmentation visuals and `inCell_transfer_20230930_HA_7-HA_8-HA_13_goodplates` for statistics.
+    * [ ] Expose image processing parameters to user, so that multiple parameter sets can be tested.
+    * [ ] CNN classifier to detect images than cannot be processed by the software and alert the user about how many unprocessable images exist :)
 
 
 

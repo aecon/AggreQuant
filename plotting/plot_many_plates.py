@@ -27,9 +27,9 @@ plt.rcParams["figure.figsize"] = (7/2.54, 8/2.54)   # in inches. Divide by 2.54 
 #file6 = "../RESULTS/results_2023Nov5/Statistics_Plate_Controls_Col5_Col13_Plate6_PercentAggregatePosCells.txt"
 #plates = "HA_3"
 
-file5 = "../RESULTS/results_2023Nov5/Statistics_Plate_plate7_HA_4_rep1_data_PercentAggregatePosCells.txt"
-file6 = "../RESULTS/results_2023Nov5/Statistics_Plate_plate8_HA_4_rep2_data_PercentAggregatePosCells.txt"
-plates = "HA_4"
+#file5 = "../RESULTS/results_2023Nov5/Statistics_Plate_plate7_HA_4_rep1_data_PercentAggregatePosCells.txt"
+#file6 = "../RESULTS/results_2023Nov5/Statistics_Plate_plate8_HA_4_rep2_data_PercentAggregatePosCells.txt"
+#plates = "HA_4"
 
 #file5 = "../RESULTS/results_2023Nov5/Statistics_Plate_inCell_transfer_20230930_HA_7-HA_8-HA_13_goodplates_plate1_HA_7_rep1_PercentAggregatePosCells.txt"
 #file6 = "../RESULTS/results_2023Nov5/Statistics_Plate_inCell_transfer_20230930_HA_7-HA_8-HA_13_goodplates_plate2_HA_7_rep2_PercentAggregatePosCells.txt"
@@ -43,6 +43,9 @@ plates = "HA_4"
 #file6 = "../RESULTS/results_2023Nov5/Statistics_Plate_inCell_transfer_20230930_HA_7-HA_8-HA_13_goodplates_plate6_HA_13_rep2_PercentAggregatePosCells.txt"
 #plates = "HA_13"
 
+file5 = "../_results/results_plates_HA10_20230909_p3_p4/Statistics_Plate_inCell_transfer_20230909_0832_plate3_PercentAggregatePosCells.txt"
+file6 = "../_results/results_plates_HA10_20230909_p3_p4/Statistics_Plate_inCell_transfer_20230909_0832_plate4_PercentAggregatePosCells.txt"
+plates = "HA_10"
 
 
 
@@ -82,9 +85,12 @@ axis.set_xticks( np.linspace(1, Ncases, Ncases ) )
 axis.set_xticklabels( ["NT_1", "Rab13_1", "NT_2", "Rab13_2"] , fontsize=8)
 axis.set_ylabel("% positive cells", fontsize=14)
 
-Ymax = 60
+#Ymax = 60
+#plt.ylim([0,Ymax])
+#axis.set_yticks( np.linspace(0, Ymax, 4 ) )
+Ymax = 25
 plt.ylim([0,Ymax])
-axis.set_yticks( np.linspace(0, Ymax, 4 ) )
+axis.set_yticks( np.linspace(0, Ymax, 6 ) )
 
 plt.title(plates)
 

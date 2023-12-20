@@ -155,7 +155,7 @@ The package was written by Athena Economides, for the publication:
 XXX TO BE ADDED XXX
 ```
 
-Lab of Prof. Adriano Aguzzi
+Lab of Prof. Adriano Aguzzi  
 Institute of Neuropathology  
 University of Zurich  
 Schmelzbergstrasse 12  

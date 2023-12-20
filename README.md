@@ -119,6 +119,8 @@ cd unitTests
     * [ ] with only cell channel as input (terrible resutls)
     * [ ] with both nuclei and cell channel inputs
 
+* For publication:
+    * Data: `validation_dataset_Nov032023` for segmentation visuals and `inCell_transfer_20230930_HA_7-HA_8-HA_13_goodplates` for statistics.
 
 
 

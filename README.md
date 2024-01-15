@@ -45,7 +45,6 @@ pip install -r requirements.txt
 <!---
 I installed:
     python -m pip install scikit-image matplotlib click pytest pyyaml
-    conda install -c bioconda bioinfokit
 -->
 
 

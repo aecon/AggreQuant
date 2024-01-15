@@ -268,6 +268,8 @@ class Statistics:
 
         # Make volcano plot
         # https://hemtools.readthedocs.io/en/latest/content/Bioinformatics_Core_Competencies/Volcanoplot.html
+        # see also:
+        # https://thecodingbiologist.com/posts/Making-volcano-plots-in-python-in-Google-Colab
         plt.scatter(x=df['log2FC'],y=df['p-values'].apply(lambda x:-np.log10(x)),s=1,label="Not significant")
 
         # highlight down- or up- regulated genes

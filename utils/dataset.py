@@ -24,6 +24,7 @@ The Dataset class stores information for the entire dataset.
     self.output_folder_QoI_tifs
     self.output_folder_diagnostics
     self.type_of_run        : production (default) or validation
+    self.whole_plate        : in a production run, true/false: whether inputs are files from the whole plate or only the control columns
 
 * member functions:
     self.make_output_directories : creates output directories
@@ -59,6 +60,12 @@ class Dataset:
         if (self.type_of_run != "validation") and (self.type_of_run != "production"):
             p.err("`TYPE_OF_RUN` must be either `validation` or `production`", me)
             sys.exit()
+
+        # type of production run (whole plate or control columns)
+        if self.type_of_run == "production":
+            self.whole_plate = dictionary["WHOLE_PLATE"]
+        else:
+            self.whole_plate = False
 
         # set input folder
         self.input_folder = dictionary["DIRECTORY"]

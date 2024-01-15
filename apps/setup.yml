@@ -5,3 +5,5 @@ dataset:
   COLOUR_CELLS: "631 - FarRed"
   OUTPUT_DIRECTORY: "date"
   DUMP_QOI_TIFS: True
+  TYPE_OF_RUN: "validation"
+  WHOLE_PLATE: False

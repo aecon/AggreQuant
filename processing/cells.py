@@ -220,21 +220,33 @@ def _exclude_cells_without_nucleus(labels, seeds):
 #    skimage.io.imsave(output_files_cells["labels"], labels2, plugin='tifffile', check_contrast=False)
 
 
-def _segment_propagation(image_file, output_files_cells, output_files_nuclei):
+def _segment_distanceIntensity(image_file, output_files_cells, output_files_nuclei):
 
+    # Segmentation parameters
+    THRESHOLD_NORMALIZED = 1.04  # used 1.20 for validation figures
+    MIN_CELL_INTENSITY = 200
+    FOREGROUND_SIGMA = 2
+    BACKGROUND_SIGMA = 50
+    MAX_INTENSITY_PERCENTILE = 99.8
+    MAX_DISTANCE_FROM_NUCLEI = 100
+    CLAHE_FIELD_BLUR_SIGMA = 6
+
+    # Load image
     img0 = IF.load_image(image_file, verbose)
-    img0 = np.asfarray(img0, float)  # necessary for next steps
+    img0 = np.asfarray(img0, float)  # float is necessary for next steps
 
     # Calculate thresholds
     # - XX-th percentile: ignore very bright foreground in background estimation
-    cap_threshold = np.percentile(img0, 99.8)
+    cap_threshold = np.percentile(img0, MAX_INTENSITY_PERCENTILE)
     if verbose:
-        print("cap_threshold:", cap_threshold)
+        print(" > signal max intensity:", cap_threshold)
+        back_threshold = np.percentile(img0, 0.02)
+        print(" > background min intensity:", back_threshold)
 
 
     # 1. GENERATE MASK OF CELLBODY AREA
     # background division
-    denoised = skimage.filters.gaussian(img0, sigma=2)
+    denoised = skimage.filters.gaussian(img0, sigma=FOREGROUND_SIGMA)
 
     # cap foreground
     img_cap = np.zeros(np.shape(img0))
@@ -242,7 +254,7 @@ def _segment_propagation(image_file, output_files_cells, output_files_nuclei):
     img_cap[img0>cap_threshold] = cap_threshold
 
     # estimate background
-    bkg = skimage.filters.gaussian(img_cap, sigma=50)
+    bkg = skimage.filters.gaussian(img_cap, sigma=BACKGROUND_SIGMA)
 
     # intensity normalization
     normalized = denoised / bkg
@@ -253,22 +265,20 @@ def _segment_propagation(image_file, output_files_cells, output_files_nuclei):
 
     # Ignore pixels with small intensities
     # - minimum cross-entropy: split foreground and background distributions
-    min_Cell_Intensity = skimage.filters.threshold_li(denoised); print("threshold_li:", min_Cell_Intensity)
+    min_Cell_Intensity = MIN_CELL_INTENSITY #skimage.filters.threshold_li(denoised); print("threshold_li (ignore values below this):", min_Cell_Intensity)
     scaledClahe[denoised<min_Cell_Intensity] = 0
+    print(" > Min. cell intensity (Li - unused):", skimage.filters.threshold_li(denoised))
 
     IMIN = scale[0]
     IMAX = scale[1]
     cells_area = scaledClahe*(IMAX-IMIN)+IMIN
 
     cell_mask_ = np.zeros(np.shape(cells_area), dtype=np.dtype(np.uint8))
-    cell_mask_[cells_area>1.2] = 1
-    #plt.imshow(cell_mask_)
-    #plt.show()
+    cell_mask_[cells_area>THRESHOLD_NORMALIZED] = 1
 
     # remove small holes
     cell_mask = skimage.morphology.remove_small_holes(cell_mask_.astype(bool, copy=True), area_threshold=400)
-    #plt.imshow(cell_mask)
-    #plt.show()
+
 
     # 2. SPLIT CELL MASK BASED on NUCLEI SEEDS
 
@@ -283,42 +293,36 @@ def _segment_propagation(image_file, output_files_cells, output_files_nuclei):
     # extend cell mask to include nuclei seeds
     cell_mask[seeds==1] = 1
 
+
+    # 3. COMBINE INTENSITY AND DISTANCE FIELDS
+
+    # intensity field
+    intensity_field = skimage.filters.gaussian(scaledClahe, sigma=CLAHE_FIELD_BLUR_SIGMA)
+
+    # invert intensity field
+    tmp, _ = _scale_values_01_float(intensity_field)
+    inverted_01_intensity_field = 1.0 - tmp
+    inverted_01_intensity_field[allnuclei_mask==1] = 0
+
     # compute distances to all nuclei
     distances = ndimage.distance_transform_edt(1-allnuclei_mask)  # float64
-    #plt.imshow(distances)
-    #plt.show()
-    max_distance = 100  # in pixels
-    #print(np.min(distances), np.max(distances))
-    distances[distances>=max_distance] = 0
-    distances_, _ = _scale_values_01_float(distances)
-    distances2 = np.power((1 - distances_), 2)
-    #plt.imshow(distances)
-    #plt.show()
+    distances[distances>=MAX_DISTANCE_FROM_NUCLEI] = 0
 
-    # field to use for watershed
-    intensity_field_ = skimage.filters.gaussian(scaledClahe, sigma=6)
-    field_ = intensity_field_ * np.power(distances, np.ones(np.shape(distances))*0.5 )
+    # watershed field: weighted average of distance and intensity
+    field = np.zeros(np.shape(distances))
+    field[:,:] = inverted_01_intensity_field * distances 
 
-    field0, _ = _scale_values_01_float(field_)
-    field = 1.0 - field0
-    #plt.imshow(field)
+    #fig, (ax0, ax1, ax2) = plt.subplots(nrows=1, ncols=3, figsize=(12, 6))
+    #ax0.imshow(inverted_01_intensity_field * distances * distances)
+    #ax1.imshow(inverted_01_intensity_field * distances)
+    #ax2.imshow(inverted_01_intensity_field)
     #plt.show()
-
-    field[allnuclei_mask==1] = 0
-    #plt.imshow(field)
-    #plt.show()
-    #print(np.min(field), np.max(field))
-
-    # weighted average of distance and intensity fields
-    field_ = np.zeros(np.shape(field))
-    field_[:,:] = field[:,:]*distances 
+    #assert(0)
 
     # watershed of distance map
     labels_ = watershed(field, mask=cell_mask, watershed_line=True)
     labels = np.zeros(np.shape(allnuclei_mask), dtype=np.dtype(np.uint16))
     labels[labels_>0] = labels_[labels_>0]
-    #plt.imshow(labels)
-    #plt.show()
 
     # Remove cellbodies that do not contain nucleus
     labels2 = _exclude_cells_without_nucleus(labels, seeds)
@@ -337,8 +341,8 @@ def segment_cells(algorithm, image_file, output_files_cells, output_files_nuclei
 #    elif algorithm == "intensity":
 #        _segment_intensity_map(image_file, output_files_cells, output_files_nuclei)
 #
-    if algorithm == "propagation":
-        _segment_propagation(image_file, output_files_cells, output_files_nuclei)
+    if algorithm == "distanceIntensity":
+        _segment_distanceIntensity(image_file, output_files_cells, output_files_nuclei)
 #
 #    elif algorithm == "cellpose":
 #         _segment_cellpose(image_file, output_files_cells, output_files_nuclei)

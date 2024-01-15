@@ -71,24 +71,32 @@ class Statistics:
                 pattern = "- %s" % col_letter
                 files_all_fields_per_well = [x for x in sublistR if pattern in x]
                 assert(len(files_all_fields_per_well)<=self.plate.Nfields)
-                if self.verbose:
-                    print("Row/Column %s,%s: %d files:" % (row, column, len(files_all_fields_per_well)))
-                    print(files_all_fields_per_well, "\n")
+                #if self.verbose:
+                #    print("Row/Column %s,%s: %d files:" % (row, column, len(files_all_fields_per_well)))
+                #    print(files_all_fields_per_well, "\n")
 
                 # initialize Well
                 global_index = self.plate.get_global_well_number(row, column)
                 self.plate.wells[global_index] = [None] * self.plate.Nfields
-                if self.verbose:
-                    print("Initialized well:", global_index)
+                #if self.verbose:
+                #    print("Initialized well:", global_index)
 
                 # fill in QoI for all fields in Well
-                for field, file_a in enumerate(files_all_fields_per_well):
-                    # load QoI results
-                    results_dict = self.dataset.get_output_file_names(file_a, "QoI")
-                    data = np.loadtxt(results_dict["QoI"], skiprows=1)
+                if len(files_all_fields_per_well)>=1:
 
-                    # store QoI to respective well
-                    self.plate.wells[global_index][field] = data
+                    #if self.verbose:
+                    #    print("Well %d %d has %d files!" % (row, column, len(files_all_fields_per_well)))
+
+                    for field, file_a in enumerate(files_all_fields_per_well):
+                        # load QoI results
+                        results_dict = self.dataset.get_output_file_names(file_a, "QoI")
+                        data = np.loadtxt(results_dict["QoI"], skiprows=1)
+
+                        # store QoI to respective well
+                        self.plate.wells[global_index][field] = data
+                else:
+                    for field in range(self.plate.Nfields):
+                        self.plate.wells[global_index][field] = np.zeros((2))
 
 
     def _agg_pos_cells_in_well(self, field_PAggPosCells, field_Ncells):
@@ -191,10 +199,10 @@ class Statistics:
                 # Total percentage of aggregate-positive cells in each well
                 self.plate.wells_total_agg_pos_cells[global_index] = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
 
-                print(PercAggPosCells, Ncells)
-                print(self.plate.wells_total_agg_pos_cells[global_index])
-                assert(0)
+                #print(PercAggPosCells, Ncells)
+                #print(self.plate.wells_total_agg_pos_cells[global_index])
 
+                # TODO:
                 # Store this information in a file
                 # What other information do we need to make volcano and gene plots?
 
@@ -205,16 +213,19 @@ class Statistics:
             for row in range(self.plate.Nrows):
                 global_index = self.plate.get_global_well_number(row, column)
                 table[row, column] = self.plate.wells_total_agg_pos_cells[global_index]
+
+        # store table as image
         plt.imshow(table)
-        plt.show()
-        assert(0)
-        # TODO: store table
+        output_file = "%s/plate_density_map.pdf" % self.dataset.output_folder_statistics
+        plt.savefig(output_file, transparent=True)
+        plt.close()
 
 
     def generate_statistics(self):
 
         # PROCESS THE WHOLE PLATE
         if self.whole_plate:
+            print("Processing whole plate")
             # Whole-plate Map for percentage of aggregate-positive cells
             self._load_QoI_plate()
             self._plate_percent_aggpositive_cells_per_well()
@@ -222,6 +233,7 @@ class Statistics:
 
         # PROCESS ONLY CONTROL COLUMNS
         else:
+            print("Processing Control Columns only")
             # Load QoI files for the plate
             self._load_QoI_Controls()
             # QoI 1: Percentage of Aggregate-Positive Cells

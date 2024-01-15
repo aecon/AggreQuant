@@ -23,6 +23,7 @@ The Dataset class stores information for the entire dataset.
     self.output_folder_QoI
     self.output_folder_QoI_tifs
     self.output_folder_diagnostics
+    self.output_folder_statistics
     self.type_of_run        : production (default) or validation
     self.whole_plate        : in a production run, true/false: whether inputs are files from the whole plate or only the control columns
 
@@ -116,6 +117,8 @@ class Dataset:
             self.output_folder_main)
         self.output_folder_diagnostics = "%s/diagnostics" % (
             self.output_folder_main)
+        self.output_folder_statistics = "%s/statistics" % (
+            self.output_folder_main)
 
         # Check that number of nuclei, cell and aggregate tifs is the same
         assert(len(self.paths_nuclei) == len(self.paths_cells))
@@ -185,6 +188,10 @@ class Dataset:
         if not os.path.exists(self.output_folder_QoI):
             os.makedirs(self.output_folder_QoI)
 
+        if not os.path.exists(self.output_folder_statistics):
+            os.makedirs(self.output_folder_statistics)
+
         if self.dump_QoI_tifs:
             if not os.path.exists(self.output_folder_QoI_tifs):
                 os.makedirs(self.output_folder_QoI_tifs)
+

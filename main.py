@@ -39,11 +39,12 @@ debug = True
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # APPLICATION
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-dataset = Dataset("apps/setup_20231220_paperHA8.yml", verbose)
+#dataset = Dataset("apps/setup_20231220_paperHA8.yml", verbose)
+dataset = Dataset("apps/setup_20240115_ValidationNov2023.yml", verbose)
 
-process(dataset, verbose, debug)
+#process(dataset, verbose, debug)
 
-#statistics(dataset, verbose, debug)
+statistics(dataset, verbose, debug)
 
-#montage(dataset, verbose, debug)
+montage(dataset, verbose, debug)
 

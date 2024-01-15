@@ -23,7 +23,7 @@ def montage(dataset, verbose, debug):
         os.makedirs(dataset.output_folder_diagnostics)
 
     # Case: Validation run
-    if 1:  #dataset.validation==True: TODO: MAKE VARIABLE FOR THIS !
+    if dataset.type_of_run == "validation":
 
             print("Generating montage for nuclei segmentation\n")
             montage_filename = "%s/montage_overlay_nuclei.tif" % (
@@ -67,7 +67,7 @@ def montage(dataset, verbose, debug):
         #        montage_filename)
 
    
-    else: # Case: Production run
+    elif dataset.type_of_run == "production":
 
         if 0:
             montage_filename = "%s/montage_simple_nuclei.tif" % (
@@ -102,3 +102,4 @@ def montage(dataset, verbose, debug):
         montage_overlay_two_images(
             dataset.paths_aggregates, paths_seg_agg, montage_filename,
             debug=False, verbose=False)
+

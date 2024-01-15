@@ -23,6 +23,7 @@ The Dataset class stores information for the entire dataset.
     self.output_folder_QoI
     self.output_folder_QoI_tifs
     self.output_folder_diagnostics
+    self.type_of_run        : production (default) or validation
 
 * member functions:
     self.make_output_directories : creates output directories
@@ -53,6 +54,13 @@ class Dataset:
         if verbose:
             p.msg("Dictionary contents: %s" % dictionary, me)
 
+        # set type of run ("validation" or "production")
+        self.type_of_run = dictionary["TYPE_OF_RUN"]
+        if (self.type_of_run != "validation") and (self.type_of_run != "production"):
+            p.err("`TYPE_OF_RUN` must be either `validation` or `production`", me)
+            sys.exit()
+
+        # set input folder
         self.input_folder = dictionary["DIRECTORY"]
 
         # set paths to inputs: assumes all tifs located in the same DIRECTORY

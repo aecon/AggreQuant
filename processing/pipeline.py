@@ -53,8 +53,8 @@ def _image_triplet(file_n, file_c, file_a, dataset, parallel, _model):
         model, file_n, output_files_nuclei, verbose, debug)
 
     # cell segmentation
-    segment_cells("cellpose", file_c, output_files_cells,
-        output_files_nuclei, verbose, debug)
+    segment_cells("cellpose", file_c, output_files_cells, output_files_nuclei, verbose, debug)
+    #segment_cells("distanceIntensity", file_c, output_files_cells, output_files_nuclei, verbose, debug)
 
     # aggregate segmentation
     segment_aggregates(file_a, output_files_aggregates, verbose, debug)

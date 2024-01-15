@@ -23,4 +23,6 @@ python3 main_test.py -validation -overwrite_output_folder -i paths/paths_test_Co
 python3 main_test.py -validation -overwrite_output_folder -i paths/paths_test_Controls_HA13_rep1.txt
 python3 main_test.py -validation -overwrite_output_folder -i paths/paths_test_Controls_HA13_rep2.txt
 
+# HA_10: Good plate
+# Not great results, probably underdetecting everything
 

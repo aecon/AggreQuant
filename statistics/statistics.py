@@ -16,20 +16,7 @@ class Statistics:
         self.dataset = dataset
         self.plate = Plate(plate_name)
 
-        #self.table = []
-
-
-    #def _load_all_QoI_files(self):
-    #    for i, file_a in enumerate(self.dataset.paths_aggregates):
-    #        all_QoI_files = self.dataset.get_output_file_names(file_a, "QoI")
-    #        data = np.loadtxt(all_QoI_files["QoI"], skiprows=1)
-    #        if i==0:
-    #            self.table = np.zeros( (len(self.dataset.paths_aggregates), len(data)) )
-    #        self.table[i,:] = data[:]
-
-
-    def _load_QoI_whole_plate(self):
-        print("TODO.")
+        self.whole_plate = dataset.whole_plate
 
 
     def _load_QoI_Controls(self):
@@ -56,6 +43,43 @@ class Statistics:
                 column = int(ControlColumn) - 1 # numbering starts with 0!
                 global_index = self.plate.get_global_well_number(row, column)
                 self.plate.wells[global_index] = [None] * self.plate.Nfields
+
+                # fill in QoI for all fields in Well
+                for field, file_a in enumerate(files_all_fields_per_well):
+                    # load QoI results
+                    results_dict = self.dataset.get_output_file_names(file_a, "QoI")
+                    data = np.loadtxt(results_dict["QoI"], skiprows=1)
+
+                    # store QoI to respective well
+                    self.plate.wells[global_index][field] = data
+
+
+    def _load_QoI_plate(self):
+        for column in range(self.plate.Ncolumns):
+            for row in range(self.plate.Nrows):
+
+                row_letter = self.plate.get_row_letter(row)
+                col_letter = self.plate.get_column_number(column)
+
+                list_of_files = self.dataset.paths_aggregates
+
+                # patter matching to find correct aggregate filename..
+                # - match row
+                pattern = "_%s " % row_letter
+                sublistR = [x for x in list_of_files if pattern in x]
+                # - match column
+                pattern = "- %s" % col_letter
+                files_all_fields_per_well = [x for x in sublistR if pattern in x]
+                assert(len(files_all_fields_per_well)<=self.plate.Nfields)
+                if self.verbose:
+                    print("Row/Column %s,%s: %d files:" % (row, column, len(files_all_fields_per_well)))
+                    print(files_all_fields_per_well, "\n")
+
+                # initialize Well
+                global_index = self.plate.get_global_well_number(row, column)
+                self.plate.wells[global_index] = [None] * self.plate.Nfields
+                if self.verbose:
+                    print("Initialized well:", global_index)
 
                 # fill in QoI for all fields in Well
                 for field, file_a in enumerate(files_all_fields_per_well):
@@ -154,11 +178,53 @@ class Statistics:
 
 
 
+    def _plate_percent_aggpositive_cells_per_well(self):
+        for column in range(self.plate.Ncolumns):
+            for row in range(self.plate.Nrows):
+
+                global_index = self.plate.get_global_well_number(row, column)
+
+                data = np.asarray(self.plate.wells[global_index])
+                PercAggPosCells = data[:,0] # per field quantities
+                Ncells          = data[:,1] # per field quantities
+
+                # Total percentage of aggregate-positive cells in each well
+                self.plate.wells_total_agg_pos_cells[global_index] = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
+
+                print(PercAggPosCells, Ncells)
+                print(self.plate.wells_total_agg_pos_cells[global_index])
+                assert(0)
+
+                # Store this information in a file
+                # What other information do we need to make volcano and gene plots?
+
+
+    def _density_map(self, qoi):
+        table = np.zeros((self.plate.Nrows, self.plate.Ncolumns))
+        for column in range(self.plate.Ncolumns):
+            for row in range(self.plate.Nrows):
+                global_index = self.plate.get_global_well_number(row, column)
+                table[row, column] = self.plate.wells_total_agg_pos_cells[global_index]
+        plt.imshow(table)
+        plt.show()
+        assert(0)
+        # TODO: store table
+
+
     def generate_statistics(self):
 
-        # Load QoI files for the plate
-        self._load_QoI_Controls()
+        # PROCESS THE WHOLE PLATE
+        if self.whole_plate:
+            # Whole-plate Map for percentage of aggregate-positive cells
+            self._load_QoI_plate()
+            self._plate_percent_aggpositive_cells_per_well()
+            self._density_map(self.plate.wells_total_agg_pos_cells)
 
-        # QoI 1: Percentage of Aggregate Positive Cells
-        self._percent_aggregate_positive_cells_Controls()
+        # PROCESS ONLY CONTROL COLUMNS
+        else:
+            # Load QoI files for the plate
+            self._load_QoI_Controls()
+            # QoI 1: Percentage of Aggregate-Positive Cells
+            self._percent_aggregate_positive_cells_Controls()
+
 

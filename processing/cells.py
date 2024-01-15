@@ -9,6 +9,7 @@ from skimage import restoration
 import matplotlib.pyplot as plt
 from scipy import ndimage
 from skimage.segmentation import watershed
+from cellpose import models
 
 from processing import image_functions as IF
 
@@ -41,17 +42,6 @@ def _exclude_cells_without_nucleus(labels, seeds):
             if verbose:
                 print("No seed for label", l)
     return labels
-
-
-#def _segment_cellpose(image_file, output_files_cells):  # TODO
-#    print("UNDER CONSTRUCTION")
-#    """
-#    The cellpose models have been trained on images which were rescaled
-#    to all have the same diameter (30 pixels in the case of the cyto model
-#    and 17 pixels in the case of the nuclei model). 
-#    """
-#    sys.exit()
-
 
 
 #def _segment_distance_map(image_file, output_files_cells):  # TODO
@@ -330,6 +320,60 @@ def _segment_distanceIntensity(image_file, output_files_cells, output_files_nucl
 
 
 
+def _segment_cellpose(image_file, output_files_cells, output_files_nuclei):
+    """
+    Use the pre-trained Deep Neural Network cellpose for segmentation of cells. 
+
+    Model:
+        cyto2: For best accuracy and runtime performance, resize images so cells are less than 100 pixels across.
+
+    Settings:
+        Using default settings. For more info see:
+        https://cellpose.readthedocs.io/en/latest/settings.html
+
+    Additional info:
+        Explanation of 'channel' parameter:
+        https://forum.image.sc/t/about-the-correct-meaning-of-channel-in-cellpose-2-2/79671/7
+    """
+
+    # cellpose parameters
+    model = models.Cellpose(gpu=True, model_type='cyto2')
+    channels = [1,2]
+
+    # load cell image
+    img0 = IF.load_image(image_file, verbose)
+
+    # load nuclei labels
+    allnuclei = skimage.io.imread(output_files_nuclei["alllabels"], plugin='tifffile')
+    allnuclei_mask = np.zeros(np.shape(allnuclei))
+    allnuclei_mask[allnuclei>0] = 1
+
+    # pixels per direction
+    n = np.shape(img0)[0]
+
+    # input to cellpose: a two-channel image [cells, nuclei]
+    input_to_cellpose = np.zeros((2,n,n))
+    input_to_cellpose[0,:,:] = img0[:,:]
+    input_to_cellpose[1,:,:] = allnuclei_mask[:,:]  # using nuclei masks gives MUCH better cell segmentation!
+
+    # run cellpose
+    masks, flows, styles, diams = model.eval(input_to_cellpose, diameter=None, channels=channels, resample=True,
+                                             flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False)
+
+    # remove cells that don't contain nucleus
+    seeds = skimage.io.imread(output_files_nuclei["seeds"], plugin='tifffile')
+    labels2 = _exclude_cells_without_nucleus(masks, seeds)
+
+    #from cellpose import plot
+    #fig = plt.figure(figsize=(12,5))
+    #plot.show_segmentation(fig, img0, labels2, flows[0], channels=channels)
+    #plt.tight_layout()
+    #plt.show()
+
+    skimage.io.imsave(output_files_cells["labels"], labels2, plugin='tifffile', check_contrast=False)
+
+
+
 def segment_cells(algorithm, image_file, output_files_cells, output_files_nuclei, _verbose, _debug):
 
     verbose = _verbose
@@ -343,9 +387,9 @@ def segment_cells(algorithm, image_file, output_files_cells, output_files_nuclei
 #
     if algorithm == "distanceIntensity":
         _segment_distanceIntensity(image_file, output_files_cells, output_files_nuclei)
-#
-#    elif algorithm == "cellpose":
-#         _segment_cellpose(image_file, output_files_cells, output_files_nuclei)
+
+    elif algorithm == "cellpose":
+         _segment_cellpose(image_file, output_files_cells, output_files_nuclei)
 
     else:
         print("Segmentation algorithm %s not defined." % algorithm)

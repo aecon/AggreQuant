@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stat
 import pandas as pd
-from bioinfokit import analys, visuz
 
 from utils.dataset import Dataset
 from statistics.plate import Plate
@@ -268,7 +267,23 @@ class Statistics:
         df = pd.DataFrame(data=df_data, columns=headers)
 
         # Make volcano plot
-        visuz.GeneExpression.volcano(df=df, lfc='log2FC', pv='p-values')
+        # https://hemtools.readthedocs.io/en/latest/content/Bioinformatics_Core_Competencies/Volcanoplot.html
+        plt.scatter(x=df['log2FC'],y=df['p-values'].apply(lambda x:-np.log10(x)),s=1,label="Not significant")
+
+        # highlight down- or up- regulated genes
+        down = df[(df['log2FC']<=-2)&(df['p-values']<=0.01)]
+        up = df[(df['log2FC']>=2)&(df['p-values']<=0.01)]
+
+        plt.scatter(x=down['logFC'],y=down['p-values'].apply(lambda x:-np.log10(x)),s=3,label="Down-regulated",color="blue")
+        plt.scatter(x=up['logFC'],y=up['p-values'].apply(lambda x:-np.log10(x)),s=3,label="Up-regulated",color="red")
+
+        plt.xlabel("log2FC")
+        plt.ylabel("-logFDR")
+        plt.axvline(-2,color="grey",linestyle="--")
+        plt.axvline(2,color="grey",linestyle="--")
+        plt.axhline(2,color="grey",linestyle="--")
+        plt.legend()
+        plt.show()
 
 
     def generate_statistics(self):

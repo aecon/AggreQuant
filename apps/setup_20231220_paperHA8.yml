@@ -1,5 +1,5 @@
 dataset:
-  DIRECTORY: "/media/neptun/LocalDisk16TB/Athena/PROJECT_aSyn/paper_2023-12-20/control_columns_HA8_rep1_rep2/replicate1"
+  DIRECTORY: "/media/neptun/LocalDisk16TB/Athena/PROJECT_aSyn/paper_2023-12-20/control_columns_HA8_rep1_rep2/replicate2_selected"
   COLOUR_NUCLEI: "390 - Blue"
   COLOUR_AGGREGATES: "473 - Green2"
   COLOUR_CELLS: "631 - FarRed"

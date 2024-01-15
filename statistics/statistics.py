@@ -2,6 +2,9 @@ import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.stats as stat
+import pandas as pd
+from bioinfokit import analys, visuz
 
 from utils.dataset import Dataset
 from statistics.plate import Plate
@@ -212,13 +215,60 @@ class Statistics:
         for column in range(self.plate.Ncolumns):
             for row in range(self.plate.Nrows):
                 global_index = self.plate.get_global_well_number(row, column)
-                table[row, column] = self.plate.wells_total_agg_pos_cells[global_index]
+                table[row, column] = qoi[global_index]
 
         # store table as image
         plt.imshow(table)
         output_file = "%s/plate_density_map.pdf" % self.dataset.output_folder_statistics
         plt.savefig(output_file, transparent=True)
         plt.close()
+
+
+    def _make_volcano_plot(self, qoi):
+        controls_wells = []
+        for ControlColumn in self.plate.ControlColumns:
+            for row in range(self.plate.Nrows):
+                if (ControlColumn=="05" and row<8) or (ControlColumn=="13" and row>7):
+                    column = int(ControlColumn) - 1 # numbering starts with 0!
+                    global_index = self.plate.get_global_well_number(row, column)
+                    controls_wells.append(qoi[global_index])
+        #print(controls_wells)
+
+        # the following is based on:
+        # https://thecodingbiologist.com/posts/Making-volcano-plots-in-python-in-Google-Colab
+
+        # Compute mean of control column
+        avg_controls = np.mean(controls_wells)
+        #print(avg_controls)
+
+        # Conmpute log2-fold-changes wrt control
+        log2FC = list(np.log2(np.divide(qoi, avg_controls)))
+        #print(np.shape(log2FC))
+        #print(log2FC)
+
+        # Compute p-values
+        pvalues = []
+        for column in range(self.plate.Ncolumns):
+            for row in range(self.plate.Nrows):
+                global_index = self.plate.get_global_well_number(row, column)
+                ttest_result = stat.ttest_ind(qoi[global_index], controls_wells)
+                pvalue = ttest_result[1]
+                pvalues.append(pvalue)
+
+        # Bonferroni correction
+        Ntests = self.plate.Nwells
+        transformed_pvalues = list(-1*np.log10(Ntests*np.array(pvalues)))
+
+        # Generate pandas dataframe
+        df_data = np.zeros((len(qoi),3))
+        df_data[:,0] = qoi[:]
+        df_data[:,1] = log2FC[:]
+        df_data[:,2] = transformed_pvalues[:]
+        headers = ["QoI", "log2FC", "p-values"]
+        df = pd.DataFrame(data=df_data, columns=headers)
+
+        # Make volcano plot
+        visuz.GeneExpression.volcano(df=df, lfc='log2FC', pv='p-values')
 
 
     def generate_statistics(self):
@@ -230,6 +280,7 @@ class Statistics:
             self._load_QoI_plate()
             self._plate_percent_aggpositive_cells_per_well()
             self._density_map(self.plate.wells_total_agg_pos_cells)
+            self._make_volcano_plot(self.plate.wells_total_agg_pos_cells)
 
         # PROCESS ONLY CONTROL COLUMNS
         else:

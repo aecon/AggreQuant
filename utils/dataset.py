@@ -75,8 +75,6 @@ class Dataset:
             self.cell_segmentation_algorithm = "distanceIntensity"
         p.msg("Segmenting cells using algorithm: %s" % self.cell_segmentation_algorithm, me)
 
-        assert(0)
-
         # set input folder
         self.input_folder = dictionary["DIRECTORY"]
 

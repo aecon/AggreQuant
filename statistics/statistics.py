@@ -258,34 +258,69 @@ class Statistics:
         Ntests = self.plate.Nwells
         transformed_pvalues = list(-1*np.log10(Ntests*np.array(pvalues)))
 
-        # Generate pandas dataframe
-        df_data = np.zeros((len(qoi),3))
-        df_data[:,0] = qoi[:]
-        df_data[:,1] = log2FC[:]
-        df_data[:,2] = transformed_pvalues[:]
-        headers = ["QoI", "log2FC", "p-values"]
-        df = pd.DataFrame(data=df_data, columns=headers)
+        ## Generate pandas dataframe
+        #df_data = np.zeros((len(qoi),3))
+        #df_data[:,0] = qoi[:]
+        #df_data[:,1] = log2FC[:]
+        #df_data[:,2] = transformed_pvalues[:]
+        #headers = ["QoI", "log2FC", "p-values"]
+        #df = pd.DataFrame(data=df_data, columns=headers)
 
         # Make volcano plot
-        # https://hemtools.readthedocs.io/en/latest/content/Bioinformatics_Core_Competencies/Volcanoplot.html
+        # based on:
+        #   https://thecodingbiologist.com/posts/Making-volcano-plots-in-python-in-Google-Colab
         # see also:
-        # https://thecodingbiologist.com/posts/Making-volcano-plots-in-python-in-Google-Colab
-        plt.scatter(x=df['log2FC'],y=df['p-values'].apply(lambda x:-np.log10(x)),s=1,label="Not significant")
+        #   https://hemtools.readthedocs.io/en/latest/content/Bioinformatics_Core_Competencies/Volcanoplot.html
+        import plotly.graph_objects as go
 
-        # highlight down- or up- regulated genes
-        down = df[(df['log2FC']<=-2)&(df['p-values']<=0.01)]
-        up = df[(df['log2FC']>=2)&(df['p-values']<=0.01)]
+        fig = go.Figure()
 
-        plt.scatter(x=down['logFC'],y=down['p-values'].apply(lambda x:-np.log10(x)),s=3,label="Down-regulated",color="blue")
-        plt.scatter(x=up['logFC'],y=up['p-values'].apply(lambda x:-np.log10(x)),s=3,label="Up-regulated",color="red")
+        #plot_title = "Group 1 vs Group 2" #@param {type:"string"}
+        x_axis_title = "log2 fold change" #@param {type:"string"}
+        y_axis_title = "-log10 pvalue" #@param {type:"string"}
+        point_radius = 4 #@param {type:"slider", min:1, max:30, step:1}
 
-        plt.xlabel("log2FC")
-        plt.ylabel("-logFDR")
-        plt.axvline(-2,color="grey",linestyle="--")
-        plt.axvline(2,color="grey",linestyle="--")
-        plt.axhline(2,color="grey",linestyle="--")
-        plt.legend()
-        plt.show()
+        fig.update_layout(
+            #title=plot_title,
+            xaxis_title= x_axis_title,
+            yaxis_title=y_axis_title,
+            paper_bgcolor= 'white',
+            plot_bgcolor='white',
+        )
+
+        colors = []
+
+        for i in range(0, len(log2FC)):
+
+            #print(transformed_pvalues[i], log2FC[i])
+
+            if transformed_pvalues[i] > 2:
+
+                 if log2FC[i] > 0.5:
+                    colors.append('#db3232')
+                 elif log2FC[i] < -0.5:
+                    colors.append('#3f65d4')
+                 else:
+                    colors.append('rgba(150,150,150,0.5)')
+            else:
+                colors.append('rgba(150,150,150,0.5)')
+
+        fig.add_trace(
+            go.Scattergl(
+                x = log2FC,
+                y = transformed_pvalues,
+                mode = 'markers'
+                #text = seq_df.iloc[:, 0].values.tolist(),
+                #hovertemplate ='%{text}: %{x}<br>',
+                #marker= {
+                #    'color':colors,
+                #    'size':point_radius,
+                #}
+            )
+        )
+
+        #fig.show()
+        fig.write_image("%s/volcano-test.png" % self.dataset.output_folder_statistics)        
 
 
     def generate_statistics(self):

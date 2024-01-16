@@ -13,13 +13,6 @@ conda create --name aSynAgreeCount python=3.9.18
 conda activate aSynAgreeCount
 ```
 
-### Cellpose 2.0 with GUI  
-* [Installation instructions](https://github.com/MouseLand/cellpose)
-* Summary:
-```
-python -m pip install cellpose[gui]
-```
-
 ### Tensorflow
 * [Installation instructions](https://www.tensorflow.org/install/pip)
 * Summary:
@@ -38,13 +31,20 @@ python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'
 pip install stardist
 ```
 
+### Cellpose 2.0 with GUI  
+* [Installation instructions](https://github.com/MouseLand/cellpose)
+* Summary:
+```
+pip install cellpose[gui]
+```
+
 ### Additional python packages
 ```
 pip install -r requirements.txt
 ```
 <!---
 I installed:
-    python -m pip install scikit-image matplotlib click pytest pyyaml
+    pip install scikit-image matplotlib click pytest pyyaml pandas plotly
 -->
 
 
@@ -57,10 +57,6 @@ I installed:
 * Uses [StarDist](https://github.com/stardist/stardist) pre-trained DL.
 * Results improve if Background Equalization is done before segmentation.
 
-```
-conda activate tf
-```
-
 Installation:  
 * tensorflow: https://www.tensorflow.org/install/pip
 * cupy: https://docs.cupy.dev/en/stable/install.html (`conda install -c conda-forge cupy`)
@@ -71,10 +67,6 @@ Installation:
 ### Cell membrane segmentation
 
 * Using [Cellpose](https://github.com/mouseland/cellpose) pre-trained DL.
-
-```
-conda activate cellpose
-```
 
 * Using the Propagation algorithm from [CellProfiler](https://cellprofiler.org).  
 
@@ -87,7 +79,7 @@ conda activate cellpose
 
 ### aggregate segmentation
 
-- Uses conventional Image Processing filters. Requires `scikit-image`.
+* Uses conventional Image Processing filters.
 
 
 ### Unit tests

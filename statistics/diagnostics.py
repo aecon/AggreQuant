@@ -88,13 +88,13 @@ def montage_overlay_two_images(images_raw, images_seg, output_filename, debug=Fa
     image_deck_raw = []
     for r in rand:
         img0_seg = skimage.io.imread(images_seg[r], plugin='tifffile')
-        img0_seg[img0_seg>0] = 1
+        #img0_seg[img0_seg>0] = 1
         # reconstruct edges from nuclei seeds
-        mask = np.zeros(np.shape(img0_seg))
-        mask[img0_seg>0] = 1
-        edges0 = skimage.filters.sobel(mask)
-        img0_seg = np.zeros(np.shape(edges0), dtype=np.dtype(np.uint8))
-        img0_seg[edges0>0] = 1
+        #mask = np.zeros(np.shape(img0_seg))
+        #mask[img0_seg>0] = 1
+        #edges0 = skimage.filters.sobel(mask)
+        #img0_seg = np.zeros(np.shape(edges0), dtype=np.dtype(np.uint8))
+        #img0_seg[edges0>0] = 1
 
         img0_raw = skimage.io.imread(images_raw[r], plugin='tifffile')
 

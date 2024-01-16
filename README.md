@@ -44,7 +44,7 @@ pip install -r requirements.txt
 ```
 <!---
 I installed:
-    pip install scikit-image matplotlib click pytest pyyaml pandas plotly
+    pip install scikit-image matplotlib click pytest pyyaml pandas plotly kaleido
 -->
 
 

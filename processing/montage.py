@@ -83,7 +83,7 @@ def montage(dataset, verbose, debug):
             dataset.output_folder_nuclei)))
         montage_overlay_two_images(
             dataset.paths_nuclei, paths_seg_nuclei, montage_filename, 
-            debug=debug, verbose=verbose)
+            debug=False, verbose=False)
 
         # overlay cells
         montage_filename = "%s/montage_overlay_cells.tif" % (
@@ -92,7 +92,7 @@ def montage(dataset, verbose, debug):
             dataset.output_folder_cells)))
         montage_overlay_two_images(
             dataset.paths_cells, paths_seg_cells, montage_filename, 
-            debug=debug, verbose=verbose)
+            debug=False, verbose=False)
 
         # overlay aggregates
         montage_filename = "%s/montage_overlay_aggregates.tif" % (

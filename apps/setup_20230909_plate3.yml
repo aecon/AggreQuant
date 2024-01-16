@@ -6,4 +6,5 @@ dataset:
   OUTPUT_DIRECTORY: "output_20231219"
   DUMP_QOI_TIFS: False
   TYPE_OF_RUN: "production"
-  WHOLE_PLATE: False
+  WHOLE_PLATE: True
+  CELL_SEGMENTATION_ALGORITHM: "distanceIntensity"

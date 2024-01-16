@@ -7,3 +7,4 @@ dataset:
   DUMP_QOI_TIFS: True
   TYPE_OF_RUN: "validation"
   WHOLE_PLATE: False
+  CELL_SEGMENTATION_ALGORITHM: "distanceIntensity"

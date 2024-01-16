@@ -24,8 +24,9 @@ The Dataset class stores information for the entire dataset.
     self.output_folder_QoI_tifs
     self.output_folder_diagnostics
     self.output_folder_statistics
-    self.type_of_run        : production (default) or validation
+    self.type_of_run        : "production" (default) or "validation"
     self.whole_plate        : in a production run, true/false: whether inputs are files from the whole plate or only the control columns
+    self.cell_segmentation_algorithm  : "cellpose" (default) or "distanceIntensity"
 
 * member functions:
     self.make_output_directories : creates output directories
@@ -67,6 +68,14 @@ class Dataset:
             self.whole_plate = dictionary["WHOLE_PLATE"]
         else:
             self.whole_plate = False
+
+        # set segmentation method for cells
+        self.cell_segmentation_algorithm = "cellpose"
+        if dictionary["CELL_SEGMENTATION_ALGORITHM"] == "distanceIntensity":
+            self.cell_segmentation_algorithm = "distanceIntensity"
+        p.msg("Segmenting cells using algorithm: %s" % self.cell_segmentation_algorithm, me)
+
+        assert(0)
 
         # set input folder
         self.input_folder = dictionary["DIRECTORY"]

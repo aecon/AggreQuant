@@ -7,3 +7,4 @@ dataset:
   DUMP_QOI_TIFS: False
   TYPE_OF_RUN: "production"
   WHOLE_PLATE: False
+  CELL_SEGMENTATION_ALGORITHM: "distanceIntensity"

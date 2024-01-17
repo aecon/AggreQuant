@@ -9,7 +9,6 @@ import pandas as pd
 from utils.dataset import Dataset
 from statistics.plate import Plate
 
-plt.rcParams["figure.figsize"] = (7/2.54, 8/2.54)   # in inches. Divide by 2.54 for cm
 
 
 class Statistics:
@@ -161,6 +160,8 @@ class Statistics:
         #plt.savefig("%s/Statistics_Plate_%s.png" % (self.dataset.output_folder_statistics, self.plate.name))
         #plt.close()
 
+        plt.rcParams["figure.figsize"] = (7/2.54, 8/2.54)   # in inches. Divide by 2.54 for cm
+
         scatter_width = 0.4
         plt.scatter(1-0.5*scatter_width + scatter_width*np.random.rand(len(group_5Up )), group_5Up , facecolors='none', edgecolors='gray')
         plt.scatter(2-0.5*scatter_width + scatter_width*np.random.rand(len(group_5Dn )), group_5Dn , facecolors='none', edgecolors='gray')
@@ -199,7 +200,7 @@ class Statistics:
         axis.spines['right'].set_visible(False)
         plt.tight_layout()
         # save
-        plt.savefig("%s/Statistics_Plate_%s.png" % (self.dataset.output_folder_statistics, self.plate.name))
+        plt.savefig("%s/control_replicates.png" % (self.dataset.output_folder_statistics))
         plt.close()
 
 
@@ -224,7 +225,7 @@ class Statistics:
             ... for as many fields
 
         """
-        table_file = "%s/Statistics_Plate_%s_PercentAggregatePosCells.txt" % (self.dataset.output_folder_statistics, self.plate.name)
+        table_file = "%s/control_PercentAggregatePosCells.txt" % (self.dataset.output_folder_statistics)
         with open(table_file, 'w') as f:
             f.write("%15s %15s %15s %15s\n" % ("NT_1", "Rab13_1", "NT_2", "Rab13_2"))
             for i in range(self.plate.NumberOfControlRows):
@@ -233,24 +234,27 @@ class Statistics:
 
 
     def _plate_percent_aggpositive_cells_per_well(self):
-        for column in range(self.plate.Ncolumns):
-            for row in range(self.plate.Nrows):
 
-                global_index = self.plate.get_global_well_number(row, column)
+        table_file = "%s/quantities_per_well.txt" % (self.dataset.output_folder_statistics)
+        with open(table_file, 'w') as f:
+            f.write("%5s %5s %15s %15s\n" % ("Row", "Column", "Ncells", "%AggPosCells"))
 
-                data = np.asarray(self.plate.wells[global_index])
-                PercAggPosCells = data[:,0] # per field quantities
-                Ncells          = data[:,1] # per field quantities
+            for column in range(self.plate.Ncolumns):
+                for row in range(self.plate.Nrows):
 
-                # Total percentage of aggregate-positive cells in each well
-                self.plate.wells_total_agg_pos_cells[global_index] = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
+                    global_index = self.plate.get_global_well_number(row, column)
 
-                #print(PercAggPosCells, Ncells)
-                #print(self.plate.wells_total_agg_pos_cells[global_index])
+                    data = np.asarray(self.plate.wells[global_index])
+                    PercAggPosCells = data[:,0] # per field quantities
+                    Ncells          = data[:,1] # per field quantities
 
-                # TODO:
-                # Store this information in a file
-                # What other information do we need to make volcano and gene plots?
+                    # Total percentage of aggregate-positive cells in each well
+                    total_aggPosCells = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
+                    self.plate.wells_total_agg_pos_cells[global_index] = total_aggPosCells
+
+                    # export to text file
+                    row_letter = self.plate.get_row_letter(row)
+                    f.write("%5s %5g %15g %15.2f\n" % ( row_letter, column, np.sum(Ncells), total_aggPosCells ) )
 
 
     def _density_map(self, qoi):
@@ -262,7 +266,11 @@ class Statistics:
 
         # store table as image
         plt.imshow(table)
-        output_file = "%s/plate_density_map.pdf" % self.dataset.output_folder_statistics
+        axis = plt.gca()
+        axis.get_xaxis().set_visible(False)
+        axis.get_yaxis().set_visible(False)
+        plt.tight_layout()
+        output_file = "%s/plate_density_map.png" % self.dataset.output_folder_statistics
         plt.savefig(output_file, transparent=True)
         plt.close()
 
@@ -307,63 +315,9 @@ class Statistics:
         #df = pd.DataFrame(data=df_data, columns=headers)
 
         # Make volcano plot
-        # based on:
-        #   https://thecodingbiologist.com/posts/Making-volcano-plots-in-python-in-Google-Colab
-        # see also:
-        #   https://hemtools.readthedocs.io/en/latest/content/Bioinformatics_Core_Competencies/Volcanoplot.html
-
         plt.scatter(log2FC, transformed_pvalues)
         plt.savefig("%s/volcano_pyplottest.png" % self.dataset.output_folder_statistics)
         plt.close()
-
-
-        #import plotly.graph_objects as go
-
-        #fig = go.Figure()
-
-        ##plot_title = "Group 1 vs Group 2" #@param {type:"string"}
-        #x_axis_title = "log2 fold change" #@param {type:"string"}
-        #y_axis_title = "-log10 pvalue" #@param {type:"string"}
-        #point_radius = 4 #@param {type:"slider", min:1, max:30, step:1}
-
-        #fig.update_layout(
-        #    #title=plot_title,
-        #    xaxis_title= x_axis_title,
-        #    yaxis_title=y_axis_title,
-        #    paper_bgcolor= 'white',
-        #    plot_bgcolor='white',
-        #)
-
-        #colors = []
-
-        #for i in range(0, len(log2FC)):
-
-        #    if transformed_pvalues[i] > 2:
-
-        #         if log2FC[i] > 0.5:
-        #            colors.append('#db3232')
-        #         elif log2FC[i] < -0.5:
-        #            colors.append('#3f65d4')
-        #         else:
-        #            colors.append('rgba(150,150,150,0.5)')
-        #    else:
-        #        colors.append('rgba(150,150,150,0.5)')
-
-        #fig.add_trace(
-        #    go.Scattergl(
-        #        x = log2FC,
-        #        y = transformed_pvalues,
-        #        mode = 'markers'
-        #        #text = seq_df.iloc[:, 0].values.tolist(),
-        #        #hovertemplate ='%{text}: %{x}<br>',
-        #        #marker= {
-        #        #    'color':colors,
-        #        #    'size':point_radius,
-        #        #}
-        #    )
-        #)
-
-        #fig.write_image("%s/volcano.png" % self.dataset.output_folder_statistics)        
 
 
     def generate_statistics(self):
@@ -381,5 +335,5 @@ class Statistics:
             self._load_QoI_plate()
             self._plate_percent_aggpositive_cells_per_well()
             self._density_map(self.plate.wells_total_agg_pos_cells)
-            self._make_volcano_plot(self.plate.wells_total_agg_pos_cells)
+            #self._make_volcano_plot(self.plate.wells_total_agg_pos_cells)  # requires two plates
 

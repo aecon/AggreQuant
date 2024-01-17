@@ -1,9 +1,26 @@
 # aSynAgreeCount
 
-Codebase for analysis of High Content Screens.
+A codebase for automated analysis of High Content Screens.
 
 
-<IMG SRC="graphics/raw_and_segmentation.jpg" WIDTH="320" HEIGHT="190" ALIGN="left" HSPACE="10"/>
+The input image-data are assumed to be generated from 384-well plates, with 9 fields of view acquired per well, and 3 channels recorded per field, corresponding to nuclei, cells, and aggregates.
+In total, 10'368 images are acquired per plate which are processed by the  **aSynAgreeCount** package to quantify aggregate-positive cells.
+For each image, **aSynAgreeCount** performs image pre-processing to correct for the presence of uneven illumination and digitization noise, then performs segmentation of the structures of interest (nuclei, cells, aggregates), and finally applies co-localization analysis to characterize the presence of aggregates inside cells.
+An illustration of the image processing pipeline is shown below.
+
+<IMG SRC="graphics/pipeline.jpg" style="float: left; margin-right: 10px;" />
+
+
+The segmentation of nuclei and cells is performed with pre-trained Deep Learning models (see section Modules below). Aggregates are segmented using a sequence of conventional image processing filters, calibrated for the datasets of our study.
+An illustration of the segmentation quality is shown in the figure below where white lines correspond to the segmentation and blue to the original image intensities for nuclei (A), cells (B) and aggregates (C).
+
+<IMG SRC="graphics/segmentation.jpg" style="float: left; margin-right: 10px;" />
+
+**aSynAgreeCount** utilizes the segmented data to perform co-localization analysis and characterize aggregate inclusions in cells by computing various quantities of interest (QoI), such as the percentage of aggregate-positive cells and the number of detected aggregates per cell. The figure below shows a visualization of these QoI.
+
+<IMG SRC="graphics/raw_and_segmentation.jpg" style="float: left; margin-right: 10px;" />
+
+
 
 
 ## Installation
@@ -126,8 +143,9 @@ pip install -r requirements.txt
 
 ## Authors
 
-The code was written by Athena Economides. The corresponding publication is in preparation.
+The code is developed by Athena Economides. The corresponding publication is in preparation.
 
+Athena Economides, PhD  
 Lab of Prof. Adriano Aguzzi  
 Institute of Neuropathology  
 University of Zurich  

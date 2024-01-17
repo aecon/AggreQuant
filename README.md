@@ -91,7 +91,7 @@ Installation:
 
 * Using [Cellpose](https://github.com/mouseland/cellpose) pre-trained DL.
 
-* Using the Propagation algorithm from [CellProfiler](https://cellprofiler.org).  
+* Using the distance-intensity algorithm, inspired by [CellProfiler's](https://cellprofiler.org) Propagation method.  
 
     * Identifies cell boundary as a Secondary object.  
     * Uses primary objects seeds.  

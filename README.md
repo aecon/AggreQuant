@@ -76,8 +76,8 @@ I installed:
 
 ### Nuclei segmentation
 
-* Uses [StarDist](https://github.com/stardist/stardist) pre-trained DL.
-* Note: Results improve if Background Equalization is done before segmentation.
+Nuclei are segmented using the [StarDist](https://github.com/stardist/stardist) pre-trained deep neural network.  
+Note: Results improve if Background Equalization is done before segmentation.
 
 <!---
 Installation:  
@@ -89,10 +89,9 @@ Installation:
 
 ### Cell membrane segmentation
 
-* Using [Cellpose](https://github.com/mouseland/cellpose) pre-trained DL.
-
-* Using the distance-intensity algorithm, inspired by [CellProfiler's](https://cellprofiler.org) Propagation method.  
-
+Two methods are implemented to segment cells:  
+* The [Cellpose](https://github.com/mouseland/cellpose) pre-trained deep neural network.
+* The distance-intensity algorithm, inspired by [CellProfiler's](https://cellprofiler.org) Propagation method.  
     * Identifies cell boundary as a Secondary object.  
     * Uses primary objects seeds.  
     * Secondary objects are identified based on the shortest path to an adjacent primary object.  
@@ -102,7 +101,7 @@ Installation:
 
 ### aggregate segmentation
 
-* Uses a sequence of conventional Image Processing filters.
+Aggregates are segmented through a sequence of conventional Image Processing filters, with their parameters calibrated to our data.
 
 <!---
 ### Unit tests

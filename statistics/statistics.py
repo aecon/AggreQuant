@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stat
@@ -7,6 +8,8 @@ import pandas as pd
 
 from utils.dataset import Dataset
 from statistics.plate import Plate
+
+plt.rcParams["figure.figsize"] = (7/2.54, 8/2.54)   # in inches. Divide by 2.54 for cm
 
 
 class Statistics:
@@ -149,25 +152,66 @@ class Statistics:
 
 
         # Figure 1: percent of average positive cells
-        plt.scatter(1*np.ones(self.plate.NumberOfControlRows), group_5Up, label="NT_1")
-        plt.scatter(2*np.ones(self.plate.NumberOfControlRows), group_5Dn, label="Rab13_1")
-        plt.scatter(3*np.ones(self.plate.NumberOfControlRows), group_13Dn, label="NT_2")
-        plt.scatter(4*np.ones(self.plate.NumberOfControlRows), group_13Up, label="Rab13_2")
-        plt.ylim([0,80])
-        plt.legend()
-        plt.savefig("Statistics_Plate_%s.png" % self.plate.name)
+        #plt.scatter(1*np.ones(self.plate.NumberOfControlRows), group_5Up, label="NT_1")
+        #plt.scatter(2*np.ones(self.plate.NumberOfControlRows), group_5Dn, label="Rab13_1")
+        #plt.scatter(3*np.ones(self.plate.NumberOfControlRows), group_13Dn, label="NT_2")
+        #plt.scatter(4*np.ones(self.plate.NumberOfControlRows), group_13Up, label="Rab13_2")
+        #plt.ylim([0,80])
+        #plt.legend()
+        #plt.savefig("%s/Statistics_Plate_%s.png" % (self.dataset.output_folder_statistics, self.plate.name))
+        #plt.close()
+
+        scatter_width = 0.4
+        plt.scatter(1-0.5*scatter_width + scatter_width*np.random.rand(len(group_5Up )), group_5Up , facecolors='none', edgecolors='gray')
+        plt.scatter(2-0.5*scatter_width + scatter_width*np.random.rand(len(group_5Dn )), group_5Dn , facecolors='none', edgecolors='gray')
+        plt.scatter(3-0.5*scatter_width + scatter_width*np.random.rand(len(group_13Dn)), group_13Dn, facecolors='none', edgecolors='gray')
+        plt.scatter(4-0.5*scatter_width + scatter_width*np.random.rand(len(group_13Up)), group_13Up, facecolors='none', edgecolors='gray')
+        # errorbars
+        plt.errorbar(1, np.nanmean(group_5Up ), yerr=np.nanstd(group_5Up ), ecolor='k', elinewidth=2, capthick=2, capsize=4)
+        plt.errorbar(2, np.nanmean(group_5Dn ), yerr=np.nanstd(group_5Dn ), ecolor='k', elinewidth=2, capthick=2, capsize=4)
+        plt.errorbar(3, np.nanmean(group_13Dn), yerr=np.nanstd(group_13Dn), ecolor='k', elinewidth=2, capthick=2, capsize=4)
+        plt.errorbar(4, np.nanmean(group_13Up), yerr=np.nanstd(group_13Up), ecolor='k', elinewidth=2, capthick=2, capsize=4)
+        # means
+        plt.scatter(np.linspace(1,4,4), [np.nanmean(group_5Up), np.nanmean(group_5Dn), np.nanmean(group_13Dn), np.nanmean(group_13Up)], marker='s', facecolors='k', edgecolors='k' )
+        # axis
+        axis = plt.gca()
+        axis.set_xticks( np.linspace(1, 4, 4 ) )
+        axis.set_xticklabels( ["NT_1", "Rab13_1", "NT_2", "Rab13_2"] , fontsize=8)
+        axis.set_ylabel("% positive cells", fontsize=14)
+        Ymax = 25
+        plt.ylim([0,Ymax])
+        axis.set_yticks( np.linspace(0, Ymax, 6 ) )
+        # SSMD annotations
+        mc1 = np.nanmean(group_5Up )
+        mr1 = np.nanmean(group_5Dn )
+        mc2 = np.nanmean(group_13Dn)
+        mr2 = np.nanmean(group_13Up)
+        sc1 = np.nanstd(group_5Up )
+        sr1 = np.nanstd(group_5Dn )
+        sc2 = np.nanstd(group_13Dn)
+        sr2 = np.nanstd(group_13Up)
+        SSMD1 = (mc1-mr1)/(math.sqrt(sc1*sc1 + sr1*sr1))
+        SSMD2 = (mc2-mr2)/(math.sqrt(sc2*sc2 + sr2*sr2))
+        axis.text(0.5, -18/80*Ymax, ("SSMD=%.2f" % SSMD1), color='black')
+        axis.text(2.5, -18/80*Ymax, ("SSMD=%.2f" % SSMD2), color='black')
+        # axis spines and layout
+        axis.spines['top'].set_visible(False)
+        axis.spines['right'].set_visible(False)
+        plt.tight_layout()
+        # save
+        plt.savefig("%s/Statistics_Plate_%s.png" % (self.dataset.output_folder_statistics, self.plate.name))
         plt.close()
 
 
-        # Figure 2: CENTERED percent of average positive cells
-        plt.scatter(1*np.ones(self.plate.NumberOfControlRows), group_5Up -np.mean(group_5Up), label="NT_1")
-        plt.scatter(2*np.ones(self.plate.NumberOfControlRows), group_5Dn -np.mean(group_5Up), label="Rab13_1")
-        plt.scatter(3*np.ones(self.plate.NumberOfControlRows), group_13Dn-np.mean(group_13Dn), label="NT_2")
-        plt.scatter(4*np.ones(self.plate.NumberOfControlRows), group_13Up-np.mean(group_13Dn), label="Rab13_2")
-        plt.ylim([-60,60])
-        plt.legend()
-        plt.savefig("Statistics_Plate_Centered_NT%s.png" % self.plate.name)
-        plt.close()
+        ## Figure 2: CENTERED percent of average positive cells
+        #plt.scatter(1*np.ones(self.plate.NumberOfControlRows), group_5Up -np.mean(group_5Up), label="NT_1")
+        #plt.scatter(2*np.ones(self.plate.NumberOfControlRows), group_5Dn -np.mean(group_5Up), label="Rab13_1")
+        #plt.scatter(3*np.ones(self.plate.NumberOfControlRows), group_13Dn-np.mean(group_13Dn), label="NT_2")
+        #plt.scatter(4*np.ones(self.plate.NumberOfControlRows), group_13Up-np.mean(group_13Dn), label="Rab13_2")
+        #plt.ylim([-60,60])
+        #plt.legend()
+        #plt.savefig("%s/Statistics_Plate_Centered_NT%s.png" % (self.dataset.output_folder_statistics, self.plate.name))
+        #plt.close()
 
 
         """
@@ -180,7 +224,7 @@ class Statistics:
             ... for as many fields
 
         """
-        table_file = "Statistics_Plate_%s_PercentAggregatePosCells.txt" % self.plate.name
+        table_file = "%s/Statistics_Plate_%s_PercentAggregatePosCells.txt" % (self.dataset.output_folder_statistics, self.plate.name)
         with open(table_file, 'w') as f:
             f.write("%15s %15s %15s %15s\n" % ("NT_1", "Rab13_1", "NT_2", "Rab13_2"))
             for i in range(self.plate.NumberOfControlRows):
@@ -231,19 +275,15 @@ class Statistics:
                     column = int(ControlColumn) - 1 # numbering starts with 0!
                     global_index = self.plate.get_global_well_number(row, column)
                     controls_wells.append(qoi[global_index])
-        #print(controls_wells)
 
-        # the following is based on:
+        # the following analysis is based on:
         # https://thecodingbiologist.com/posts/Making-volcano-plots-in-python-in-Google-Colab
 
         # Compute mean of control column
         avg_controls = np.mean(controls_wells)
-        #print(avg_controls)
 
         # Conmpute log2-fold-changes wrt control
         log2FC = list(np.log2(np.divide(qoi, avg_controls)))
-        #print(np.shape(log2FC))
-        #print(log2FC)
 
         # Compute p-values
         pvalues = []
@@ -271,75 +311,75 @@ class Statistics:
         #   https://thecodingbiologist.com/posts/Making-volcano-plots-in-python-in-Google-Colab
         # see also:
         #   https://hemtools.readthedocs.io/en/latest/content/Bioinformatics_Core_Competencies/Volcanoplot.html
-        import plotly.graph_objects as go
 
-        fig = go.Figure()
+        plt.scatter(log2FC, transformed_pvalues)
+        plt.savefig("%s/volcano_pyplottest.png" % self.dataset.output_folder_statistics)
+        plt.close()
 
-        #plot_title = "Group 1 vs Group 2" #@param {type:"string"}
-        x_axis_title = "log2 fold change" #@param {type:"string"}
-        y_axis_title = "-log10 pvalue" #@param {type:"string"}
-        point_radius = 4 #@param {type:"slider", min:1, max:30, step:1}
 
-        fig.update_layout(
-            #title=plot_title,
-            xaxis_title= x_axis_title,
-            yaxis_title=y_axis_title,
-            paper_bgcolor= 'white',
-            plot_bgcolor='white',
-        )
+        #import plotly.graph_objects as go
 
-        colors = []
+        #fig = go.Figure()
 
-        for i in range(0, len(log2FC)):
+        ##plot_title = "Group 1 vs Group 2" #@param {type:"string"}
+        #x_axis_title = "log2 fold change" #@param {type:"string"}
+        #y_axis_title = "-log10 pvalue" #@param {type:"string"}
+        #point_radius = 4 #@param {type:"slider", min:1, max:30, step:1}
 
-            #print(transformed_pvalues[i], log2FC[i])
+        #fig.update_layout(
+        #    #title=plot_title,
+        #    xaxis_title= x_axis_title,
+        #    yaxis_title=y_axis_title,
+        #    paper_bgcolor= 'white',
+        #    plot_bgcolor='white',
+        #)
 
-            if transformed_pvalues[i] > 2:
+        #colors = []
 
-                 if log2FC[i] > 0.5:
-                    colors.append('#db3232')
-                 elif log2FC[i] < -0.5:
-                    colors.append('#3f65d4')
-                 else:
-                    colors.append('rgba(150,150,150,0.5)')
-            else:
-                colors.append('rgba(150,150,150,0.5)')
+        #for i in range(0, len(log2FC)):
 
-        fig.add_trace(
-            go.Scattergl(
-                x = log2FC,
-                y = transformed_pvalues,
-                mode = 'markers'
-                #text = seq_df.iloc[:, 0].values.tolist(),
-                #hovertemplate ='%{text}: %{x}<br>',
-                #marker= {
-                #    'color':colors,
-                #    'size':point_radius,
-                #}
-            )
-        )
+        #    if transformed_pvalues[i] > 2:
 
-        #fig.show()
-        fig.write_image("%s/volcano-test.png" % self.dataset.output_folder_statistics)        
+        #         if log2FC[i] > 0.5:
+        #            colors.append('#db3232')
+        #         elif log2FC[i] < -0.5:
+        #            colors.append('#3f65d4')
+        #         else:
+        #            colors.append('rgba(150,150,150,0.5)')
+        #    else:
+        #        colors.append('rgba(150,150,150,0.5)')
+
+        #fig.add_trace(
+        #    go.Scattergl(
+        #        x = log2FC,
+        #        y = transformed_pvalues,
+        #        mode = 'markers'
+        #        #text = seq_df.iloc[:, 0].values.tolist(),
+        #        #hovertemplate ='%{text}: %{x}<br>',
+        #        #marker= {
+        #        #    'color':colors,
+        #        #    'size':point_radius,
+        #        #}
+        #    )
+        #)
+
+        #fig.write_image("%s/volcano.png" % self.dataset.output_folder_statistics)        
 
 
     def generate_statistics(self):
 
         # PROCESS THE WHOLE PLATE
+        print("Processing Control Columns ...")
+        # Load QoI files for the plate
+        self._load_QoI_Controls()
+        # QoI 1: Percentage of Aggregate-Positive Cells
+        self._percent_aggregate_positive_cells_Controls()
+
         if self.whole_plate:
-            print("Processing whole plate")
+            print("Processing whole plate ...")
             # Whole-plate Map for percentage of aggregate-positive cells
             self._load_QoI_plate()
             self._plate_percent_aggpositive_cells_per_well()
             self._density_map(self.plate.wells_total_agg_pos_cells)
             self._make_volcano_plot(self.plate.wells_total_agg_pos_cells)
-
-        # PROCESS ONLY CONTROL COLUMNS
-        else:
-            print("Processing Control Columns only")
-            # Load QoI files for the plate
-            self._load_QoI_Controls()
-            # QoI 1: Percentage of Aggregate-Positive Cells
-            self._percent_aggregate_positive_cells_Controls()
-
 

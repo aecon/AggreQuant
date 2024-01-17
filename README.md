@@ -3,6 +3,8 @@
 Codebase for analysis of High Content Screens.
 
 
+<IMG SRC="graphics/raw_and_segmentation.jpg" WIDTH="320" HEIGHT="190" ALIGN="left" HSPACE="10"/>
+
 
 ## Installation
 

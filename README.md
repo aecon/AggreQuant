@@ -1,6 +1,6 @@
 # aSynAgreeCount
 
-A python package for analysis of image-based, High-Throughput / High-Content Screens.
+Codebase for analysis of High Content Screens.
 
 
 

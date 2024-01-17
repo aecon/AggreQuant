@@ -55,14 +55,15 @@ I installed:
 ### Nuclei segmentation
 
 * Uses [StarDist](https://github.com/stardist/stardist) pre-trained DL.
-* Results improve if Background Equalization is done before segmentation.
+* Note: Results improve if Background Equalization is done before segmentation.
 
+<!---
 Installation:  
 * tensorflow: https://www.tensorflow.org/install/pip
 * cupy: https://docs.cupy.dev/en/stable/install.html (`conda install -c conda-forge cupy`)
 * pip install scikit-image
 * pip install stardist
-
+-->
 
 ### Cell membrane segmentation
 
@@ -79,9 +80,9 @@ Installation:
 
 ### aggregate segmentation
 
-* Uses conventional Image Processing filters.
+* Uses a sequence of conventional Image Processing filters.
 
-
+<!---
 ### Unit tests
 
 ```
@@ -89,37 +90,17 @@ conda install pytest
 cd unitTests
 ./run.sh
 ```
-
-
-
-
+-->
 
 
 ## TODO
-
-* [x] Diagnostics.
-* [x] - E.g. random selection of images and zoom-in in a random location within each selected image.
-* [x] - Show overlay of segmented Edges and raw in a Montage-type og figure.
-* [x] - Do the above for both nuclei and cell boundary segmentations.
-* [x] Data management: Rename data to include plate number in filename.
-* [ ] Segmentation:
-* [ ] - Finalize version 0.0. Include aggregate segmentation and quantification. Add validation cases.
-* [ ] - Test nnU-Net for cell and nuclei segmentation. Run on validation cases.
-* [ ] Validation: Select datasets and add to validation stack.
+* [ ] Expose image processing parameters to the user.
+* [ ] Test nnU-Net for cell and nuclei segmentation. Run on validation cases.
 * [ ] Parallelize computations over image sets (see _prototype/multiprocess examples).
-* [ ] Add option to use cellpose for cell detection
-    * [ ] with only cell channel as input (terrible resutls)
-    * [ ] with both nuclei and cell channel inputs
-
-* For publication:
-    * Data: `validation_dataset_Nov032023` for segmentation visuals and `inCell_transfer_20230930_HA_7-HA_8-HA_13_goodplates` for statistics.
-    * [ ] Expose image processing parameters to user, so that multiple parameter sets can be tested.
-    * [ ] CNN classifier to detect images than cannot be processed by the software and alert the user about how many unprocessable images exist :)
+* [ ] Train a classifier to detect images that the software cannot process and alert the user about how many unprocessable images exist.
 
 
-
-
-
+<!---
 ## Package tracking
 
 To collect all packages used by the code, [pipreqs](https://github.com/bndr/pipreqs) is used.
@@ -136,18 +117,13 @@ The packages inside the requirements.txt file can be installed with
 ```
 pip install -r requirements.txt
 ```
-
-
+-->
 
 
 
 ## Authors
 
-The package was written by Athena Economides, for the publication:
-
-```
-XXX TO BE ADDED XXX
-```
+The package was written by Athena Economides. The corresponding publication is in preparation:
 
 Lab of Prof. Adriano Aguzzi  
 Institute of Neuropathology  

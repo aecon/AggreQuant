@@ -93,11 +93,12 @@ cd unitTests
 -->
 
 
-## TODO
+## TODOs
 * [ ] Expose image processing parameters to the user.
 * [ ] Test nnU-Net for cell and nuclei segmentation. Run on validation cases.
 * [ ] Parallelize computations over image sets (see _prototype/multiprocess examples).
 * [ ] Train a classifier to detect images that the software cannot process and alert the user about how many unprocessable images exist.
+* [ ] Add more unit tests.
 
 
 <!---

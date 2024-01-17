@@ -123,7 +123,7 @@ pip install -r requirements.txt
 
 ## Authors
 
-The package was written by Athena Economides. The corresponding publication is in preparation:
+The package was written by Athena Economides. The corresponding publication is in preparation.
 
 Lab of Prof. Adriano Aguzzi  
 Institute of Neuropathology  

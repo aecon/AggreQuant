@@ -58,6 +58,9 @@ pip install cellpose[gui]
 ```
 
 ### Additional python packages
+
+The following packages are required to run the code: `scikit-image matplotlib click pytest pyyaml pandas plotly kaleido`.  
+They can be installed as follows:
 ```
 pip install -r requirements.txt
 ```

@@ -360,8 +360,14 @@ def _segment_cellpose(image_file, output_files_cells, output_files_nuclei):
     masks, flows, styles, diams = model.eval(input_to_cellpose, diameter=None, channels=channels, resample=True,
                                              flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False)
 
-    # remove cells that don't contain nucleus
+    # nuclei mask
     seeds = skimage.io.imread(output_files_nuclei["seeds"], plugin='tifffile')
+
+    # add cells where there was a nucleus
+    idx = (seeds==1) * (masks==0)
+    masks[idx] = 1
+
+    # remove cells that don't contain nucleus
     labels2 = _exclude_cells_without_nucleus(masks, seeds)
 
     #from cellpose import plot

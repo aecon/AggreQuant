@@ -33,14 +33,14 @@ class Statistics:
 
                 # patter matching to find correct aggregate filename..
                 # - match row
-                pattern = "_%s " % row_letter
+                pattern = "%s - " % row_letter
                 sublistR = [x for x in list_of_files if pattern in x]
                 # - match column
                 pattern = "- %s" % ControlColumn
                 files_all_fields_per_well = [x for x in sublistR if pattern in x]
                 assert(len(files_all_fields_per_well)<=self.plate.Nfields)
                 if self.verbose:
-                    print("Row/Column %s,%s: %d files:" % (row, ControlColumn, len(files_all_fields_per_well)))
+                    print("Row/Column %s,%s: %d files:" % (row_letter, ControlColumn, len(files_all_fields_per_well)))
                     print(files_all_fields_per_well, "\n")
 
                 # initialize Well
@@ -69,7 +69,7 @@ class Statistics:
 
                 # patter matching to find correct aggregate filename..
                 # - match row
-                pattern = "_%s " % row_letter
+                pattern = "%s - " % row_letter
                 sublistR = [x for x in list_of_files if pattern in x]
                 # - match column
                 pattern = "- %s" % col_letter
@@ -179,7 +179,7 @@ class Statistics:
         axis.set_xticks( np.linspace(1, 4, 4 ) )
         axis.set_xticklabels( ["NT_1", "Rab13_1", "NT_2", "Rab13_2"] , fontsize=8)
         axis.set_ylabel("% positive cells", fontsize=14)
-        Ymax = 25
+        Ymax = 40
         plt.ylim([0,Ymax])
         axis.set_yticks( np.linspace(0, Ymax, 6 ) )
         # SSMD annotations
@@ -200,7 +200,7 @@ class Statistics:
         axis.spines['right'].set_visible(False)
         plt.tight_layout()
         # save
-        plt.savefig("%s/control_replicates.png" % (self.dataset.output_folder_statistics))
+        plt.savefig("%s/control_replicates.pdf" % (self.dataset.output_folder_statistics))
         plt.close()
 
 
@@ -270,7 +270,7 @@ class Statistics:
         axis.get_xaxis().set_visible(False)
         axis.get_yaxis().set_visible(False)
         plt.tight_layout()
-        output_file = "%s/plate_density_map.png" % self.dataset.output_folder_statistics
+        output_file = "%s/plate_density_map.pdf" % self.dataset.output_folder_statistics
         plt.savefig(output_file, transparent=True)
         plt.close()
 
@@ -316,7 +316,7 @@ class Statistics:
 
         # Make volcano plot
         plt.scatter(log2FC, transformed_pvalues)
-        plt.savefig("%s/volcano_pyplottest.png" % self.dataset.output_folder_statistics)
+        plt.savefig("%s/volcano_pyplottest.pdf" % self.dataset.output_folder_statistics)
         plt.close()
 
 

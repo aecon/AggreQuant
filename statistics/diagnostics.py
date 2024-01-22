@@ -57,7 +57,7 @@ def montage_simple(image_list, output_filename, debug=False, verbose=False):
 
 
 
-def montage_overlay_two_images(images_raw, images_seg, output_filename, debug=False, verbose=False):
+def montage_overlay_two_images(images_raw, images_seg, output_filename, rand=None, genRand=True, debug=False, verbose=False):
 
     Nfiles = len(images_raw)
 
@@ -73,15 +73,15 @@ def montage_overlay_two_images(images_raw, images_seg, output_filename, debug=Fa
         print("Must have at least %d images!" % (N ) )
         sys.exit(1)
 
-    # random selection of images
-    rand = np.random.choice(Nfiles, size=N, replace=False)
-
-    print("Nraw", len(images_raw))
-    print("Nseg", len(images_seg))
+    print("  Nraw", len(images_raw))
+    print("  Nseg", len(images_seg))
     assert(len(images_seg) == len(images_raw))
 
     # random selection of images
-    rand = np.random.choice(Nfiles, size=N, replace=False)
+    if genRand == True:
+        print("  Generating a new set of random numbers ...")
+        # random selection of images
+        rand = np.random.choice(Nfiles, size=N, replace=False)
 
     # crop images
     image_deck_seg = []
@@ -98,12 +98,12 @@ def montage_overlay_two_images(images_raw, images_seg, output_filename, debug=Fa
 
         img0_raw = skimage.io.imread(images_raw[r], plugin='tifffile')
 
-        print(images_seg[r], images_raw[r])
+        #print(images_seg[r], images_raw[r])
 
         assert(np.sum(np.shape(img0_seg)) == np.sum(np.shape(img0_raw)))
         shape = np.shape(img0_seg)
         L = shape[0] - Npixels
-        P0 = np.random.randint(0, high=L, size=1)[0]
+        P0 = int(L/2) #np.random.randint(0, high=L, size=1)[0]
         img_seg = np.zeros((Npixels,Npixels))
         img_seg[:,:] = img0_seg[P0:P0+Npixels, P0:P0+Npixels]
         img_raw = np.zeros((Npixels,Npixels))
@@ -132,10 +132,12 @@ def montage_overlay_two_images(images_raw, images_seg, output_filename, debug=Fa
             montage[1, i0:i1, j0:j1] = image_deck_seg[k][:,:]
 
     if verbose:
-        print("Montage tif shape:", np.shape(montage))
+        print("  Montage tif shape:", np.shape(montage))
 
     # save montage
     skimage.io.imsave("%s_%dx%d.tif" % (output_filename, panel_size[0], panel_size[1]), montage, plugin='tifffile', imagej=True, check_contrast=False)
+
+    return rand
 
 
 def montage_overlay_6Channels_validation(images_raw_nuclei, images_seg_nuclei, 

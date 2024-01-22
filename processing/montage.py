@@ -77,29 +77,32 @@ def montage(dataset, verbose, debug):
                 debug=debug)
 
         # overlay nuclei
+        print("Generating montage for nuclei segmentation\n")
         montage_filename = "%s/montage_overlay_nuclei.tif" % (
             dataset.output_folder_diagnostics)
         paths_seg_nuclei = sorted(glob.glob("%s/*Blue*seeds*.tif" % (
             dataset.output_folder_nuclei)))
-        montage_overlay_two_images(
-            dataset.paths_nuclei, paths_seg_nuclei, montage_filename, 
+        rand = montage_overlay_two_images(
+            dataset.paths_nuclei, paths_seg_nuclei, montage_filename, genRand=True,
             debug=False, verbose=False)
 
         # overlay cells
+        print("Generating montage for cell segmentation\n")
         montage_filename = "%s/montage_overlay_cells.tif" % (
             dataset.output_folder_diagnostics)
         paths_seg_cells = sorted(glob.glob("%s/*Red*labels*.tif" % (
             dataset.output_folder_cells)))
         montage_overlay_two_images(
-            dataset.paths_cells, paths_seg_cells, montage_filename, 
+            dataset.paths_cells, paths_seg_cells, montage_filename, rand, genRand=False,
             debug=False, verbose=False)
 
         # overlay aggregates
+        print("Generating montage for aggregate segmentation\n")
         montage_filename = "%s/montage_overlay_aggregates.tif" % (
             dataset.output_folder_diagnostics)
         paths_seg_agg = sorted(glob.glob("%s/*Green*labels*.tif" % (
             dataset.output_folder_aggregates)))
         montage_overlay_two_images(
-            dataset.paths_aggregates, paths_seg_agg, montage_filename,
+            dataset.paths_aggregates, paths_seg_agg, montage_filename, rand, genRand=False,
             debug=False, verbose=False)
 

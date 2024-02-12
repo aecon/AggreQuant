@@ -1,0 +1,10 @@
+dataset:
+  DIRECTORY: "/media/neptun/LocalDisk16TB/Dalila/inCell_transfer_20240202_0947/20230509_Dalila_Elena_GE_InCell/20230509_Dalila_Elena_GE_InCell_20240201_HA_40_Rep2_1"
+  COLOUR_NUCLEI: "390 - Blue"
+  COLOUR_AGGREGATES: "473 - Green2"
+  COLOUR_CELLS: "631 - FarRed"
+  OUTPUT_DIRECTORY: "output_20240208"
+  DUMP_QOI_TIFS: False
+  TYPE_OF_RUN: "production"
+  WHOLE_PLATE: True
+  CELL_SEGMENTATION_ALGORITHM: "cellpose"

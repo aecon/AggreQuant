@@ -99,7 +99,7 @@ Two methods are implemented to segment cells:
     * The dividing lines between secondary objects are determined by a combination of: the distance to the nearest primary object, and intensity gradients.  
 
 
-### aggregate segmentation
+### Aggregate segmentation
 
 Aggregates are segmented through a sequence of conventional Image Processing filters, with their parameters calibrated to our data.
 

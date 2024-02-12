@@ -1,4 +1,0 @@
-PATH_TO_IMAGES="/media/neptun/LocalDisk16TB/Athena/PROJECT_aSyn/inCell_transfer_20230624_HA_4_badplate/plate8_HA_4_rep2/data"
-COLOUR_NUCLEI="390 - Blue"
-COLOUR_AGGREGATES="473 - Green2"
-COLOUR_CELLS="631 - FarRed"

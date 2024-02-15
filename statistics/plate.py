@@ -12,6 +12,8 @@ class Plate:
 
         self.wells = [None] * self.Nwells
         self.wells_total_agg_pos_cells = [None] * self.Nwells
+        self.wells_Ncells = [None] * self.Nwells
+        self.wells_percent_area_aggregates_over_cells = [None] * self.Nwells
 
 
     def get_global_well_number(self, row, column):

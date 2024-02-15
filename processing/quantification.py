@@ -14,6 +14,7 @@ class Quantities:
         self.Percentage_Of_AggregatePositive_Cells = 0
         self.Number_Of_Cells_Per_Image = 0
         self.Percentage_Area_Aggregates = 0
+        self.AreaOfCells = 0
         self.Percentage_Ambiguous_Aggregates = 0
         self.Number_Aggregates_Per_Image_ConnectedComponents = 0
         self.Avg_Number_Aggregates_Per_AggPositive_Cell = 0
@@ -23,8 +24,8 @@ class Quantities:
         Export a text file with a table of aggregate characteristics per image set
         """
         with open(table_file, 'w') as f:
-            f.write("%15s %15s %15s %15s %15s %16s\n" % ("%Agg.Pos.Cells", "N.Cells", "%Area.Agg.", "%Ambig.Agg.", "N.Agg.Img(CC)", "Avg.NAgg.perCell"))
-            f.write("%15g %15g %15g %15g %15g %16g\n" % (self.Percentage_Of_AggregatePositive_Cells, self.Number_Of_Cells_Per_Image, self.Percentage_Area_Aggregates, self.Percentage_Ambiguous_Aggregates, self.Number_Aggregates_Per_Image_ConnectedComponents, self.Avg_Number_Aggregates_Per_AggPositive_Cell))
+            f.write("%15s %15s %15s %15s %15s %15s %16s\n" % ("%Agg.Pos.Cells", "N.Cells", "%Area.Agg.", "AreaCells", "%Ambig.Agg.", "N.Agg.Img(CC)", "Avg.NAgg.perCell"))
+            f.write("%15g %15g %15g %15g %15g %15g %16g\n" % (self.Percentage_Of_AggregatePositive_Cells, self.Number_Of_Cells_Per_Image, self.Percentage_Area_Aggregates, self.AreaOfCells, self.Percentage_Ambiguous_Aggregates, self.Number_Aggregates_Per_Image_ConnectedComponents, self.Avg_Number_Aggregates_Per_AggPositive_Cell))
             f.close()
 
 
@@ -51,6 +52,7 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
         1. [CHK] Percentage of aggregate-positive cells
         2. [CHK] Number of cells per image
         3. [CHK] Total area of aggregates (in percentage of cell area)
+        3b.[   ] Area of cells in pixels
         4. [CHK] Percentage of ambiguous aggregates (corresponding to more than 1 cell)
         5. [CHK] Number of aggregates per image
         6. [CHK] Prototype: Number of aggregates per cell
@@ -124,6 +126,7 @@ def compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
 
     # Q3. Total area of aggregates (in percentage of cell area)
     Q.Percentage_Area_Aggregates = np.sum(mask_agg) / np.sum(mask_cell) * 100.
+    Q.AreaOfCells = np.sum(mask_cell)
 
 
     list_number_of_aggregates_per_cell = np.zeros(len(U_CELLS))

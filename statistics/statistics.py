@@ -190,9 +190,10 @@ class Statistics:
         axis.set_xticks( np.linspace(1, 4, 4 ) )
         axis.set_xticklabels( ["NT_1", "Rab13_1", "NT_2", "Rab13_2"] , fontsize=8)
         axis.set_ylabel("% positive cells", fontsize=14)
-        Ymax = 40
+        Ymax = int(np.max([group_5Up, group_5Dn, group_13Dn, group_13Up])+0.5)
+        Ymax = round(Ymax, -1)
         plt.ylim([0,Ymax])
-        axis.set_yticks( np.linspace(0, Ymax, 6 ) )
+        axis.set_yticks( np.linspace(0, Ymax, int(Ymax/10)+1 ) )
         # SSMD annotations
         mc1 = np.nanmean(group_5Up )
         mr1 = np.nanmean(group_5Dn )

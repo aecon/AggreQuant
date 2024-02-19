@@ -11,6 +11,7 @@ from utils import printer as p
 The Dataset class stores information for the entire dataset.
 
 * member varibles:
+    self.plate_name         : user-defined name for the plate
     self.paths_nuclei       : sorted paths to all nuclei tif files
     self.paths_cells        : sorted paths to all cell tif files
     self.paths_aggregates   : sorted paths to all aggregate tif files
@@ -68,6 +69,12 @@ class Dataset:
             self.whole_plate = dictionary["WHOLE_PLATE"]
         else:
             self.whole_plate = False
+
+        # Plate name
+        if self.whole_plate == True:
+            self.plate_name = dictionary["PLATE_NAME"]
+        else:
+            self.plate_name = None
 
         # set segmentation method for cells
         self.cell_segmentation_algorithm = "cellpose"

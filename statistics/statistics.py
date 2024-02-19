@@ -105,14 +105,25 @@ class Statistics:
 
     def _agg_pos_cells_in_well(self, field_PAggPosCells, field_Ncells):
         """
-            Sum over all detected cells in each field inside a well.
-            Sum over all aggregate-positive cells in fields of the well.
-            Return percentage of aggregate positive cells in well.
+            1. Sum over all detected cells in each field inside a well.
+            2. Sum over all aggregate-positive cells in fields of the well.
+            3. Return percentage of aggregate positive cells in well.
         """
         well_Ncells = np.sum(field_Ncells)
         field_NAggPosCells = np.multiply(field_PAggPosCells/100., field_Ncells)
         TotalAggPosCells = np.sum(field_NAggPosCells)
         return TotalAggPosCells / well_Ncells * 100.
+ 
+
+    def _percent_aggregate_area_over_cells_in_well(self, field_PAggregateArea, field_AreaCells):
+        """
+            1. Sum area of aggregates across all field in the well.
+            2. Sum area of cells in well.
+            3. Return percentage of cell area occupied by aggregates.
+        """
+        TotalAggregateArea = np.sum( np.multiply(field_PAggregateArea/100., field_AreaCells) )
+        TotalCellArea = np.sum(field_AreaCells)
+        return TotalAggregateArea / TotalCellArea * 100.
  
 
     def _percent_aggregate_positive_cells_Controls(self):
@@ -233,31 +244,42 @@ class Statistics:
 
 
 
-    def _plate_percent_aggpositive_cells_per_well(self):
+    def _export_plate_quantities_per_well(self):
 
         table_file = "%s/quantities_per_well.txt" % (self.dataset.output_folder_statistics)
         with open(table_file, 'w') as f:
-            f.write("%5s %5s %15s %15s\n" % ("Row", "Column", "Ncells", "%AggPosCells"))
+            f.write("%15s %5s %5s %15s %15s %15s\n" % ("Plate name", "Row", "Column", "Ncells", "%AggPosCells", "%AreaAgg2Cells"))
 
             for column in range(self.plate.Ncolumns):
                 for row in range(self.plate.Nrows):
 
                     global_index = self.plate.get_global_well_number(row, column)
 
+                    # f.write("%15s %15s %15s %15s %15s %15s %16s\n" % ("%Agg.Pos.Cells", "N.Cells", "%Area.Agg.", "AreaCells", "%Ambig.Agg.", "N.Agg.Img(CC)", "Avg.NAgg.perCell"))
                     data = np.asarray(self.plate.wells[global_index])
                     PercAggPosCells = data[:,0] # per field quantities
                     Ncells          = data[:,1] # per field quantities
+                    PercAreaAggre   = data[:,2] # per field quantities
+                    CellArea        = data[:,3] # per field quantities
 
                     # Total percentage of aggregate-positive cells in each well
                     total_aggPosCells = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
                     self.plate.wells_total_agg_pos_cells[global_index] = total_aggPosCells
 
+                    # Total number of cells per well
+                    total_NCells = np.sum(Ncells)
+                    self.plate.wells_Ncells[global_index] = np.sum(Ncells)
+
+                    # Percent of Cell area occupied by aggregates
+                    total_percentAreaAggregates = self._percent_aggregate_area_over_cells_in_well(PercAreaAggre, CellArea)
+                    self.plate.wells_percent_area_aggregates_over_cells[global_index] = total_percentAreaAggregates
+
                     # export to text file
                     row_letter = self.plate.get_row_letter(row)
-                    f.write("%5s %5g %15g %15.2f\n" % ( row_letter, column, np.sum(Ncells), total_aggPosCells ) )
+                    f.write("%15s %5s %5g %15g %15.2f %15.2f\n" % ( self.plate.name, row_letter, (column+1), total_NCells, total_aggPosCells, total_percentAreaAggregates ) )
 
 
-    def _density_map(self, qoi):
+    def _density_map(self, qoi, name):
         table = np.zeros((self.plate.Nrows, self.plate.Ncolumns))
         for column in range(self.plate.Ncolumns):
             for row in range(self.plate.Nrows):
@@ -265,12 +287,21 @@ class Statistics:
                 table[row, column] = qoi[global_index]
 
         # store table as image
-        plt.imshow(table)
+        im = plt.imshow(table)
         axis = plt.gca()
-        axis.get_xaxis().set_visible(False)
-        axis.get_yaxis().set_visible(False)
+        #axis.get_xaxis().set_visible(False)
+        #axis.get_yaxis().set_visible(False)
+        axis.set_xticks(np.linspace(0,23,24))
+        axis.set_yticks(np.linspace(0,15,16))
+        axis.set_xticklabels(np.linspace(1,24,24, dtype=int))
+        axis.set_yticklabels(['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P'])
+        axis.xaxis.tick_top()
+        plt.xticks(fontsize=3)
+        plt.yticks(fontsize=3)
+        cbar = plt.colorbar(im, fraction=0.046, pad=0.04)
+        cbar.ax.tick_params(labelsize=5)
         plt.tight_layout()
-        output_file = "%s/plate_density_map.pdf" % self.dataset.output_folder_statistics
+        output_file = "%s/plate_density_map_%s.pdf" % (self.dataset.output_folder_statistics, name)
         plt.savefig(output_file, transparent=True)
         plt.close()
 
@@ -331,9 +362,19 @@ class Statistics:
 
         if self.whole_plate:
             print("Processing whole plate ...")
+
             # Whole-plate Map for percentage of aggregate-positive cells
             self._load_QoI_plate()
-            self._plate_percent_aggpositive_cells_per_well()
-            self._density_map(self.plate.wells_total_agg_pos_cells)
-            #self._make_volcano_plot(self.plate.wells_total_agg_pos_cells)  # requires two plates
+
+            # Compute quantities per well
+            self._export_plate_quantities_per_well()
+
+            # Generate density maps
+            self._density_map(self.plate.wells_total_agg_pos_cells, "PecrentPositiveCells")
+            self._density_map(self.plate.wells_Ncells, "NumberOfCells")
+
+
+            # Other plots
+            #self._make_volcano_plot(self.plate.wells_total_agg_pos_cells)  # not used because the computation of this requires two plates
+
 

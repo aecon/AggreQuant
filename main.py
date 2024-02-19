@@ -8,24 +8,26 @@ from processing.statistics import statistics
 
 
 """
-HIGH THROUGHPUT SCREEN IMAGE PROCESSING AND QUANTIFICATION
+HIGH CONTENT SCREEN IMAGE PROCESSING AND QUANTIFICATION
 
 Application:
-    This main script coordinates all operations:
+    main.py coordinates all operations:
     - stores information about the dataset (input/output paths).
     - stores information about currently processed data.
-    - launches parallel processing of image-pairs.
+    - gathers statistics for aggregate localization in cells.
+    - generates montage images for screen/segmentation assessment.
 
 Variables:
-    - verbose : whether informative status messages are displayed
-      in the standard output.
+    - verbose : display status messages in the standard output.
+    - debug : display additional messages for debugging.
+
     - output_directory : choice for the name of the output directory.
       The output directory is generated as a sub-directory inside the
       input directory specified in the yml setup file.
       Possible options:
       * "date" : generates a new directory with current date/time.
       * "debug" : generates/overwrites "output_debug" directory.
-      * anything else inside quotes: a user defined name
+      *  anything else inside quotes: a user defined name
 """
 
 
@@ -39,10 +41,7 @@ debug = True
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # APPLICATION
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#dataset = Dataset("apps/setup_20231220_paperHA8.yml", verbose)
-#dataset = Dataset("apps/setup_20240115_ValidationNov2023.yml", verbose)
-#dataset = Dataset("apps/setup_20230909_plate3.yml", verbose)
-dataset = Dataset("apps/setup_20240116_paperHA8_rep2_WholePlate.yml", verbose)
+dataset = Dataset("apps/setup_20240208_HA40_rep1.yml", verbose)
 
 process(dataset, verbose, debug)
 

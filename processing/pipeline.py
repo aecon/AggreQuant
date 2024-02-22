@@ -88,28 +88,3 @@ def process(dataset, _verbose, _debug):
         print("Total Progress:")
         bar.update(1); print("\n")
 
-
-# TODO
-#def process_multi(dataset, _verbose, _debug):
-#    me = "process_multi"
-#    verbose = _verbose
-#    debug = _debug
-#
-#    # TODO: add RAM memory in computation of NUM_CPU_CORES
-#    MAX_CPU_CORES = multiprocessing.cpu_count()
-#    NUM_CPU_CORES = min(dataset.Nfiles, MAX_CPU_CORES)
-#    p.msg("Using %d CPU cores" % NUM_CPU_CORES, me)
-#
-#    # Create pool of worker processes
-#    with multiprocessing.Pool(processes=NUM_CPU_CORES) as pool:
-#
-#        # Process image triplets in parallel
-#        pool.starmap(
-#            _image_triplet,
-#            [(file_n, file_c, file_a, dataset, True, None) for file_n, file_c, file_a in zip(
-#                dataset.paths_nuclei,dataset.paths_cells,dataset.paths_aggregates)]
-#            )
-#
-#        # Close pool of worker processes
-#        pool.close()
-#        pool.join()

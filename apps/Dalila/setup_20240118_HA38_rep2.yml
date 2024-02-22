@@ -8,3 +8,4 @@ dataset:
   TYPE_OF_RUN: "production"
   WHOLE_PLATE: True
   CELL_SEGMENTATION_ALGORITHM: "cellpose"
+  PLATE_NAME: "HA-38 rep.2"

@@ -86,12 +86,25 @@ class Dataset:
         self.input_folder = dictionary["DIRECTORY"]
 
         # set paths to inputs: assumes all tifs located in the same DIRECTORY
-        _paths_nuclei = sorted(glob.glob("%s/*%s*.tif" %
-            (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"])))
-        _paths_cells  = sorted(glob.glob("%s/*%s*.tif" %
-            (dictionary["DIRECTORY"], dictionary["COLOUR_CELLS"])))
-        _paths_aggregates = sorted(glob.glob("%s/*%s*.tif" %
-            (dictionary["DIRECTORY"], dictionary["COLOUR_AGGREGATES"])))
+        if self.whole_plate == True:
+            _paths_nuclei = sorted(glob.glob("%s/*%s*.tif" %
+                (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"])))
+            _paths_cells  = sorted(glob.glob("%s/*%s*.tif" %
+                (dictionary["DIRECTORY"], dictionary["COLOUR_CELLS"])))
+            _paths_aggregates = sorted(glob.glob("%s/*%s*.tif" %
+                (dictionary["DIRECTORY"], dictionary["COLOUR_AGGREGATES"])))
+        else:
+            # Process only control columns
+            print("Processing only control columns")
+            _paths_nuclei05     = glob.glob("%s/*- 05(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"]))
+            _paths_nuclei13     = glob.glob("%s/*- 13(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"]))
+            _paths_cells05      = glob.glob("%s/*- 05(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_CELLS"]))
+            _paths_cells13      = glob.glob("%s/*- 13(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_CELLS"]))
+            _paths_aggregates05 = glob.glob("%s/*- 05(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_AGGREGATES"]))
+            _paths_aggregates13 = glob.glob("%s/*- 13(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_AGGREGATES"]))
+            _paths_nuclei = sorted(_paths_nuclei05 + _paths_nuclei13)
+            _paths_cells  = sorted(_paths_cells05 + _paths_cells13)
+            _paths_aggregates = sorted( _paths_aggregates05 + _paths_aggregates13)
         if verbose:
             p.msg("Nuclei files: %s" % _paths_nuclei, me)
             p.msg("Cell files: %s" % _paths_cells, me)

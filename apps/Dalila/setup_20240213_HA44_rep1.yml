@@ -1,5 +1,5 @@
 dataset:
-  DIRECTORY: "/media/neptun/LocalDisk16TB/Dalila/inCell_transfer_20240210_0747/20230509_Dalila_Elena_GE_InCell/20230509_Dalila_Elena_GE_InCell_Plate_5_1002240145_1"
+  DIRECTORY: "/media/neptun/LocalDisk16TB/Dalila/inCell_transfer_20240210_0747_HA_41_42_44/20230509_Dalila_Elena_GE_InCell/20230509_Dalila_Elena_GE_InCell_Plate_5_1002240145_1"
   COLOUR_NUCLEI: "390 - Blue"
   COLOUR_AGGREGATES: "473 - Green2"
   COLOUR_CELLS: "631 - FarRed"

@@ -27,6 +27,7 @@ The Dataset class stores information for the entire dataset.
     self.output_folder_statistics
     self.type_of_run        : "production" (default) or "validation"
     self.whole_plate        : in a production run, true/false: whether inputs are files from the whole plate or only the control columns
+    self.process_only_controls : whether to process only the cdata corresponding to the control columns, not all files in folder
     self.cell_segmentation_algorithm  : "cellpose" (default) or "distanceIntensity"
 
 * member functions:
@@ -70,6 +71,9 @@ class Dataset:
         else:
             self.whole_plate = False
 
+        # which data to process (all data in the folder or only control column data)
+        self.process_only_controls = dictionary["PROCESS_ONLY_CONTROLS"]
+
         # Plate name
         if self.whole_plate == True:
             self.plate_name = dictionary["PLATE_NAME"]
@@ -86,15 +90,7 @@ class Dataset:
         self.input_folder = dictionary["DIRECTORY"]
 
         # set paths to inputs: assumes all tifs located in the same DIRECTORY
-        if self.whole_plate == True:
-            _paths_nuclei = sorted(glob.glob("%s/*%s*.tif" %
-                (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"])))
-            _paths_cells  = sorted(glob.glob("%s/*%s*.tif" %
-                (dictionary["DIRECTORY"], dictionary["COLOUR_CELLS"])))
-            _paths_aggregates = sorted(glob.glob("%s/*%s*.tif" %
-                (dictionary["DIRECTORY"], dictionary["COLOUR_AGGREGATES"])))
-        else:
-            # Process only control columns
+        if self.process_only_controls == True:
             print("Processing only control columns")
             _paths_nuclei05     = glob.glob("%s/*- 05(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"]))
             _paths_nuclei13     = glob.glob("%s/*- 13(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"]))
@@ -105,6 +101,15 @@ class Dataset:
             _paths_nuclei = sorted(_paths_nuclei05 + _paths_nuclei13)
             _paths_cells  = sorted(_paths_cells05 + _paths_cells13)
             _paths_aggregates = sorted( _paths_aggregates05 + _paths_aggregates13)
+        else:
+            print("Processing all files inside input folder!")
+            _paths_nuclei = sorted(glob.glob("%s/*%s*.tif" %
+                (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"])))
+            _paths_cells  = sorted(glob.glob("%s/*%s*.tif" %
+                (dictionary["DIRECTORY"], dictionary["COLOUR_CELLS"])))
+            _paths_aggregates = sorted(glob.glob("%s/*%s*.tif" %
+                (dictionary["DIRECTORY"], dictionary["COLOUR_AGGREGATES"])))
+
         if verbose:
             p.msg("Nuclei files: %s" % _paths_nuclei, me)
             p.msg("Cell files: %s" % _paths_cells, me)

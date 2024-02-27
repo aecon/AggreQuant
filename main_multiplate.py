@@ -40,17 +40,24 @@ debug = True
 # APPLICATION
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-setup_files = ["apps/Dalila/setup_20240118_HA38_rep1.yml", "apps/Dalila/setup_20240118_HA38_rep2.yml", "apps/Dalila/setup_20240118_HA43_rep1.yml", "apps/Dalila/setup_20240118_HA43_rep2.yml"]
+setup_files = [
+"apps/Dalila/setup_20240227_HA45_rep1.yml",
+"apps/Dalila/setup_20240227_HA45_rep2.yml",
+"apps/Dalila/setup_20240227_HA46_rep1.yml",
+"apps/Dalila/setup_20240227_HA46_rep2.yml",
+"apps/Dalila/setup_20240227_HA47_rep1.yml",
+"apps/Dalila/setup_20240227_HA47_rep2.yml"
+]
 
 for ifile in setup_files:
     if os.path.isfile(ifile):
         print("Processing setup file:", ifile)
-    
+
         dataset = Dataset(ifile, verbose)
-        
+
         process(dataset, verbose, debug)
-        
+
         statistics(dataset, verbose, debug)
-        
+
         montage(dataset, verbose, debug)
 

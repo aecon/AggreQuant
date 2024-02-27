@@ -9,3 +9,4 @@ dataset:
   WHOLE_PLATE: True
   CELL_SEGMENTATION_ALGORITHM: "cellpose"
   PLATE_NAME: "HA-43 rep.2"
+  PROCESS_ONLY_CONTROLS: False

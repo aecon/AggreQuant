@@ -6,7 +6,7 @@ dataset:
   OUTPUT_DIRECTORY: "output_20240227_onlyControlColumns"
   DUMP_QOI_TIFS: False
   TYPE_OF_RUN: "production"
-  WHOLE_PLATE: True
+  WHOLE_PLATE: False
   CELL_SEGMENTATION_ALGORITHM: "cellpose"
   PLATE_NAME: "HA-45 rep.1"
   PROCESS_ONLY_CONTROLS: True

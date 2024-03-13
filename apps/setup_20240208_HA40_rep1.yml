@@ -8,5 +8,5 @@ dataset:
   TYPE_OF_RUN: "production"
   CELL_SEGMENTATION_ALGORITHM: "cellpose"
   DUMP_QOI_TIFS: False
-  WHOLE_PLATE: False
+  WHOLE_PLATE: True
   PROCESS_ONLY_CONTROLS: False

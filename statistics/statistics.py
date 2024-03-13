@@ -251,8 +251,8 @@ class Statistics:
         with open(table_file, 'w') as f:
             f.write("%15s %5s %5s %15s %15s %15s\n" % ("Plate name", "Row", "Column", "Ncells", "%AggPosCells", "%AreaAgg2Cells"))
 
-            for column in range(self.plate.Ncolumns):
-                for row in range(self.plate.Nrows):
+            for row in range(self.plate.Nrows):
+                for column in range(self.plate.Ncolumns):
 
                     global_index = self.plate.get_global_well_number(row, column)
 

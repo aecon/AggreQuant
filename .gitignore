@@ -2,5 +2,3 @@
 *.tif
 *.pdf
 *.png
-_results
-validation_dataset

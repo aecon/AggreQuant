@@ -5,6 +5,8 @@ dataset:
   COLOUR_CELLS: "631 - FarRed"
   OUTPUT_DIRECTORY: "date"
   DUMP_QOI_TIFS: True
-  TYPE_OF_RUN: "validation"
+  TYPE_OF_RUN: "production"
   WHOLE_PLATE: False
-  CELL_SEGMENTATION_ALGORITHM: "distanceIntensity"
+  CELL_SEGMENTATION_ALGORITHM: "cellpose"
+  PLATE_NAME: "test plate"
+  PROCESS_ONLY_CONTROLS: False

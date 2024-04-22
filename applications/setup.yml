@@ -1,12 +1,48 @@
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# SETUP FILE
+# This file contains all user-inputs for the analysis.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# The dataset: A collection of used inputs.
+# Do not change the following line.
 dataset:
+
+  # NOTE: All subsequent lines should be INDENTED (indentation size = two spaces).
+
+  # Path to the folder containing all tif files for a SINGLE plate.
   DIRECTORY: "/media/neptun/LocalDisk16TB/Athena/SOURCE/aSynAgreeCount/tests/data"
+
+  # File identifiers used to find all nuclei, aggregate, and cell files within the DIRECTORY.
   COLOUR_NUCLEI: "390 - Blue"
   COLOUR_AGGREGATES: "473 - Green2"
   COLOUR_CELLS: "631 - FarRed"
+
+  # Name of the directory with the results. It will be created automatically inside the DIRECTORY (defined above). Options:
+  # 1. OUTPUT_DIRECTORY: "date": Name will be "output_date<YEAR><MONTH><DAY>_<TIME>". Useful for testing.
+  # 2. OUTPUT_DIRECTORY: "debug": Name will be "debug".
+  # 3. OUTPUT_DIRECTORY: "XXX": Name can be anything you define inside the quotes, e.g. the plate name/indentifier.
   OUTPUT_DIRECTORY: "date"
-  DUMP_QOI_TIFS: True
-  TYPE_OF_RUN: "production"
-  WHOLE_PLATE: False
-  CELL_SEGMENTATION_ALGORITHM: "cellpose"
+
+  # Name of the plate. Will be used as a column in the statistics file.
   PLATE_NAME: "test plate"
+
+  # Generate (or not) a .tif file coloured with the number of detected aggregates per cell, for each aggregate image. Recommended to set to False. This option is useful to check code correctness.
+  # Options: True/False
+  DUMP_QOI_TIFS: False
+
+  # Used to set montage settings. Options:
+  # 1. "production": Default for whole-plate processing. Generates montage images and statistics for whole plate and control columns.
+  # 2. "validation": Statistics are NOT computed in a validation run.
+  TYPE_OF_RUN: "production"
+
+  # Whether to process a whole plate or not. Missing files will introduce an error.
+  # Options: True/False.
+  WHOLE_PLATE: False
+
+  # Choice for the cell segmentation algorithm.
+  # Options: "cellpose" (default), "distanceIntensity".
+  CELL_SEGMENTATION_ALGORITHM: "cellpose"
+  
+  # Whether to process only the control columns of a plate.
+  # Options: True/False.
   PROCESS_ONLY_CONTROLS: False

@@ -28,8 +28,8 @@ An illustration of the segmentation quality is shown in the figure below where w
 ### Conda environment
 Create and activate a new conda environment
 ```
-conda create --name aSynAgreeCount python=3.9.18
-conda activate aSynAgreeCount
+conda create --name aSynAggreCount python=3.9.18
+conda activate aSynAggreCount
 ```
 
 ### Tensorflow

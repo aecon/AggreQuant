@@ -35,12 +35,10 @@ The Dataset class stores information for the entire dataset.
 """
 
 class Dataset:
-    def __init__(self, ymlfile, verbose=False):
+    def __init__(self, ymlfile):
 
         me = "Dataset __init__"
-
-        if verbose:
-            p.msg("Instantiating Dataset", me)
+        p.msg("Instantiating Dataset", me)
 
         if not os.path.isfile(ymlfile):
             p.err("File %s does not exist." % ymlfile, me)
@@ -56,8 +54,7 @@ class Dataset:
         # parse dictionary
         dataset_name = list(yml.keys())[0]
         dictionary = yml[dataset_name] 
-        if verbose:
-            p.msg("Dictionary contents: %s" % dictionary, me)
+        p.msg("Dictionary contents: %s" % dictionary, me)
 
         # set type of run ("validation" or "production")
         self.type_of_run = dictionary["TYPE_OF_RUN"]
@@ -88,10 +85,16 @@ class Dataset:
 
         # set input folder
         self.input_folder = dictionary["DIRECTORY"]
+        if not os.path.exists(self.input_folder):
+            p.err("Input directory does not exist.", me)
+            sys.exit()
+        else:
+            p.msg("Using input directory: %s" % self.input_folder, me)
+
 
         # set paths to inputs: assumes all tifs located in the same DIRECTORY
         if self.process_only_controls == True:
-            print("Processing only control columns")
+            p.msg("Processing only control columns", me)
             _paths_nuclei05     = glob.glob("%s/*- 05(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"]))
             _paths_nuclei13     = glob.glob("%s/*- 13(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"]))
             _paths_cells05      = glob.glob("%s/*- 05(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_CELLS"]))
@@ -102,7 +105,7 @@ class Dataset:
             _paths_cells  = sorted(_paths_cells05 + _paths_cells13)
             _paths_aggregates = sorted( _paths_aggregates05 + _paths_aggregates13)
         else:
-            print("Processing all files inside input folder!")
+            p.msg("Processing all files inside input folder!", me)
             _paths_nuclei = sorted(glob.glob("%s/*%s*.tif" %
                 (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"])))
             _paths_cells  = sorted(glob.glob("%s/*%s*.tif" %
@@ -110,18 +113,16 @@ class Dataset:
             _paths_aggregates = sorted(glob.glob("%s/*%s*.tif" %
                 (dictionary["DIRECTORY"], dictionary["COLOUR_AGGREGATES"])))
 
-        if verbose:
-            p.msg("Nuclei files: %s" % _paths_nuclei, me)
-            p.msg("Cell files: %s" % _paths_cells, me)
-            p.msg("Aggregate files: %s" % _paths_aggregates, me)
+        p.msg("Nuclei files: %s" % _paths_nuclei, me)
+        p.msg("Cell files: %s" % _paths_cells, me)
+        p.msg("Aggregate files: %s" % _paths_aggregates, me)
 
         # set Dataset's input paths
         self.paths_nuclei     = _paths_nuclei
         self.paths_cells      = _paths_cells
         self.paths_aggregates = _paths_aggregates
         self.Nfiles           = len(_paths_nuclei)
-        if verbose:
-            p.msg("Number of files: %d" % self.Nfiles, me)
+        p.msg("Number of image-triplet sets: %d" % self.Nfiles, me)
 
         # set Dataset's input directory
         input_directory = dictionary["DIRECTORY"]
@@ -134,8 +135,7 @@ class Dataset:
             outdir_basename = "output_debug"
         else:
             outdir_basename = dictionary["OUTPUT_DIRECTORY"]
-        if verbose:
-            p.msg("Output directory basename: %s" % outdir_basename, me)
+        p.msg("Output directory basename: %s" % outdir_basename, me)
 
         # set output paths
         self.output_folder_main = "%s/%s" % (

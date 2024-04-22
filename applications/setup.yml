@@ -10,7 +10,7 @@ dataset:
   # NOTE: All subsequent lines should be INDENTED (indentation size = two spaces).
 
   # Path to the folder containing all tif files for a SINGLE plate.
-  DIRECTORY: "/media/neptun/LocalDisk16TB/Athena/SOURCE/aSynAgreeCount/tests/data"
+  DIRECTORY: "tests/data"
 
   # File identifiers used to find all nuclei, aggregate, and cell files within the DIRECTORY.
   COLOUR_NUCLEI: "390 - Blue"

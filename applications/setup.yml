@@ -15,7 +15,7 @@ dataset:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   # Path to the folder containing all tif files for a SINGLE plate.
-  DIRECTORY: "/Users/athena/Documents/FILES/4_LAB_UZH_Aguzzi/0_RESEARCH/Elena_Dalila/sandbox/plate4_HA_8_rep2"
+  DIRECTORY: "tests/data"
 
   # File identifiers used to find all nuclei, aggregate, and cell files within the DIRECTORY.
   COLOUR_NUCLEI: "390 - Blue"
@@ -26,10 +26,10 @@ dataset:
   # 1. OUTPUT_DIRECTORY: "date": Name will be "output_date<YEAR><MONTH><DAY>_<TIME>". Useful for testing.
   # 2. OUTPUT_DIRECTORY: "debug": Name will be "debug".
   # 3. OUTPUT_DIRECTORY: "XXX": Name can be anything you define inside the quotes, e.g. the plate name/indentifier.
-  OUTPUT_DIRECTORY: "output_validation"
+  OUTPUT_DIRECTORY: "date"
 
   # Name of the plate. Will be used as a column in the statistics file.
-  PLATE_NAME: "HA8_rep2"
+  PLATE_NAME: "my plate"
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -43,7 +43,7 @@ dataset:
   # Used to set montage settings. Options:
   # 1. "production": Default for whole-plate processing. Generates montage images and statistics for whole plate and control columns.
   # 2. "validation": Statistics are NOT computed in a validation run.
-  TYPE_OF_RUN: "production"
+  TYPE_OF_RUN: "validation"
 
   # Whether to process a whole plate or not. Missing files will introduce an error.
   # Options: True/False.

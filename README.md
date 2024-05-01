@@ -34,7 +34,7 @@ conda activate aSynAggreCount
 
 ### Tensorflow
 * [Installation instructions](https://www.tensorflow.org/install/pip)
-* Summary:
+* Summary (for Linux):
 ```
 # For GPU users:
 pip install --extra-index-url https://pypi.nvidia.com tensorrt-bindings==8.6.1 tensorrt-libs==8.6.1
@@ -62,8 +62,10 @@ pip install cellpose[gui]
 The following packages are required to run the code: `scikit-image matplotlib click pytest pyyaml pandas plotly kaleido`.  
 They can be installed as follows:
 ```
-pip install -r requirements.txt
+pip install -r requirements_XXX.txt
 ```
+where `XXX` is the file suffix corresponding to your OS: `requirements_Ubuntu22.04.txt` or `requirements_MaxOSX.txt`.
+
 <!---
 I installed:
     pip install scikit-image matplotlib click pytest pyyaml pandas plotly kaleido

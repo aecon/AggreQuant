@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import scipy.stats as stat
 import pandas as pd
 
+from utils import printer as p
 from utils.dataset import Dataset
 from statistics.plate import Plate
 
@@ -13,21 +14,29 @@ from statistics.plate import Plate
 
 class Statistics:
 
-    def __init__(self, dataset, plate_name, verbose=False, debug=False):
+    def __init__(self, dataset, verbose=False, debug=False):
+
+        me = "Statistics __init__"
+
         self.verbose = verbose
         self.debug = debug
 
         self.dataset = dataset
-        self.plate = Plate(plate_name)
+        self.plate = Plate(dataset.plate_name, dataset.number_plate_columns, dataset.number_plate_rows, dataset.number_fields_per_well, dataset.control_types, dataset.control_wells)
+        p.msg("Plate name: %s " % dataset.plate_name, me)
 
         self.whole_plate = dataset.whole_plate
 
 
     def _load_QoI_Controls(self):
-        for ControlColumn in self.plate.ControlColumns:
-            for row in range(self.plate.Nrows):
 
-                row_letter = self.plate.get_row_letter(row)
+        # Loop over control wells
+        for i in range(self.plate.Nctypes):
+            for w in self.plate.control_wells[i]:
+
+                ControlColumn = "%02d" % int(w.split("-")[0])
+                row_letter = w.split("-")[1]
+                row = self.plate.get_row_number(row_letter)
 
                 list_of_files = self.dataset.paths_aggregates
 
@@ -40,7 +49,7 @@ class Statistics:
                 files_all_fields_per_well = [x for x in sublistR if pattern in x]
                 assert(len(files_all_fields_per_well)<=self.plate.Nfields)
                 if self.verbose:
-                    print("Row/Column %s,%s: %d files:" % (row_letter, ControlColumn, len(files_all_fields_per_well)))
+                    print("Row/Column %s,%s: found %d files:" % (row_letter, ControlColumn, len(files_all_fields_per_well)))
                     print(files_all_fields_per_well, "\n")
 
                 # initialize Well
@@ -49,12 +58,13 @@ class Statistics:
                 self.plate.wells[global_index] = [None] * self.plate.Nfields
 
                 # fill in QoI for all fields in Well
+                # loop over all QoI files, for all fields in the well
                 for field, file_a in enumerate(files_all_fields_per_well):
                     # load QoI results
                     results_dict = self.dataset.get_output_file_names(file_a, "QoI")
                     data = np.loadtxt(results_dict["QoI"], skiprows=1)
 
-                    # store QoI to respective well
+                    # store all QoIs to respective field of the well
                     self.plate.wells[global_index][field] = data
 
 
@@ -67,7 +77,7 @@ class Statistics:
 
                 list_of_files = self.dataset.paths_aggregates
 
-                # patter matching to find correct aggregate filename..
+                # pattern matching to find correct aggregate filename..
                 # - match row
                 pattern = "%s - " % row_letter
                 sublistR = [x for x in list_of_files if pattern in x]
@@ -75,9 +85,9 @@ class Statistics:
                 pattern = "- %s" % col_letter
                 files_all_fields_per_well = [x for x in sublistR if pattern in x]
                 assert(len(files_all_fields_per_well)<=self.plate.Nfields)
-                #if self.verbose:
-                #    print("Row/Column %s,%s: %d files:" % (row, column, len(files_all_fields_per_well)))
-                #    print(files_all_fields_per_well, "\n")
+                if self.verbose:
+                    print("zRow/Column %s,%s: %d files:" % (row, column, len(files_all_fields_per_well)))
+                    print(files_all_fields_per_well, "\n")
 
                 # initialize Well
                 global_index = self.plate.get_global_well_number(row, column)
@@ -88,8 +98,8 @@ class Statistics:
                 # fill in QoI for all fields in Well
                 if len(files_all_fields_per_well)>=1:
 
-                    #if self.verbose:
-                    #    print("Well %d %d has %d files!" % (row, column, len(files_all_fields_per_well)))
+                    if self.verbose:
+                        print("Well %d %d has %d files!" % (row, column, len(files_all_fields_per_well)))
 
                     for field, file_a in enumerate(files_all_fields_per_well):
                         # load QoI results
@@ -128,120 +138,97 @@ class Statistics:
 
     def _percent_aggregate_positive_cells_Controls(self):
 
-        group_5Up  = np.zeros(self.plate.NumberOfControlRows)
-        group_5Dn  = np.zeros(self.plate.NumberOfControlRows)
-        group_13Up = np.zeros(self.plate.NumberOfControlRows)
-        group_13Dn = np.zeros(self.plate.NumberOfControlRows)
+        control_fields = [None] * self.plate.Nctypes
 
-        for i in range(self.plate.NumberOfControlRows):
-            # Control Column 05:
-            global_index = self.plate.get_global_well_number(i, 4)
-            data = np.asarray(self.plate.wells[global_index])
-            PercAggPosCells = data[:,0] # per field quantities
-            Ncells          = data[:,1] # per field quantities
-            group_5Up[i] = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
+        # Loop over control types and gather QoI from all fields per type
+        for i in range(self.plate.Nctypes):
+            control_fields[i] = np.zeros( len(self.plate.control_wells[i]) )
 
-            global_index = self.plate.get_global_well_number(i+self.plate.NumberOfControlRows, 4)
-            data = np.asarray(self.plate.wells[global_index])
-            PercAggPosCells = data[:,0] # per field quantities
-            Ncells          = data[:,1] # per field quantities
-            group_5Dn[i] = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
+            for j, w in enumerate(self.plate.control_wells[i]):
 
-            # Control Column 13:
-            global_index = self.plate.get_global_well_number(i, 12)
-            data = np.asarray(self.plate.wells[global_index])
-            PercAggPosCells = data[:,0] # per field quantities
-            Ncells          = data[:,1] # per field quantities
-            group_13Up[i] = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
+                # get column and row indices
+                column = int(w.split("-")[0]) - 1           # index - starting from 0
+                row_letter = w.split("-")[1]
+                row = self.plate.get_row_number(row_letter) # index - starting from 0
+                assert(column>=0 and row>=0)
+                assert(column<self.plate.Ncolumns and row<self.plate.Nrows)
 
-            global_index = self.plate.get_global_well_number(i+self.plate.NumberOfControlRows, 12)
-            data = np.asarray(self.plate.wells[global_index])
-            PercAggPosCells = data[:,0] # per field quantities
-            Ncells          = data[:,1] # per field quantities
-            group_13Dn[i] = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
+                global_index = self.plate.get_global_well_number(row, column)
+                assert(global_index>=0 and global_index<self.plate.Nwells)
+
+                data = np.asarray(self.plate.wells[global_index])
+                PercAggPosCells = data[:,0] # per field quantities
+                Ncells          = data[:,1] # per field quantities
+                control_fields[i][j] = self._agg_pos_cells_in_well(PercAggPosCells, Ncells)
 
 
-        # Figure 1: percent of average positive cells
-        #plt.scatter(1*np.ones(self.plate.NumberOfControlRows), group_5Up, label="NT_1")
-        #plt.scatter(2*np.ones(self.plate.NumberOfControlRows), group_5Dn, label="Rab13_1")
-        #plt.scatter(3*np.ones(self.plate.NumberOfControlRows), group_13Dn, label="NT_2")
-        #plt.scatter(4*np.ones(self.plate.NumberOfControlRows), group_13Up, label="Rab13_2")
-        #plt.ylim([0,80])
-        #plt.legend()
-        #plt.savefig("%s/Statistics_Plate_%s.png" % (self.dataset.output_folder_statistics, self.plate.name))
-        #plt.close()
+        # Figure: percent of average positive cells
 
         plt.rcParams["figure.figsize"] = (7/2.54, 8/2.54)   # in inches. Divide by 2.54 for cm
 
         scatter_width = 0.4
-        plt.scatter(1-0.5*scatter_width + scatter_width*np.random.rand(len(group_5Up )), group_5Up , facecolors='none', edgecolors='gray')
-        plt.scatter(2-0.5*scatter_width + scatter_width*np.random.rand(len(group_5Dn )), group_5Dn , facecolors='none', edgecolors='gray')
-        plt.scatter(3-0.5*scatter_width + scatter_width*np.random.rand(len(group_13Dn)), group_13Dn, facecolors='none', edgecolors='gray')
-        plt.scatter(4-0.5*scatter_width + scatter_width*np.random.rand(len(group_13Up)), group_13Up, facecolors='none', edgecolors='gray')
-        # errorbars
-        plt.errorbar(1, np.nanmean(group_5Up ), yerr=np.nanstd(group_5Up ), ecolor='k', elinewidth=2, capthick=2, capsize=4)
-        plt.errorbar(2, np.nanmean(group_5Dn ), yerr=np.nanstd(group_5Dn ), ecolor='k', elinewidth=2, capthick=2, capsize=4)
-        plt.errorbar(3, np.nanmean(group_13Dn), yerr=np.nanstd(group_13Dn), ecolor='k', elinewidth=2, capthick=2, capsize=4)
-        plt.errorbar(4, np.nanmean(group_13Up), yerr=np.nanstd(group_13Up), ecolor='k', elinewidth=2, capthick=2, capsize=4)
-        # means
-        plt.scatter(np.linspace(1,4,4), [np.nanmean(group_5Up), np.nanmean(group_5Dn), np.nanmean(group_13Dn), np.nanmean(group_13Up)], marker='s', facecolors='k', edgecolors='k' )
+        Nplot_columns = self.plate.Nctypes
+        for i in range(Nplot_columns):
+            xloc = i+1
+            # all points
+            plt.scatter(xloc-0.5*scatter_width + scatter_width*np.random.rand(len(control_fields[i])), control_fields[i], facecolors='none', edgecolors='gray')
+            # standard deviation
+            plt.errorbar(xloc, np.nanmean(control_fields[i]), yerr=np.nanstd(control_fields[i]), ecolor='k', elinewidth=2, capthick=2, capsize=4)
+            # means
+            plt.scatter(xloc, np.nanmean(control_fields[i]), marker='s', facecolors='k', edgecolors='k' )
+
         # axis
         axis = plt.gca()
-        axis.set_xticks( np.linspace(1, 4, 4 ) )
-        axis.set_xticklabels( ["NT_1", "Rab13_1", "NT_2", "Rab13_2"] , fontsize=8)
+        axis.set_xticks( np.linspace(1, Nplot_columns, Nplot_columns ) )
+        axis.set_xticklabels( self.plate.control_types , fontsize=8)
         axis.set_ylabel("% positive cells", fontsize=14)
-        Ymax = int(np.max([group_5Up, group_5Dn, group_13Dn, group_13Up])+0.5)
+        Ymax = int(np.max(control_fields)+0.5)
         Ymax = round(Ymax, -1)
         plt.ylim([0,Ymax])
         axis.set_yticks( np.linspace(0, Ymax, int(Ymax/10)+1 ) )
+
         # SSMD annotations
-        mc1 = np.nanmean(group_5Up )
-        mr1 = np.nanmean(group_5Dn )
-        mc2 = np.nanmean(group_13Dn)
-        mr2 = np.nanmean(group_13Up)
-        sc1 = np.nanstd(group_5Up )
-        sr1 = np.nanstd(group_5Dn )
-        sc2 = np.nanstd(group_13Dn)
-        sr2 = np.nanstd(group_13Up)
-        SSMD1 = (mc1-mr1)/(math.sqrt(sc1*sc1 + sr1*sr1))
-        SSMD2 = (mc2-mr2)/(math.sqrt(sc2*sc2 + sr2*sr2))
-        axis.text(0.5, -18/80*Ymax, ("SSMD=%.2f" % SSMD1), color='black')
-        axis.text(2.5, -18/80*Ymax, ("SSMD=%.2f" % SSMD2), color='black')
+        if self.plate.Nctypes == 2:
+            m = np.zeros(Nplot_columns)
+            s = np.zeros(Nplot_columns)
+            for i in range(Nplot_columns):
+                m[i] = np.nanmean(control_fields[i])
+                s[i] = np.nanstd( control_fields[i])
+            SSMD = (m[0]-m[1])/(math.sqrt(s[0]*s[0] + s[1]*s[1]))
+            axis.text(1, -18/80*Ymax, ("SSMD=%.2f" % SSMD), color='black')
+        else:
+            print("No SSMD annotations because the number of control types is != 2."
+)
         # axis spines and layout
         axis.spines['top'].set_visible(False)
         axis.spines['right'].set_visible(False)
         plt.tight_layout()
+
         # save
         plt.savefig("%s/control_replicates.pdf" % (self.dataset.output_folder_statistics))
         plt.close()
 
-
-        ## Figure 2: CENTERED percent of average positive cells
-        #plt.scatter(1*np.ones(self.plate.NumberOfControlRows), group_5Up -np.mean(group_5Up), label="NT_1")
-        #plt.scatter(2*np.ones(self.plate.NumberOfControlRows), group_5Dn -np.mean(group_5Up), label="Rab13_1")
-        #plt.scatter(3*np.ones(self.plate.NumberOfControlRows), group_13Dn-np.mean(group_13Dn), label="NT_2")
-        #plt.scatter(4*np.ones(self.plate.NumberOfControlRows), group_13Up-np.mean(group_13Dn), label="Rab13_2")
-        #plt.ylim([-60,60])
-        #plt.legend()
-        #plt.savefig("%s/Statistics_Plate_Centered_NT%s.png" % (self.dataset.output_folder_statistics, self.plate.name))
-        #plt.close()
-
-
         """
-        Export a text file with a specific QoI for all 4 Control wells in plate
+        Export a text file with a specific QoI for all Control wells in plate
         - structure:
             QoI: percentage of aggregate positive cells
-            NT_1    Rab13_1     NT_2    Rab13_2
-            x
-            x
+            Well    NT    Well  Rab13
+            A-01    x     A-01  y
+            B-01    x     B-01  y
             ... for as many fields
-
         """
+
         table_file = "%s/control_PercentAggregatePosCells.txt" % (self.dataset.output_folder_statistics)
         with open(table_file, 'w') as f:
-            f.write("%15s %15s %15s %15s\n" % ("NT_1", "Rab13_1", "NT_2", "Rab13_2"))
-            for i in range(self.plate.NumberOfControlRows):
-                f.write("%15g %15g %15g %15g\n" % (group_5Up[i], group_5Dn[i], group_13Dn[i], group_13Up[i]) )
+            for i in range(self.plate.Nctypes):
+                f.write("%15s " % "Well")
+                f.write("%15s " % self.plate.control_types[i])
+            f.write("\n")
+            for i in range(len(self.plate.control_wells[0])):   # assumes the same number of control wells per control type
+                for j in range(self.plate.Nctypes):
+                    f.write("%15s " % self.plate.control_wells[j][i] )
+                    f.write("%15g " % control_fields[j][i] )
+                f.write("\n")
 
 
 
@@ -307,49 +294,6 @@ class Statistics:
         plt.close()
 
 
-    def _make_volcano_plot(self, qoi):
-        controls_wells = []
-        for ControlColumn in self.plate.ControlColumns:
-            for row in range(self.plate.Nrows):
-                if (ControlColumn=="05" and row<8) or (ControlColumn=="13" and row>7):
-                    column = int(ControlColumn) - 1 # numbering starts with 0!
-                    global_index = self.plate.get_global_well_number(row, column)
-                    controls_wells.append(qoi[global_index])
-
-        # the following analysis is based on:
-        # https://thecodingbiologist.com/posts/Making-volcano-plots-in-python-in-Google-Colab
-
-        # Compute mean of control column
-        avg_controls = np.mean(controls_wells)
-
-        # Conmpute log2-fold-changes wrt control
-        log2FC = list(np.log2(np.divide(qoi, avg_controls)))
-
-        # Compute p-values
-        pvalues = []
-        for column in range(self.plate.Ncolumns):
-            for row in range(self.plate.Nrows):
-                global_index = self.plate.get_global_well_number(row, column)
-                ttest_result = stat.ttest_ind(qoi[global_index], controls_wells)
-                pvalue = ttest_result[1]
-                pvalues.append(pvalue)
-
-        # Bonferroni correction
-        Ntests = self.plate.Nwells
-        transformed_pvalues = list(-1*np.log10(Ntests*np.array(pvalues)))
-
-        ## Generate pandas dataframe
-        #df_data = np.zeros((len(qoi),3))
-        #df_data[:,0] = qoi[:]
-        #df_data[:,1] = log2FC[:]
-        #df_data[:,2] = transformed_pvalues[:]
-        #headers = ["QoI", "log2FC", "p-values"]
-        #df = pd.DataFrame(data=df_data, columns=headers)
-
-        # Make volcano plot
-        plt.scatter(log2FC, transformed_pvalues)
-        plt.savefig("%s/volcano_pyplottest.pdf" % self.dataset.output_folder_statistics)
-        plt.close()
 
 
     def generate_statistics(self):
@@ -358,6 +302,7 @@ class Statistics:
         print("Processing Control Columns ...")
         # Load QoI files for the plate
         self._load_QoI_Controls()
+
         # QoI 1: Percentage of Aggregate-Positive Cells
         self._percent_aggregate_positive_cells_Controls()
 
@@ -367,15 +312,10 @@ class Statistics:
             # Whole-plate Map for percentage of aggregate-positive cells
             self._load_QoI_plate()
 
-            # Compute quantities per well
-            self._export_plate_quantities_per_well()
-
-            # Generate density maps
-            self._density_map(self.plate.wells_total_agg_pos_cells, "PecrentPositiveCells")
-            self._density_map(self.plate.wells_Ncells, "NumberOfCells")
-
-
-            # Other plots
-            #self._make_volcano_plot(self.plate.wells_total_agg_pos_cells)  # not used because the computation of this requires two plates
-
-
+#            # Compute quantities per well
+#            self._export_plate_quantities_per_well()
+#
+#            # Generate density maps
+#            self._density_map(self.plate.wells_total_agg_pos_cells, "PecrentPositiveCells")
+#            self._density_map(self.plate.wells_Ncells, "NumberOfCells")
+#

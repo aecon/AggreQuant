@@ -14,11 +14,7 @@ me = "statistics.py"
 def statistics(dataset, verbose, debug):
 
     if dataset.type_of_run == "production":
-        platename = dataset.plate_name
-        if verbose:
-            print("Plate name:", platename)
-
-        statistics = Statistics(dataset, platename, verbose, debug)
+        statistics = Statistics(dataset, verbose, debug)
         statistics.generate_statistics()
 
     else:

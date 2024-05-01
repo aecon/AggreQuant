@@ -6,17 +6,18 @@ from datetime import datetime
 from utils import yaml_reader
 from utils import printer as p
 
+debug = False
 
 """
 The Dataset class stores information for the entire dataset.
 
 * member varibles:
+    #
+    # Path options
     self.plate_name         : user-defined name for the plate
     self.paths_nuclei       : sorted paths to all nuclei tif files
     self.paths_cells        : sorted paths to all cell tif files
     self.paths_aggregates   : sorted paths to all aggregate tif files
-    self.Nfiles             : number of tif files per structure
-    self.dump_QoI_tifs      : true/false: whether to generate QOI tif files
     self.output_folder_main
     self.output_folder_nuclei
     self.output_folder_cells
@@ -25,20 +26,29 @@ The Dataset class stores information for the entire dataset.
     self.output_folder_QoI_tifs
     self.output_folder_diagnostics
     self.output_folder_statistics
+    #
+    # Data processing options
+    self.Nfiles             : number of tif files per object (cells, nuclei, aggregates)
+    self.dump_QoI_tifs      : true/false: whether to generate QOI tif files
     self.type_of_run        : "production" (default) or "validation"
     self.whole_plate        : in a production run, true/false: whether inputs are files from the whole plate or only the control columns
     self.process_only_controls : whether to process only the cdata corresponding to the control columns, not all files in folder
     self.cell_segmentation_algorithm  : "cellpose" (default) or "distanceIntensity"
+    #
+    # Control wells options
+    self.number_control_types: number of the different contols used in the plate. E.g. for (NT, Rab13): 2
+    self.control_types      : a list names of the control types, E.g. ["NT", "Rab13"]
+    self.control_wells      : list (list of wells corresponding to each control type)
 
 * member functions:
     self.make_output_directories : creates output directories
+    self.get_output_file_names   : returns dictionary of output file names
 """
 
 class Dataset:
     def __init__(self, ymlfile):
 
         me = "Dataset __init__"
-        p.msg("Instantiating Dataset", me)
 
         if not os.path.isfile(ymlfile):
             p.err("File %s does not exist." % ymlfile, me)
@@ -54,7 +64,7 @@ class Dataset:
         # parse dictionary
         dataset_name = list(yml.keys())[0]
         dictionary = yml[dataset_name] 
-        p.msg("Dictionary contents: %s" % dictionary, me)
+        p.msg("Setup dictionary contents: %s" % dictionary, me)
 
         # set type of run ("validation" or "production")
         self.type_of_run = dictionary["TYPE_OF_RUN"]
@@ -91,19 +101,55 @@ class Dataset:
         else:
             p.msg("Using input directory: %s" % self.input_folder, me)
 
+        # set control well options
+        self.number_control_types = int(dictionary["NUMBER_OF_CONTROL_TYPES"])
+        self.control_types = dictionary["CONTROL_TYPES"]
+        p.msg("Number of control types: %d" % self.number_control_types, me)
+        p.msg("Control types: " + ', '.join(self.control_types), me)
+
+        p.msg("Control wells:", me)
+        self.control_wells = []
+        # populate self.control_wells
+        for i in range(self.number_control_types):
+            CONTROL_WELLS_TYPE_X = "CONTROL_WELLS_TYPE_%d" % (i+1)
+            self.control_wells.append(dictionary[CONTROL_WELLS_TYPE_X])
+            p.msg("  > " + self.control_types[i] + ": " + ', '.join(self.control_wells[i]), me)
 
         # set paths to inputs: assumes all tifs located in the same DIRECTORY
         if self.process_only_controls == True:
             p.msg("Processing only control columns", me)
-            _paths_nuclei05     = glob.glob("%s/*- 05(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"]))
-            _paths_nuclei13     = glob.glob("%s/*- 13(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_NUCLEI"]))
-            _paths_cells05      = glob.glob("%s/*- 05(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_CELLS"]))
-            _paths_cells13      = glob.glob("%s/*- 13(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_CELLS"]))
-            _paths_aggregates05 = glob.glob("%s/*- 05(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_AGGREGATES"]))
-            _paths_aggregates13 = glob.glob("%s/*- 13(**%s*.tif" % (dictionary["DIRECTORY"], dictionary["COLOUR_AGGREGATES"]))
-            _paths_nuclei = sorted(_paths_nuclei05 + _paths_nuclei13)
-            _paths_cells  = sorted(_paths_cells05 + _paths_cells13)
-            _paths_aggregates = sorted( _paths_aggregates05 + _paths_aggregates13)
+
+            # Paths to all images from control wells
+            _paths_nuclei = []
+            _paths_cells = []
+            _paths_aggregates = []
+
+            for i in range(self.number_control_types):
+                for w in self.control_wells[i]:
+
+                    id_col = "%02d" % int(w.split("-")[0])
+                    id_row = w.split("-")[1]
+
+                    _files_nuclei     = glob.glob("%s/*%s - %s(*%s*.tif" % (dictionary["DIRECTORY"], id_row, id_col, dictionary["COLOUR_NUCLEI"]))
+                    _files_cells      = glob.glob("%s/*%s - %s(*%s*.tif" % (dictionary["DIRECTORY"], id_row, id_col, dictionary["COLOUR_CELLS"]))
+                    _files_aggregates = glob.glob("%s/*%s - %s(*%s*.tif" % (dictionary["DIRECTORY"], id_row, id_col, dictionary["COLOUR_AGGREGATES"]))
+
+                    assert(len(_files_nuclei) == len(_files_cells))
+                    assert(len(_files_nuclei) == len(_files_aggregates))
+
+                    if len(_files_nuclei) >= 1:
+                        _paths_nuclei.append(_files_nuclei)
+                    if len(_files_cells) >= 1:
+                        _paths_cells.append(_files_cells)
+                    if len(_files_aggregates) >= 1:
+                        _paths_aggregates.append(_files_aggregates)
+
+                    p.msg("  > Found [%d] files for well: %s-%s" % (len(_files_nuclei), id_row, id_col), me)
+
+            _paths_nuclei       = sorted(_paths_nuclei)
+            _paths_cells        = sorted(_paths_cells)
+            _paths_aggregates   = sorted(_paths_aggregates)
+
         else:
             p.msg("Processing all files inside input folder!", me)
             _paths_nuclei = sorted(glob.glob("%s/*%s*.tif" %
@@ -113,15 +159,18 @@ class Dataset:
             _paths_aggregates = sorted(glob.glob("%s/*%s*.tif" %
                 (dictionary["DIRECTORY"], dictionary["COLOUR_AGGREGATES"])))
 
-        p.msg("Nuclei files: %s" % _paths_nuclei, me)
-        p.msg("Cell files: %s" % _paths_cells, me)
-        p.msg("Aggregate files: %s" % _paths_aggregates, me)
+        if debug == True:
+            p.msg("Nuclei files: %s" % _paths_nuclei, me)
+            p.msg("Cell files: %s" % _paths_cells, me)
+            p.msg("Aggregate files: %s" % _paths_aggregates, me)
 
         # set Dataset's input paths
         self.paths_nuclei     = _paths_nuclei
         self.paths_cells      = _paths_cells
         self.paths_aggregates = _paths_aggregates
         self.Nfiles           = len(_paths_nuclei)
+        assert(len(_paths_nuclei) == len(_paths_cells))
+        assert(len(_paths_nuclei) == len(_paths_aggregates))
         p.msg("Number of image-triplet sets: %d" % self.Nfiles, me)
 
         # set Dataset's input directory

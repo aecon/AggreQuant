@@ -4,10 +4,15 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # The dataset: A collection of user inputs.
-# Do not change the following line.
+# Do NOT change the following line.
 dataset:
 
   # NOTE: All subsequent lines should be INDENTED (indentation size = two spaces).
+
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Path options
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   # Path to the folder containing all tif files for a SINGLE plate.
   DIRECTORY: "tests/data"
@@ -25,6 +30,11 @@ dataset:
 
   # Name of the plate. Will be used as a column in the statistics file.
   PLATE_NAME: "test plate"
+
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Data processing options
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   # Generate (or not) a .tif file coloured with the number of detected aggregates per cell, for each aggregate image. Recommended to set to False. This option is useful to check code correctness.
   # Options: True/False
@@ -46,3 +56,22 @@ dataset:
   # Whether to process only the control columns of a plate.
   # Options: True/False.
   PROCESS_ONLY_CONTROLS: False
+
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Control wells options
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  # Number of different control column types
+  NUMBER_OF_CONTROL_TYPES: 2
+
+  # Control type names. 1st name corresponds to control type 1, 2nd name to control type 2, etc.
+  CONTROL_TYPES: ["NT", "Rab13"]
+
+  # Control wells
+  # For each control type, list the "COLUMN-ROW" that correspond to each of the control wells.
+  # Add more variables for more control types, following the same nomenclature.
+  # Other nomenclatures will not be recognized.
+  CONTROL_WELLS_TYPE_1: ["5-A", "5-B", "5-C", "5-D", "5-E", "5-F", "5-G", "5-H", "13-I", "13-J", "13-K", "13-L", "13-M", "13-N", "13-O", "13-P"]
+  CONTROL_WELLS_TYPE_2: ["5-I", "5-J", "5-K", "5-L", "5-M", "5-N", "5-O", "5-P", "13-A", "13-B", "13-C", "13-D", "13-E", "13-F", "13-G", "13-H"]
+

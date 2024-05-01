@@ -85,9 +85,9 @@ class Statistics:
                 pattern = "- %s" % col_letter
                 files_all_fields_per_well = [x for x in sublistR if pattern in x]
                 assert(len(files_all_fields_per_well)<=self.plate.Nfields)
-                if self.verbose:
-                    print("zRow/Column %s,%s: %d files:" % (row, column, len(files_all_fields_per_well)))
-                    print(files_all_fields_per_well, "\n")
+                #if self.verbose:
+                #    print("Row/Column %s,%s: %d files:" % (row, column, len(files_all_fields_per_well)))
+                #    print(files_all_fields_per_well, "\n")
 
                 # initialize Well
                 global_index = self.plate.get_global_well_number(row, column)
@@ -279,10 +279,10 @@ class Statistics:
         axis = plt.gca()
         #axis.get_xaxis().set_visible(False)
         #axis.get_yaxis().set_visible(False)
-        axis.set_xticks(np.linspace(0,23,24))
-        axis.set_yticks(np.linspace(0,15,16))
-        axis.set_xticklabels(np.linspace(1,24,24, dtype=int))
-        axis.set_yticklabels(['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P'])
+        axis.set_xticks(np.linspace(0, self.plate.Ncolumns-1, self.plate.Ncolumns))
+        axis.set_yticks(np.linspace(0, self.plate.Nrows-1, self.plate.Nrows))
+        axis.set_xticklabels(np.linspace(1, self.plate.Ncolumns, self.plate.Ncolumns, dtype=int))
+        axis.set_yticklabels(self.plate.alphabet)
         axis.xaxis.tick_top()
         plt.xticks(fontsize=3)
         plt.yticks(fontsize=3)
@@ -312,10 +312,10 @@ class Statistics:
             # Whole-plate Map for percentage of aggregate-positive cells
             self._load_QoI_plate()
 
-#            # Compute quantities per well
-#            self._export_plate_quantities_per_well()
-#
-#            # Generate density maps
-#            self._density_map(self.plate.wells_total_agg_pos_cells, "PecrentPositiveCells")
-#            self._density_map(self.plate.wells_Ncells, "NumberOfCells")
-#
+            # Compute quantities per well
+            self._export_plate_quantities_per_well()
+
+            # Generate density maps
+            self._density_map(self.plate.wells_total_agg_pos_cells, "PecrentPositiveCells")
+            self._density_map(self.plate.wells_Ncells, "NumberOfCells")
+

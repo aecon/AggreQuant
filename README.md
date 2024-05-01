@@ -153,6 +153,8 @@ pip install -r requirements.txt
 
 The code is developed by Athena Economides. The corresponding publication is in preparation.
 
+If you are interested to use the code please contact `EvaAthena_DOT_Economides_AT_usz.ch`.
+
 Athena Economides, PhD  
 Lab of Prof. Adriano Aguzzi  
 Institute of Neuropathology  

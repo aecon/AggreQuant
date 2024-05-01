@@ -35,6 +35,11 @@ The Dataset class stores information for the entire dataset.
     self.process_only_controls : whether to process only the cdata corresponding to the control columns, not all files in folder
     self.cell_segmentation_algorithm  : "cellpose" (default) or "distanceIntensity"
     #
+    # Plate layout
+    self.number_plate_columns : NUMBER_PLATE_COLUMNS: 24
+    self.number_plate_rows  : NUMBER_PLATE_ROWS: 16
+    self.number_fields_per_well : NUMBER_FIELDS_PER_WELL: 9
+    #
     # Control wells options
     self.number_control_types: number of the different contols used in the plate. E.g. for (NT, Rab13): 2
     self.control_types      : a list names of the control types, E.g. ["NT", "Rab13"]
@@ -82,10 +87,7 @@ class Dataset:
         self.process_only_controls = dictionary["PROCESS_ONLY_CONTROLS"]
 
         # Plate name
-        if self.whole_plate == True:
-            self.plate_name = dictionary["PLATE_NAME"]
-        else:
-            self.plate_name = None
+        self.plate_name = dictionary["PLATE_NAME"]
 
         # set segmentation method for cells
         self.cell_segmentation_algorithm = "cellpose"
@@ -101,9 +103,16 @@ class Dataset:
         else:
             p.msg("Using input directory: %s" % self.input_folder, me)
 
+        # set plate layout
+        self.number_plate_columns   = dictionary["NUMBER_PLATE_COLUMNS"]
+        self.number_plate_rows      = dictionary["NUMBER_PLATE_ROWS"]
+        self.number_fields_per_well = dictionary["NUMBER_FIELDS_PER_WELL"]
+        p.msg("Plate layout: %d columns, %d rows, %d fields per well" % (self.number_plate_columns, self.number_plate_rows, self.number_fields_per_well), me)
+
         # set control well options
         self.number_control_types = int(dictionary["NUMBER_OF_CONTROL_TYPES"])
         self.control_types = dictionary["CONTROL_TYPES"]
+        assert(len(self.control_types) == self.number_control_types)
         p.msg("Number of control types: %d" % self.number_control_types, me)
         p.msg("Control types: " + ', '.join(self.control_types), me)
 
@@ -145,6 +154,18 @@ class Dataset:
                         _paths_aggregates.append(_files_aggregates)
 
                     p.msg("  > Found [%d] files for well: %s-%s" % (len(_files_nuclei), id_row, id_col), me)
+
+            # Flatten lists
+            _paths_nuclei = [x  for items in _paths_nuclei for x in items]
+            _paths_cells = [x  for items in _paths_cells for x in items]
+            _paths_aggregates = [x  for items in _paths_aggregates for x in items]
+
+            # Check that paths list is indeed flattened
+            if (any(isinstance(i, list) for i in _paths_nuclei)==True or 
+                any(isinstance(i, list) for i in _paths_cells)==True or
+                any(isinstance(i, list) for i in _paths_aggregates)==True):
+                p.err("Paths list is not a flat list.", me)
+                sys.exit()
 
             _paths_nuclei       = sorted(_paths_nuclei)
             _paths_cells        = sorted(_paths_cells)

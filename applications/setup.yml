@@ -33,7 +33,7 @@ dataset:
   # Used to set montage settings. Options:
   # 1. "production": Default for whole-plate processing. Generates montage images and statistics for whole plate and control columns.
   # 2. "validation": Statistics are NOT computed in a validation run.
-  TYPE_OF_RUN: "production"
+  TYPE_OF_RUN: "validation"
 
   # Whether to process a whole plate or not. Missing files will introduce an error.
   # Options: True/False.

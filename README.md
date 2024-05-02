@@ -3,8 +3,8 @@
 A codebase for automated analysis of High Content Screens.
 
 
-The input image-data are assumed to be generated from 384-well plates, with 9 fields of view acquired per well, and 3 channels recorded per field, corresponding to nuclei, cells, and aggregates.
-In total, 10'368 images are acquired per plate which are processed by the  **aSynAggreCount** package to quantify aggregate-positive cells.
+The input image-data are assumed to be generated from High Content Screen plates, with multiple fields of view acquired per well, and 3 channels recorded per field, corresponding to nuclei, cells, and aggregates.
+For a 384-well plate with 9 fields per well, 10'368 images are acquired in total per plate which are processed by the **aSynAggreCount** package to quantify aggregate-positive cells.
 For each image, **aSynAggreCount** performs image pre-processing to correct for the presence of uneven illumination and digitization noise, then performs segmentation of the structures of interest (nuclei, cells, aggregates), and finally applies co-localization analysis to characterize the presence of aggregates inside cells.
 An illustration of the image processing pipeline is shown below.
 

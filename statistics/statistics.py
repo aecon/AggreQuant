@@ -173,18 +173,19 @@ class Statistics:
             # all points
             plt.scatter(xloc-0.5*scatter_width + scatter_width*np.random.rand(len(control_fields[i])), control_fields[i], facecolors='none', edgecolors='gray')
             # standard deviation
-            plt.errorbar(xloc, np.nanmean(control_fields[i]), yerr=np.nanstd(control_fields[i]), ecolor='k', elinewidth=2, capthick=2, capsize=4)
+            plt.errorbar(xloc, np.nanmean(control_fields[i]), yerr=np.nanstd(control_fields[i]), ecolor='k', elinewidth=1.7, capthick=1.7, capsize=4)
             # means
-            plt.scatter(xloc, np.nanmean(control_fields[i]), marker='s', facecolors='k', edgecolors='k' )
+            plt.scatter(xloc, np.nanmean(control_fields[i]), marker='s', s=10, facecolors='k', edgecolors='k' )
 
         # axis
         axis = plt.gca()
         axis.set_xticks( np.linspace(1, Nplot_columns, Nplot_columns ) )
         axis.set_xticklabels( self.plate.control_types , fontsize=8)
         axis.set_ylabel("% positive cells", fontsize=14)
-        Ymax = int(np.max(control_fields)+0.5)
+        Ymax = int(np.max(control_fields)+5)
         Ymax = round(Ymax, -1)
         plt.ylim([0,Ymax])
+        plt.xlim([0,max(2, Nplot_columns)])
         axis.set_yticks( np.linspace(0, Ymax, int(Ymax/10)+1 ) )
 
         # SSMD annotations

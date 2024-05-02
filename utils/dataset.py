@@ -18,6 +18,9 @@ The Dataset class stores information for the entire dataset.
     self.paths_nuclei       : sorted paths to all nuclei tif files
     self.paths_cells        : sorted paths to all cell tif files
     self.paths_aggregates   : sorted paths to all aggregate tif files
+    self.paths_controls_nuclei    : sorted paths to all control wells 
+    self.paths_controls_cells     : sorted paths to all control wells 
+    self.paths_controls_aggregates: sorted paths to all control wells 
     self.output_folder_main
     self.output_folder_nuclei
     self.output_folder_cells
@@ -125,51 +128,60 @@ class Dataset:
             p.msg("  > " + self.control_types[i] + ": " + ', '.join(self.control_wells[i]), me)
 
         # set paths to inputs: assumes all tifs located in the same DIRECTORY
+
+        # Paths to all images from control wells
+        _paths_nuclei = []
+        _paths_cells = []
+        _paths_aggregates = []
+
+        for i in range(self.number_control_types):
+            for w in self.control_wells[i]:
+
+                id_col = "%02d" % int(w.split("-")[0])
+                id_row = w.split("-")[1]
+
+                _files_nuclei     = glob.glob("%s/*%s - %s(*%s*.tif" % (dictionary["DIRECTORY"], id_row, id_col, dictionary["COLOUR_NUCLEI"]))
+                _files_cells      = glob.glob("%s/*%s - %s(*%s*.tif" % (dictionary["DIRECTORY"], id_row, id_col, dictionary["COLOUR_CELLS"]))
+                _files_aggregates = glob.glob("%s/*%s - %s(*%s*.tif" % (dictionary["DIRECTORY"], id_row, id_col, dictionary["COLOUR_AGGREGATES"]))
+
+                assert(len(_files_nuclei) == len(_files_cells))
+                assert(len(_files_nuclei) == len(_files_aggregates))
+
+                if len(_files_nuclei) >= 1:
+                    _paths_nuclei.append(_files_nuclei)
+                if len(_files_cells) >= 1:
+                    _paths_cells.append(_files_cells)
+                if len(_files_aggregates) >= 1:
+                    _paths_aggregates.append(_files_aggregates)
+
+                p.msg("  > Found [%d] files for well: %s-%s" % (len(_files_nuclei), id_row, id_col), me)
+
+        # Flatten lists
+        _paths_nuclei = [x  for items in _paths_nuclei for x in items]
+        _paths_cells = [x  for items in _paths_cells for x in items]
+        _paths_aggregates = [x  for items in _paths_aggregates for x in items]
+
+        # Check that paths list is indeed flattened
+        if (any(isinstance(i, list) for i in _paths_nuclei)==True or 
+            any(isinstance(i, list) for i in _paths_cells)==True or
+            any(isinstance(i, list) for i in _paths_aggregates)==True):
+            p.err("Paths list is not a flat list.", me)
+            sys.exit()
+
+        _paths_nuclei       = sorted(_paths_nuclei)
+        _paths_cells        = sorted(_paths_cells)
+        _paths_aggregates   = sorted(_paths_aggregates)
+
+        self.paths_controls_nuclei     = _paths_nuclei
+        self.paths_controls_cells      = _paths_cells
+        self.paths_controls_aggregates = _paths_aggregates
+
+
         if self.process_only_controls == True:
             p.msg("Processing only control columns", me)
-
-            # Paths to all images from control wells
-            _paths_nuclei = []
-            _paths_cells = []
-            _paths_aggregates = []
-
-            for i in range(self.number_control_types):
-                for w in self.control_wells[i]:
-
-                    id_col = "%02d" % int(w.split("-")[0])
-                    id_row = w.split("-")[1]
-
-                    _files_nuclei     = glob.glob("%s/*%s - %s(*%s*.tif" % (dictionary["DIRECTORY"], id_row, id_col, dictionary["COLOUR_NUCLEI"]))
-                    _files_cells      = glob.glob("%s/*%s - %s(*%s*.tif" % (dictionary["DIRECTORY"], id_row, id_col, dictionary["COLOUR_CELLS"]))
-                    _files_aggregates = glob.glob("%s/*%s - %s(*%s*.tif" % (dictionary["DIRECTORY"], id_row, id_col, dictionary["COLOUR_AGGREGATES"]))
-
-                    assert(len(_files_nuclei) == len(_files_cells))
-                    assert(len(_files_nuclei) == len(_files_aggregates))
-
-                    if len(_files_nuclei) >= 1:
-                        _paths_nuclei.append(_files_nuclei)
-                    if len(_files_cells) >= 1:
-                        _paths_cells.append(_files_cells)
-                    if len(_files_aggregates) >= 1:
-                        _paths_aggregates.append(_files_aggregates)
-
-                    p.msg("  > Found [%d] files for well: %s-%s" % (len(_files_nuclei), id_row, id_col), me)
-
-            # Flatten lists
-            _paths_nuclei = [x  for items in _paths_nuclei for x in items]
-            _paths_cells = [x  for items in _paths_cells for x in items]
-            _paths_aggregates = [x  for items in _paths_aggregates for x in items]
-
-            # Check that paths list is indeed flattened
-            if (any(isinstance(i, list) for i in _paths_nuclei)==True or 
-                any(isinstance(i, list) for i in _paths_cells)==True or
-                any(isinstance(i, list) for i in _paths_aggregates)==True):
-                p.err("Paths list is not a flat list.", me)
-                sys.exit()
-
-            _paths_nuclei       = sorted(_paths_nuclei)
-            _paths_cells        = sorted(_paths_cells)
-            _paths_aggregates   = sorted(_paths_aggregates)
+            self.paths_nuclei     = _paths_nuclei
+            self.paths_cells      = _paths_cells
+            self.paths_aggregates = _paths_aggregates
 
         else:
             p.msg("Processing all files inside input folder!", me)
@@ -180,18 +192,19 @@ class Dataset:
             _paths_aggregates = sorted(glob.glob("%s/*%s*.tif" %
                 (dictionary["DIRECTORY"], dictionary["COLOUR_AGGREGATES"])))
 
+            self.paths_nuclei     = _paths_nuclei
+            self.paths_cells      = _paths_cells
+            self.paths_aggregates = _paths_aggregates
+
         if debug == True:
-            p.msg("Nuclei files: %s" % _paths_nuclei, me)
-            p.msg("Cell files: %s" % _paths_cells, me)
-            p.msg("Aggregate files: %s" % _paths_aggregates, me)
+            p.msg("Nuclei files: %s" % self.paths_nuclei, me)
+            p.msg("Cell files: %s" % self.paths_cells, me)
+            p.msg("Aggregate files: %s" % self.paths_aggregates, me)
 
         # set Dataset's input paths
-        self.paths_nuclei     = _paths_nuclei
-        self.paths_cells      = _paths_cells
-        self.paths_aggregates = _paths_aggregates
-        self.Nfiles           = len(_paths_nuclei)
-        assert(len(_paths_nuclei) == len(_paths_cells))
-        assert(len(_paths_nuclei) == len(_paths_aggregates))
+        self.Nfiles           = len(self.paths_nuclei)
+        assert(len(self.paths_nuclei) == len(self.paths_cells))
+        assert(len(self.paths_nuclei) == len(self.paths_aggregates))
         p.msg("Number of image-triplet sets: %d" % self.Nfiles, me)
 
         # set Dataset's input directory

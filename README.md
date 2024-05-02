@@ -119,9 +119,6 @@ cd unitTests
 <!---
 ## TODOs
 * [ ] Image approval.
-* [ ] DL aggregated segmentation.
-* [ ] Expose image processing parameters to the user.
-* [ ] Test nnU-Net for cell and nuclei segmentation. Run on validation cases.
 * [ ] Parallelize computations over image sets (see _prototype/multiprocess examples).
 * [ ] Train a classifier to detect images that the software cannot process and alert the user about how many unprocessable images exist.
 * [ ] Add more unit tests.
@@ -148,12 +145,23 @@ pip install -r requirements.txt
 -->
 
 
+## Usage
+
+**Parameter adjustment**:  
+Before running the analysis on your data you need to first adjust the image segmentation parameters, inside the user configuration file: `applications/setup.yml`.
+
+**Run**:  
+After adjusting the contents of `applications/setup.yml` to your data, run the analysis as follows:
+```
+python main.py
+```
+
 
 ## Authors
 
 The code is developed by Athena Economides. The corresponding publication is in preparation.
 
-If you are interested to use this code for your analysis, please contact: `athena_DOT_economides_AT_uzh_DOT_ch`.
+If you are interested to use this code for your analysis, please contact via [email](EvaAthena.Economides@usz.ch).
 
 Athena Economides, PhD  
 Lab of Prof. Adriano Aguzzi  

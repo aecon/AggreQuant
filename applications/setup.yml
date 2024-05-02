@@ -59,6 +59,17 @@ dataset:
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Image segmentation options
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  # Minimum area for a segmented object to be a nucleus
+  NUCLEI_MIN_AREA: 300
+
+  # Maximum area for a segmented object to be a nucleus
+  NUCLEI_MAX_AREA: 15000
+
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Plate layout
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Number of plate columns

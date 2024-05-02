@@ -38,10 +38,14 @@ The Dataset class stores information for the entire dataset.
     self.process_only_controls : whether to process only the cdata corresponding to the control columns, not all files in folder
     self.cell_segmentation_algorithm  : "cellpose" (default) or "distanceIntensity"
     #
+    # Image segmentation options
+    self.nuclei_min_area    : minimum area for a segmented object to be a nucleus
+    self.nuclei_max_area    : maximum area for a segmented object to be a nucleus
+    #
     # Plate layout
-    self.number_plate_columns : NUMBER_PLATE_COLUMNS: 24
-    self.number_plate_rows  : NUMBER_PLATE_ROWS: 16
-    self.number_fields_per_well : NUMBER_FIELDS_PER_WELL: 9
+    self.number_plate_columns : number of columns in the plate
+    self.number_plate_rows  : number of rows in the plate
+    self.number_fields_per_well : number of fields per well
     #
     # Control wells options
     self.number_control_types: number of the different contols used in the plate. E.g. for (NT, Rab13): 2
@@ -105,6 +109,10 @@ class Dataset:
             sys.exit()
         else:
             p.msg("Using input directory: %s" % self.input_folder, me)
+
+        # image segmentation
+        self.nuclei_min_area = dictionary["NUCLEI_MIN_AREA"]
+        self.nuclei_max_area = dictionary["NUCLEI_MAX_AREA"]
 
         # set plate layout
         self.number_plate_columns   = dictionary["NUMBER_PLATE_COLUMNS"]

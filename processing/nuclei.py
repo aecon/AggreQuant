@@ -9,10 +9,6 @@ import skimage.morphology
 from csbdeep.utils import normalize
 from processing import image_functions as IF
 
-# TODO:
-# Check image condition: Blurry? Very few cells? Empty? Large artefacts?
-# This sounds like a CNN classification ..
-
 verbose = False
 debug = False
 
@@ -21,9 +17,6 @@ debug = False
 # - pre process
 sigma_denoise = 2
 sigma_background = 50
-# - post process
-min_area = 300
-max_area = 15000
 
 
 def _pre_process(img0):
@@ -57,7 +50,7 @@ def _segment_stardist(img, model):
     return labels
 
 
-def _post_process_size_exclusion(labels):
+def _post_process_size_exclusion(labels, min_area, max_area):
     # thresholds on object properties
     remove_small=True
     remove_large=True
@@ -142,7 +135,7 @@ def _save_mask(objects, output_path):
         output_path, mask, plugin='tifffile', check_contrast=False)
 
 
-def segment_method_stardist(model, image_file, output_files, _verbose, _debug):
+def segment_method_stardist(model, image_file, output_files, _verbose, _debug, min_area=300, max_area=15000):
     """
     Segmentation of images with nuclei.
 
@@ -168,7 +161,7 @@ def segment_method_stardist(model, image_file, output_files, _verbose, _debug):
     labels = _segment_stardist(img, model)
 
     # post-processing
-    labels = _post_process_size_exclusion(labels)
+    labels = _post_process_size_exclusion(labels, min_area, max_area)
     objects = _post_process_increase_cell_borders(labels)
 
     # save ALL labels

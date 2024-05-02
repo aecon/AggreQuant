@@ -50,7 +50,7 @@ def _image_triplet(file_n, file_c, file_a, dataset, parallel, _model):
 
     # nuclei segmentation
     segment_method_stardist(
-        model, file_n, output_files_nuclei, verbose, debug)
+        model, file_n, output_files_nuclei, verbose, debug, dataset.nuclei_min_area, dataset.nuclei_max_area)
 
     # cell segmentation
     segment_cells(dataset.cell_segmentation_algorithm, file_c, output_files_cells, output_files_nuclei, verbose, debug)

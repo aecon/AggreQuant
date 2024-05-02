@@ -161,7 +161,7 @@ python main.py
 
 The code is developed by Athena Economides. The corresponding publication is in preparation.
 
-If you are interested to use this code for your analysis, please contact via [email](EvaAthena.Economides@usz.ch).
+If you are interested to use this code for your analysis, please contact via [email](mailto:evaathena.economides@usz.ch).
 
 Athena Economides, PhD  
 Lab of Prof. Adriano Aguzzi  

@@ -32,12 +32,12 @@ def _scale_values_01_float(img):
     return img2, scale
 
 
-def _exclude_cells_without_nucleus(labels, seeds):
+def _exclude_cells_without_nucleus(labels, seeds, min_nucleus_area):
     AllLabels = np.unique(labels[labels>0])
     for l in AllLabels:
         idx = labels==l
         is_seed = np.sum(seeds[idx])
-        if is_seed < 100:    #TODO: Make parameter
+        if is_seed < min_nucleus_area:    #TODO: Make parameter
             labels[idx] = 0
             if verbose:
                 print("No seed for label", l)
@@ -210,7 +210,7 @@ def _exclude_cells_without_nucleus(labels, seeds):
 #    skimage.io.imsave(output_files_cells["labels"], labels2, plugin='tifffile', check_contrast=False)
 
 
-def _segment_distanceIntensity(image_file, output_files_cells, output_files_nuclei):
+def _segment_distanceIntensity(image_file, output_files_cells, output_files_nuclei, min_nucleus_area):
 
     # Segmentation parameters
     THRESHOLD_NORMALIZED = 1.04  # used 1.20 for validation figures
@@ -315,12 +315,12 @@ def _segment_distanceIntensity(image_file, output_files_cells, output_files_nucl
     labels[labels_>0] = labels_[labels_>0]
 
     # Remove cellbodies that do not contain nucleus
-    labels2 = _exclude_cells_without_nucleus(labels, seeds)
+    labels2 = _exclude_cells_without_nucleus(labels, seeds, min_nucleus_area)
     skimage.io.imsave(output_files_cells["labels"], labels2, plugin='tifffile', check_contrast=False)
 
 
 
-def _segment_cellpose(image_file, output_files_cells, output_files_nuclei, model):
+def _segment_cellpose(image_file, output_files_cells, output_files_nuclei, min_nucleus_area, model):
     """
     Use the pre-trained Deep Neural Network cellpose for segmentation of cells. 
 
@@ -367,7 +367,7 @@ def _segment_cellpose(image_file, output_files_cells, output_files_nuclei, model
     masks[idx] = 1
 
     # remove cells that don't contain nucleus
-    labels2 = _exclude_cells_without_nucleus(masks, seeds)
+    labels2 = _exclude_cells_without_nucleus(masks, seeds, min_nucleus_area)
 
     #from cellpose import plot
     #fig = plt.figure(figsize=(12,5))
@@ -379,7 +379,7 @@ def _segment_cellpose(image_file, output_files_cells, output_files_nuclei, model
 
 
 
-def segment_cells(algorithm, image_file, output_files_cells, output_files_nuclei, _verbose, _debug, model=None):
+def segment_cells(algorithm, image_file, output_files_cells, output_files_nuclei, _verbose, _debug, min_nucleus_area, model=None):
 
     verbose = _verbose
     debug = _debug
@@ -391,10 +391,10 @@ def segment_cells(algorithm, image_file, output_files_cells, output_files_nuclei
 #        _segment_intensity_map(image_file, output_files_cells, output_files_nuclei)
 #
     if algorithm == "distanceIntensity":
-        _segment_distanceIntensity(image_file, output_files_cells, output_files_nuclei)
+        _segment_distanceIntensity(image_file, output_files_cells, output_files_nuclei, min_nucleus_area)
 
     elif algorithm == "cellpose":
-         _segment_cellpose(image_file, output_files_cells, output_files_nuclei, model)
+         _segment_cellpose(image_file, output_files_cells, output_files_nuclei, min_nucleus_area, model)
 
     else:
         print("Segmentation algorithm %s not defined." % algorithm)

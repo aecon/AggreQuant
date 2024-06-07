@@ -8,7 +8,7 @@ from utils.dataset import Dataset
 from statistics.diagnostics import *
 from processing.nuclei import segment_method_stardist
 from processing.cells import segment_cells
-from processing.aggregates import segment_aggregates
+from processing.aggregates import segment_aggregates_UNet
 from processing.quantification import compute_QoI
 
 
@@ -16,7 +16,7 @@ verbose = False
 debug = False
 
 
-def _image_triplet(file_n, file_c, file_a, dataset, stardist_model, cellpose_model):
+def _image_triplet(file_n, file_c, file_a, dataset, stardist_model, cellpose_model, aggregate_model):
 
     me = "_image_triplet"
 
@@ -40,7 +40,7 @@ def _image_triplet(file_n, file_c, file_a, dataset, stardist_model, cellpose_mod
     segment_cells(dataset.cell_segmentation_algorithm, file_c, output_files_cells, output_files_nuclei, verbose, debug, cellpose_model)
 
     # aggregate segmentation
-    segment_aggregates(file_a, output_files_aggregates, verbose, debug)
+    segment_aggregates_UNet(file_a, output_files_aggregates, verbose, debug, aggregate_model)
 
     # Compute Quantities of Interest
     compute_QoI(output_files_aggregates, output_files_cells, output_files_QoI,
@@ -66,8 +66,12 @@ def process(dataset, _verbose, _debug):
     from cellpose.models import Cellpose
     cellpose_model = Cellpose(gpu=True, model_type='cyto2')
 
+    # load aggregate model
+    from processing.aggregates import AggregateUnet
+    aggregate_model = AggregateUnet()  # TODO: edit arguments
+
     # loop over image triplets
     for file_n, file_c, file_a in zip(
         dataset.paths_nuclei, dataset.paths_cells, dataset.paths_aggregates):
-        _image_triplet(file_n, file_c, file_a, dataset, stardist_model, cellpose_model)
+        _image_triplet(file_n, file_c, file_a, dataset, stardist_model, cellpose_model, aggregate_model)
 

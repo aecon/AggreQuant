@@ -87,7 +87,7 @@ def segment_aggregates(image_file, output_files_aggregates, verbose, debug):
 
 def AggregateUnet():
     # Instantiates pre-trained UNet for aggregate image segmentation
-    weights_file = "processing/checkpoint_0pad.keras"  #TODO
+    weights_file = "processing/weights_best.keras"  #TODO
     if not os.path.exists(weights_file):
         print("Weights file for aggregate Unet does not exist. Exiting..")
         sys.exit()
@@ -103,10 +103,9 @@ def segment_aggregates_UNet(image_file, output_files_aggregates, verbose, debug,
     # parameters
     img_height = 128    # corresponds to nn_input_dim
     img_width  = 128
-    batch_size = 16
     ds         = 32
     patch_length = 128  # split image into tiles
-    batch_size = 16     # batch size for predictions
+    batch_size = 64     # batch size for predictions
     probability_threshold = 0.7 # threshold above which to accept pixels as aggregates
 
     # load image

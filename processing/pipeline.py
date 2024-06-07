@@ -8,7 +8,7 @@ from utils.dataset import Dataset
 from statistics.diagnostics import *
 from processing.nuclei import segment_method_stardist
 from processing.cells import segment_cells
-from processing.aggregates import segment_aggregates_UNet
+from processing.aggregates import segment_aggregates_UNet, segment_aggregates_filters
 from processing.quantification import compute_QoI
 
 
@@ -40,6 +40,7 @@ def _image_triplet(file_n, file_c, file_a, dataset, stardist_model, cellpose_mod
     segment_cells(dataset.cell_segmentation_algorithm, file_c, output_files_cells, output_files_nuclei, verbose, debug, cellpose_model)
 
     # aggregate segmentation
+    #segment_aggregates_filters(file_a, output_files_aggregates, verbose, debug)
     segment_aggregates_UNet(file_a, output_files_aggregates, verbose, debug, aggregate_model)
 
     # Compute Quantities of Interest

@@ -21,7 +21,7 @@ min_aggreagte_area=9        # ignore segmented objects smaller than this thresho
 
 
 
-def segment_aggregates(image_file, output_files_aggregates, verbose, debug):
+def segment_aggregates_filters(image_file, output_files_aggregates, verbose, debug):
 
     # load image
     img = skimage.io.imread(image_file, plugin='tifffile')

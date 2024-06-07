@@ -37,7 +37,7 @@ def _exclude_cells_without_nucleus(labels, seeds):
     for l in AllLabels:
         idx = labels==l
         is_seed = np.sum(seeds[idx])
-        if is_seed < 100:
+        if is_seed < 100:    #TODO: Make parameter
             labels[idx] = 0
             if verbose:
                 print("No seed for label", l)
@@ -320,7 +320,7 @@ def _segment_distanceIntensity(image_file, output_files_cells, output_files_nucl
 
 
 
-def _segment_cellpose(image_file, output_files_cells, output_files_nuclei):
+def _segment_cellpose(image_file, output_files_cells, output_files_nuclei, model):
     """
     Use the pre-trained Deep Neural Network cellpose for segmentation of cells. 
 
@@ -337,7 +337,6 @@ def _segment_cellpose(image_file, output_files_cells, output_files_nuclei):
     """
 
     # cellpose parameters
-    model = models.Cellpose(gpu=True, model_type='cyto2')
     channels = [1,2]
 
     # load cell image
@@ -380,7 +379,7 @@ def _segment_cellpose(image_file, output_files_cells, output_files_nuclei):
 
 
 
-def segment_cells(algorithm, image_file, output_files_cells, output_files_nuclei, _verbose, _debug):
+def segment_cells(algorithm, image_file, output_files_cells, output_files_nuclei, _verbose, _debug, model=None):
 
     verbose = _verbose
     debug = _debug
@@ -395,7 +394,7 @@ def segment_cells(algorithm, image_file, output_files_cells, output_files_nuclei
         _segment_distanceIntensity(image_file, output_files_cells, output_files_nuclei)
 
     elif algorithm == "cellpose":
-         _segment_cellpose(image_file, output_files_cells, output_files_nuclei)
+         _segment_cellpose(image_file, output_files_cells, output_files_nuclei, model)
 
     else:
         print("Segmentation algorithm %s not defined." % algorithm)

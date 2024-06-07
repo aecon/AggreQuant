@@ -37,7 +37,7 @@ def _exclude_cells_without_nucleus(labels, seeds, min_nucleus_area):
     for l in AllLabels:
         idx = labels==l
         is_seed = np.sum(seeds[idx])
-        if is_seed < min_nucleus_area:    #TODO: Make parameter
+        if is_seed < 0.8 * min_nucleus_area:    #TODO: Make parameter
             labels[idx] = 0
             if verbose:
                 print("No seed for label", l)

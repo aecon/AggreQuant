@@ -61,12 +61,12 @@ def montage_overlay_control_columns(images_raw, images_seg, output_filename, ver
 
     # montage layout
     Ncolumns = 8
-    Nrows = np.ceil(Nfiles / Ncolumns)
+    Nrows = int(np.ceil(Nfiles / Ncolumns))
     panel_size = [Nrows, Ncolumns]
 
     # number of pixels to show per image
     tmp = skimage.io.imread(images_raw[0], plugin='tifffile')
-    Npixels = tmp.shape[0] // 2
+    Npixels = int(tmp.shape[0] // 2)
     Nspace = 10
 
     print("  Nraw", len(images_raw))
@@ -112,8 +112,9 @@ def montage_overlay_control_columns(images_raw, images_seg, output_filename, ver
             j0 = j*(Npixels+Nspace)
             j1 = j0 + Npixels
             k = i*(panel_size[1]) + j
-            montage[0, i0:i1, j0:j1] = image_deck_raw[k][:,:]
-            montage[1, i0:i1, j0:j1] = image_deck_seg[k][:,:]
+            if k < Nfiles:
+                montage[0, i0:i1, j0:j1] = image_deck_raw[k][:,:]
+                montage[1, i0:i1, j0:j1] = image_deck_seg[k][:,:]
 
     if verbose:
         print("  Montage tif shape:", np.shape(montage))

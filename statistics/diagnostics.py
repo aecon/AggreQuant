@@ -58,10 +58,15 @@ def montage_simple(image_list, output_filename, debug=False, verbose=False):
 def montage_overlay_control_columns(images_raw, images_seg, output_filename, verbose=False):
 
     Nfiles = len(images_raw)
-    assert(Nfiles == 32)
 
-    panel_size = [4, 8]   # row1:NT-1, row2:NT-2, row3:Rab13-1, row4:Rab13-2
-    Npixels = 1200
+    # montage layout
+    Ncolumns = 8
+    Nrows = np.ceil(Nfiles / Ncolumns)
+    panel_size = [Nrows, Ncolumns]
+
+    # number of pixels to show per image
+    tmp = skimage.io.imread(images_raw[0], plugin='tifffile')
+    Npixels = tmp.shape[0] // 2
     Nspace = 10
 
     print("  Nraw", len(images_raw))
@@ -95,10 +100,6 @@ def montage_overlay_control_columns(images_raw, images_seg, output_filename, ver
         img_raw = np.zeros((Npixels,Npixels))
         img_raw[:,:] = img0_raw[P0:P0+Npixels, P0:P0+Npixels]
 
-#        IMIN = np.min(img_raw)
-#        IMAX = np.max(img_raw)
-#        img_raw = (img_raw-IMIN) / (IMAX-IMIN)
-
         image_deck_seg.append(img_seg)
         image_deck_raw.append(img_raw)
 
@@ -111,9 +112,6 @@ def montage_overlay_control_columns(images_raw, images_seg, output_filename, ver
             j0 = j*(Npixels+Nspace)
             j1 = j0 + Npixels
             k = i*(panel_size[1]) + j
-            #tile = image_deck_raw[k][:,:]
-            #tile_s = image_deck_seg[k][:,:]
-            #tile[tile_s==1] = 65000
             montage[0, i0:i1, j0:j1] = image_deck_raw[k][:,:]
             montage[1, i0:i1, j0:j1] = image_deck_seg[k][:,:]
 

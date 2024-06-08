@@ -14,6 +14,7 @@ The Dataset class stores information for the entire dataset.
 * member varibles:
     #
     # Path options
+    self.input_folder       : directory containing all .tif files
     self.plate_name         : user-defined name for the plate
     self.paths_nuclei       : sorted paths to all nuclei tif files
     self.paths_cells        : sorted paths to all cell tif files
@@ -21,6 +22,9 @@ The Dataset class stores information for the entire dataset.
     self.paths_controls_nuclei    : sorted paths to all control wells 
     self.paths_controls_cells     : sorted paths to all control wells 
     self.paths_controls_aggregates: sorted paths to all control wells 
+    self.colour_nuclei
+    self.colour_cells
+    self.colour_aggregates
     self.output_folder_main
     self.output_folder_nuclei
     self.output_folder_cells
@@ -109,6 +113,11 @@ class Dataset:
             sys.exit()
         else:
             p.msg("Using input directory: %s" % self.input_folder, me)
+
+        # set structure colours (file identifiers)
+        self.colour_nuclei = dictionary["COLOUR_NUCLEI"]
+        self.colour_cells = dictionary["COLOUR_CELLS"]
+        self.colour_aggregates = dictionary["COLOUR_AGGREGATES"]
 
         # image segmentation
         self.nuclei_min_area = dictionary["NUCLEI_MIN_AREA"]

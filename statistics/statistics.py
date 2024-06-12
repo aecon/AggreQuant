@@ -180,12 +180,12 @@ class Statistics:
         # axis
         axis = plt.gca()
         axis.set_xticks( np.linspace(1, Nplot_columns, Nplot_columns ) )
-        axis.set_xticklabels( self.plate.control_types , fontsize=8)
+        axis.set_xticklabels( self.plate.control_types , fontsize=6)
         axis.set_ylabel("% positive cells", fontsize=14)
         Ymax = int(np.max(control_fields)+5)
         Ymax = round(Ymax, -1)
         plt.ylim([0,Ymax])
-        plt.xlim([0,max(2, Nplot_columns)])
+        plt.xlim([0.5,Nplot_columns+0.5])
         axis.set_yticks( np.linspace(0, Ymax, int(Ymax/10)+1 ) )
 
         # SSMD annotations

@@ -36,12 +36,14 @@ dataset:
   # Data processing options
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  # Generate (or not) a .tif file coloured with the number of detected aggregates per cell, for each aggregate image. Recommended to set to False. This option is useful to check code correctness.
+  # Generate (or not) a .tif file coloured with the number of detected aggregates per cell, for each aggregate image. 
+  # Recommended to set to False. This option is useful to check code correctness.
   # Options: True/False
   DUMP_QOI_TIFS: False
 
   # Used to set montage settings. Options:
-  # 1. "production": Default for whole-plate processing. Generates montage images and statistics for whole plate and control columns.
+  # 1. "production": Default for whole-plate processing.
+  # Generates montage images and statistics for whole plate and control columns.
   # 2. "validation": Statistics are NOT computed in a validation run.
   TYPE_OF_RUN: "validation"
 

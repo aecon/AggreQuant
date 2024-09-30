@@ -1,11 +1,11 @@
-# aSynAggreCount
+# AggreQuant
 
 A codebase for automated analysis of High Content Screens.
 
 
 The input image-data are assumed to be generated from High Content Screen plates, with multiple fields of view acquired per well, and 3 channels recorded per field, corresponding to nuclei, cells, and aggregates.
-For a 384-well plate with 9 fields per well, 10'368 images are acquired in total per plate which are processed by the **aSynAggreCount** package to quantify aggregate-positive cells.
-For each image, **aSynAggreCount** performs image pre-processing to correct for the presence of uneven illumination and digitization noise, then performs segmentation of the structures of interest (nuclei, cells, aggregates), and finally applies co-localization analysis to characterize the presence of aggregates inside cells.
+For a 384-well plate with 9 fields per well, 10'368 images are acquired in total per plate which are processed by the **AggreQuant** package to quantify aggregate-positive cells.
+For each image, **AggreQuant** performs image pre-processing to correct for the presence of uneven illumination and digitization noise, then performs segmentation of the structures of interest (nuclei, cells, aggregates), and finally applies co-localization analysis to characterize the presence of aggregates inside cells.
 An illustration of the image processing pipeline is shown below.
 
 <IMG SRC="graphics/pipeline.jpg" style="float: left; margin-right: 10px;" />
@@ -16,7 +16,7 @@ An illustration of the segmentation quality is shown in the figure below where w
 
 <IMG SRC="graphics/segmentation.jpg" style="float: left; margin-right: 10px;" />
 
-**aSynAggreCount** utilizes the segmented data to perform co-localization analysis and characterize aggregate inclusions in cells by computing various quantities of interest (QoI), such as the percentage of aggregate-positive cells and the number of detected aggregates per cell. The figure below shows a visualization of these QoI.
+**AggreQuant** utilizes the segmented data to perform co-localization analysis and characterize aggregate inclusions in cells by computing various quantities of interest (QoI), such as the percentage of aggregate-positive cells and the number of detected aggregates per cell. The figure below shows a visualization of these QoI.
 
 <IMG SRC="graphics/raw_and_segmentation.jpg" style="float: left; margin-right: 10px;" />
 
@@ -28,8 +28,8 @@ An illustration of the segmentation quality is shown in the figure below where w
 ### Conda environment
 Create and activate a new conda environment
 ```
-conda create --name aSynAggreCount python=3.9.18
-conda activate aSynAggreCount
+conda create --name AggreQuant python=3.9.18
+conda activate AggreQuant
 ```
 
 ### Tensorflow
@@ -159,14 +159,14 @@ python main.py
 
 ## Authors
 
-The code is developed by Athena Economides. The corresponding publication is in preparation.
+The code is being developed by Athena Economides. The corresponding publication is in preparation.
 
-If you are interested to use this code for your analysis, please contact via [email](mailto:evaathena.economides@usz.ch).
+If you are interested to use this code for your analysis, please contact via [email](mailto:athena.economides@uzh.ch).
 
-Athena Economides, PhD  
-Lab of Prof. Adriano Aguzzi  
+**Dr. Athena Economides**  
+Prof. Adriano Aguzzi Lab  
 Institute of Neuropathology  
-University of Zurich  
+University of Zurich & University Hospital Zurich  
 Schmelzbergstrasse 12  
 CH-8091 Zurich  
 Switzerland

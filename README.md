@@ -2,6 +2,7 @@
 
 A codebase for automated analysis of High Content Screens.
 
+New version coming soon: [https://github.com/aecon/AggreQuant_v2.0](https://github.com/aecon/AggreQuant_v2.0) (work in progress)
 
 The input image-data are assumed to be generated from High Content Screen plates, with multiple fields of view acquired per well, and 3 channels recorded per field, corresponding to nuclei, cells, and aggregates.
 For a 384-well plate with 9 fields per well, 10'368 images are acquired in total per plate which are processed by the **AggreQuant** package to quantify aggregate-positive cells.
